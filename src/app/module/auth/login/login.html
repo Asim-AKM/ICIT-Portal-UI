@@ -1,0 +1,97 @@
+<div class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900">
+    <div class="max-w-5xl w-full">
+        <div class="backdrop-blur-lg bg-white/10 rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+            <div class="flex flex-col md:flex-row">
+                <!-- Left Side - Branding -->
+                <div class="md:w-1/2 p-10 flex flex-col justify-between text-white relative overflow-hidden">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-8">
+                            <img src="/assets/images/logo.jpg" class="h-12 w-auto rounded-xl bg-white p-1 shadow-lg" alt="Logo">
+                            <div class="h-8 w-px bg-white/30"></div>
+                            <span class="text-xs font-black tracking-widest">ICIT</span>
+                        </div>
+                        <h2 class="text-4xl font-black leading-tight mb-4">
+                            Welcome Back
+                        </h2>
+                        <p class="text-white/80 text-sm leading-relaxed">
+                            Access your academic journey, track progress, and manage your FYP submissions all in one place.
+                        </p>
+                    </div>
+                    
+                    <div class="relative z-10 mt-12 pt-8">
+                        <div class="flex gap-4 text-sm">
+                            <div>
+                                <div class="text-2xl font-black">500+</div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-white/60">Active Students</div>
+                            </div>
+                            <div class="w-px bg-white/30"></div>
+                            <div>
+                                <div class="text-2xl font-black">50+</div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-white/60">Faculty Members</div>
+                            </div>
+                            <div class="w-px bg-white/30"></div>
+                            <div>
+                                <div class="text-2xl font-black">100%</div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-white/60">Secure Portal</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Decorative circles -->
+                    <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-white/10 rounded-full"></div>
+                    <div class="absolute top-20 -left-20 w-40 h-40 bg-emerald-400/20 rounded-full"></div>
+                </div>
+
+                <!-- Right Side - Login Form -->
+                <div class="md:w-1/2 p-8 md:p-12 bg-white">
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-black text-slate-800">Sign In</h3>
+                        <p class="text-slate-500 text-sm mt-1">Enter your credentials to continue</p>
+                    </div>
+
+                    <form class="space-y-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-2">Registration Number / Email</label>
+                            <div class="relative group">
+                                <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition"></i>
+                                <input type="text" 
+                                       placeholder="2024-GU-1234 or email@domain.com" 
+                                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-11 py-3.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-2">Password</label>
+                            <div class="relative group">
+                                <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition"></i>
+                                <input type="password" 
+                                       placeholder="Enter your password" 
+                                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-11 py-3.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2">
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                <span class="text-xs font-medium text-slate-600 group-hover:text-slate-800">Remember me</span>
+                            </label>
+                            <a routerLink="/forget-pass" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 transition">Forgot Password?</a>
+                        </div>
+
+                        <button type="submit" 
+                                class="w-full bg-gradient-to-r from-emerald-700 to-emerald-800 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 uppercase text-xs tracking-wider">
+                            Login to Portal
+                        </button>
+                    </form>
+
+                    <div class="mt-8 pt-6 border-t border-slate-100">
+                        <p class="text-center text-xs text-slate-500">
+                            Need help? Contact 
+                            <a href="#" class="text-emerald-700 font-bold hover:underline">ICIT Support Desk</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,91 @@
+/* --- 1. Global & Reset Styles --- */
+body { 
+    font-family: 'Public Sans', sans-serif; 
+    overflow-x: hidden; 
+}
+
+/* Shared Departmental Gradient */
+.uaf-gradient { 
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); 
+}
+
+/* Navigation - Active Link Highlight */
+.active-link {
+    background-color: rgba(6, 78, 59, 0.5); /* emerald-900/50 */
+    border-bottom: 3px solid #fbbf24; /* yellow-400 accent line */
+    color: white !important;
+    font-weight: 800;
+}
+
+/* --- 2. Mobile Menu Logic --- */
+#mobile-menu {
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 0;
+    overflow: hidden;
+}
+
+#mobile-menu.active { 
+    max-height: 450px; 
+}
+
+/* --- 3. Component Specific Styles --- */
+
+/* Index: News Ticker */
+.news-ticker-container {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.news-ticker {
+    display: inline-block;
+    padding-left: 100%;
+    animation: ticker-scrolling 25s linear infinite;
+}
+
+.news-ticker:hover {
+    animation-play-state: paused;
+}
+
+@keyframes ticker-scrolling {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+
+/* Index: Service Cards */
+.service-card:hover i { 
+    transform: scale(1.1) rotate(-5deg); 
+}
+
+/* Explore: Image Zoom */
+.card-zoom:hover img { 
+    transform: scale(1.1); 
+    transition: transform 0.3s ease;
+}
+
+/* Events: Interactive List */
+.event-card { 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+.event-card:hover { 
+    transform: scale(1.01); 
+    border-left: 8px solid #fbbf24; 
+}
+
+/* Downloads: Subtle Lift */
+.download-card {
+    transition: all 0.3s ease;
+}
+
+.download-card:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08); 
+}
+
+/* About: Glassmorphism */
+.glass-effect { 
+    background: rgba(255, 255, 255, 0.8); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.3); 
+}

@@ -1,0 +1,118 @@
+<div class="bg-white border-b border-slate-200 overflow-hidden h-9 flex items-center relative">
+    <div
+        class="bg-emerald-600 text-white h-full px-3 md:px-4 flex items-center text-[8px] md:text-[9px] font-black uppercase tracking-widest z-20 shadow-[5px_0_15px_rgba(0,0,0,0.1)]">
+        LATEST NEWS
+    </div>
+    <div class="flex-1 overflow-hidden relative h-full flex items-center bg-white">
+        <div class="news-ticker whitespace-nowrap flex items-center">
+            <span class="inline-block text-[10px] md:text-[11px] font-bold text-slate-600 px-4">
+                *** Admissions Open for Fall 2026 Semester - Last Date to Apply: July 15th ***
+            </span>
+            <span class="inline-block text-[10px] md:text-[11px] font-bold text-slate-600 px-4">
+                *** Supplementary Examination Schedule Released ***
+            </span>
+        </div>
+    </div>
+</div>
+
+<section id="hero-slider" class="relative h-[450px] md:h-[600px] flex items-center overflow-hidden">
+
+    <div class="absolute inset-0 z-0">
+        <div *ngFor="let slide of slides; let i = index" 
+             class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+             [style.opacity]="currentSlide === i ? '1' : '0'">
+            <img [src]="slide" alt="University Campus" class="w-full h-full object-cover">
+        </div>
+        
+        <div class="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-900/60 to-transparent z-10"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 w-full relative z-20">
+        <div class="max-w-2xl">
+            <!-- Smaller heading -->
+            <h1 class="text-3xl md:text-7xl font-extrabold text-white leading-tight mb-3">
+                Shaping the <br>
+                <span class="text-emerald-400 italic font-serif">Digital Future</span> <br>
+                of Pakistan.
+            </h1>
+            
+            <!-- Smaller buttons -->
+            <div class="flex flex-wrap gap-3">
+                <button class="bg-white text-emerald-900 px-5 py-2.5 cursor-pointer rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-emerald-50 transition shadow-xl">
+                    Apply Online
+                </button>
+                <button class="bg-emerald-800/40 backdrop-blur-md cursor-pointer border border-emerald-400/30 text-white px-5 py-2.5 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-emerald-800/60 transition">
+                    Explore Departments
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Both Navigation Buttons on Right Side -->
+    <div class="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3">
+        <button (click)="previousSlide()" 
+                class="bg-black/50 hover:bg-black/70 text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110">
+            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </button>
+        <button (click)="nextSlide()" 
+                class="bg-black/50 hover:bg-black/70 text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110">
+            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Dots/Indicators -->
+    <div class="absolute bottom-4 left-0 right-0 z-30 flex justify-center gap-2">
+        <button *ngFor="let slide of slides; let i = index" 
+                (click)="goToSlide(i)"
+                class="transition-all duration-300 rounded-full"
+                [class]="currentSlide === i ? 'w-6 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'">
+        </button>
+    </div>
+
+    <!-- Smaller SVG wave -->
+    <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] rotate-180 z-20">
+        <svg class="relative block w-[calc(100%+1.3px)] h-[30px] md:h-[40px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#ffffff"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- Added gap with margin-top and padding adjustments -->
+<section class="max-w-7xl mx-auto px-6 pt-12 pb-10 relative z-30">
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div
+            class="service-card bg-gray-50 p-5 border border-gray-300 rounded-lg text-center shadow-sm hover:shadow-md transition hover:bg-gray-100">
+            <i class="fas fa-file-invoice text-2xl text-emerald-700 mb-3"></i>
+            <p class="text-[9px] font-black text-slate-800 uppercase tracking-widest">Fee Voucher</p>
+        </div>
+        <div
+            class="service-card bg-gray-50 p-5 border border-gray-300 rounded-lg text-center shadow-sm hover:shadow-md transition hover:bg-gray-100">
+            <i class="fas fa-calendar-check text-2xl text-emerald-700 mb-3"></i>
+            <p class="text-[9px] font-black text-slate-800 uppercase tracking-widest">Attendance</p>
+        </div>
+        <div
+            class="service-card bg-gray-50 p-5 border border-gray-300 rounded-lg text-center shadow-sm hover:shadow-md transition hover:bg-gray-100">
+            <i class="fas fa-book-reader text-2xl text-emerald-700 mb-3"></i>
+            <p class="text-[9px] font-black text-slate-800 uppercase tracking-widest">Syllabus</p>
+        </div>
+        <div
+            class="service-card bg-gray-50 p-5 border border-gray-300 rounded-lg text-center shadow-sm hover:shadow-md transition hover:bg-gray-100">
+            <i class="fas fa-user-graduate text-2xl text-emerald-700 mb-3"></i>
+            <p class="text-[9px] font-black text-slate-800 uppercase tracking-widest">Results</p>
+        </div>
+        <div
+            class="service-card bg-gray-50 p-5 border border-gray-300 rounded-lg text-center shadow-sm hover:shadow-md transition hover:bg-gray-100">
+            <i class="fas fa-bullhorn text-2xl text-emerald-700 mb-3"></i>
+            <p class="text-[9px] font-black text-slate-800 uppercase tracking-widest">Notices</p>
+        </div>
+        <div
+            class="service-card bg-gray-50 p-5 border border-gray-300 rounded-lg text-center shadow-sm hover:shadow-md transition hover:bg-gray-100">
+            <i class="fas fa-tasks text-2xl text-emerald-700 mb-3"></i>
+            <p class="text-[9px] font-black text-slate-800 uppercase tracking-widest">Projects</p>
+        </div>
+    </div>
+</section>

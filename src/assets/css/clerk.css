@@ -1,0 +1,55 @@
+/* 1. Form Field Optimization */
+.clerk-input {
+    width: 100%;
+    background-color: #f8fafc; /* slate-50 */
+    border: 1px solid #e2e8f0; /* slate-200 */
+    padding: 10px 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.clerk-input:focus {
+    background-color: #ffffff;
+    border-color: #065f46; /* emerald-800 */
+    box-shadow: 0 0 0 3px rgba(6, 95, 70, 0.1);
+    outline: none;
+}
+
+/* 2. Bulk Entry Dropzone Styling */
+.dropzone-area {
+    border: 2px dashed #cbd5e1; /* slate-300 */
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.dropzone-area.drag-over {
+    border-color: #059669; /* emerald-600 */
+    background-color: #ecfdf5; /* emerald-50 */
+}
+
+/* 3. Table Column Adjustments for Records */
+.records-table th {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: #64748b; /* slate-500 */
+    background-color: #f1f5f9; /* slate-100 */
+}
+
+/* 4. Action Buttons for Record Management */
+.btn-clerk-primary {
+    background-color: #064e3b; /* emerald-900 */
+    color: white;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: opacity 0.2s;
+}
+
+.btn-clerk-primary:hover {
+    opacity: 0.9;
+}
+
+/* 5. Plus Jakarta Sans for Clerk Module */
+.clerk-font {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}

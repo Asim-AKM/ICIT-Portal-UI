@@ -1,0 +1,58 @@
+/* 1. Faculty Dashboard Hover Effects */
+.dropdown:hover .dropdown-menu { 
+    display: block; 
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 2. Status Badges for Proposals/Subjects */
+.badge-approved {
+    background-color: #d1fae5; /* emerald-100 */
+    color: #065f46; /* emerald-800 */
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge-pending {
+    background-color: #fef3c7; /* amber-100 */
+    color: #92400e; /* amber-800 */
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* 3. Table Row Hover for Management Pages */
+.faculty-table tr:hover {
+    background-color: #f8fafc; /* slate-50 */
+    transition: background-color 0.2s ease;
+}
+
+/* 4. Mobile Menu Transition */
+#mobile-menu { 
+    transition: all 0.3s ease-in-out; 
+}
+
+.rotate-180 { 
+    transform: rotate(180deg); 
+    transition: transform 0.3s ease;
+}
+
+/* 5. Custom Card Styling for Faculty Stats */
+.faculty-stat-card {
+    border-left: 4px solid #064e3b; /* emerald-900 */
+    background: white;
+    transition: transform 0.2s;
+}
+
+.faculty-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}

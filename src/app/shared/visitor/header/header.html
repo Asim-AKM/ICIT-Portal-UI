@@ -1,0 +1,115 @@
+<header class="bg-white py-4 px-6 border-b border-slate-100">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="flex items-center gap-4 text-center md:text-left">
+      <img src="assets/images/logo.jpg" class="h-16 w-auto" alt="Logo">
+      <div>
+        <h1 class="text-xl md:text-2xl font-black text-emerald-900 leading-none">ICIT MASTER PORTAL</h1>
+        <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-1">Gomal University,
+          Dera Ismail Khan</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <input type="text" placeholder="Search Portal..."
+        class="bg-slate-50 border border-slate-200 rounded-l-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48 md:w-64">
+      <button class="bg-emerald-700 text-white px-5 py-2 rounded-r-lg hover:bg-emerald-800 transition"><i
+          class="fas fa-search"></i></button>
+    </div>
+  </div>
+</header>
+
+<nav class="uaf-gradient sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto px-6 flex justify-between items-center h-14">
+    <button (click)="isMenuOpen = !isMenuOpen" class="lg:hidden text-white text-2xl focus:outline-none">
+      <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+    </button>
+
+    <!-- Desktop Menu with manual active class -->
+    <ul class="hidden lg:flex gap-1 items-center h-full text-[13px] font-bold text-white/90">
+      <li class="h-full">
+        <a routerLink="/" 
+           [class.active-link]="isActive('/')"
+           class="px-5 flex items-center h-full transition">
+          HOME
+        </a>
+      </li>
+      <li class="h-full">
+        <a routerLink="/explore" 
+           [class.active-link]="isActive('/explore')"
+           class="px-5 flex items-center h-full transition">
+          EXPLORE
+        </a>
+      </li>
+      <li class="h-full">
+        <a routerLink="/events" 
+           [class.active-link]="isActive('/events')"
+           class="px-5 flex items-center h-full transition">
+          EVENTS
+        </a>
+      </li>
+      <li class="h-full">
+        <a routerLink="/about" 
+           [class.active-link]="isActive('/about')"
+           class="px-5 flex items-center h-full transition">
+          ABOUT
+        </a>
+      </li>
+      <li class="h-full">
+        <a routerLink="/download" 
+           [class.active-link]="isActive('/download')"
+           class="px-5 flex items-center h-full transition">
+          DOWNLOADS
+        </a>
+      </li>
+    </ul>
+
+    <a routerLink="/login"
+      class="bg-yellow-500 text-emerald-950 px-6 py-2 rounded font-black text-[11px] uppercase tracking-widest hover:bg-yellow-400 transition shadow-lg">Login
+      Portal</a>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" [class.active]="isMenuOpen" class="lg:hidden bg-emerald-900">
+    <ul class="flex flex-col text-white font-bold text-sm">
+      <li>
+        <a routerLink="/" 
+           [class.active-mobile]="isActive('/')"
+           (click)="isMenuOpen = false"
+           class="px-5 py-3 block hover:bg-white/10">
+          HOME
+        </a>
+      </li>
+      <li>
+        <a routerLink="/explore" 
+           [class.active-mobile]="isActive('/explore')"
+           (click)="isMenuOpen = false"
+           class="px-5 py-3 block hover:bg-white/10">
+          EXPLORE
+        </a>
+      </li>
+      <li>
+        <a routerLink="/events" 
+           [class.active-mobile]="isActive('/events')"
+           (click)="isMenuOpen = false"
+           class="px-5 py-3 block hover:bg-white/10">
+          EVENTS
+        </a>
+      </li>
+      <li>
+        <a routerLink="/about" 
+           [class.active-mobile]="isActive('/about')"
+           (click)="isMenuOpen = false"
+           class="px-5 py-3 block hover:bg-white/10">
+          ABOUT
+        </a>
+      </li>
+      <li>
+        <a routerLink="/download" 
+           [class.active-mobile]="isActive('/download')"
+           (click)="isMenuOpen = false"
+           class="px-5 py-3 block hover:bg-white/10">
+          DOWNLOADS
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

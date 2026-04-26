@@ -1,0 +1,52 @@
+/* 1. Dashboard Glassmorphism */
+.glass-card { 
+    background: rgba(255, 255, 255, 0.9); 
+    backdrop-filter: blur(10px); 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 2. FYP Submission Stepper Styles */
+.step-active { 
+    color: #4f46e5; /* indigo-600 */
+    border-color: #4f46e5; 
+    font-weight: 800;
+}
+
+.step-completed {
+    color: #10b981; /* emerald-500 */
+    border-color: #10b981;
+}
+
+.step-inactive { 
+    color: #94a3b8; /* slate-400 */
+    border-color: transparent; 
+}
+
+/* Custom focus ring for form inputs */
+.student-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+/* 3. Transcript & Print Media Styles */
+  @media print {
+            nav, button, .sticky { display: none !important; }
+            body { background: white; padding: 0; }
+            .shadow-xl, .shadow-sm { border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
+            .bg-slate-900 { background: #0f172a !important; color: white !important; -webkit-print-color-adjust: exact; }
+            .lg\:col-span-1 { width: 100%; position: static !important; }
+            .lg\:col-span-3 { width: 100%; }
+ }
+
+/* 4. Profile Image Preview Overlay */
+.profile-img-container:hover .upload-overlay {
+    opacity: 1;
+}
+
+.upload-overlay {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: rgba(0, 0, 0, 0.4);
+}

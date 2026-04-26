@@ -1,3 +1,82 @@
-/* You can add global styles to this file, and also import other style files */
+/* 1. Tailwind CSS v4 Imports */
+@import "tailwindcss";
 
-@import 'tailwindcss';
+/* 2. Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap');
+
+/* 3. Custom Styles */
+body { 
+  font-family: 'Public Sans', sans-serif; 
+  overflow-x: hidden; 
+}
+
+.uaf-gradient { 
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); 
+}
+
+/* Active link with underline */
+.active-link { 
+  background-color: rgba(6, 78, 59, 0.3);
+  color: #fbbf24 !important;
+  font-weight: 800;
+  position: relative;
+}
+
+.active-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #fbbf24;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Hover effect for nav links */
+nav li a:not(.active-link):hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fbbf24 !important;
+  transition: all 0.3s ease;
+}
+
+/* Slide in animation for underline */
+@keyframes slideIn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Mobile active state */
+.active-mobile {
+  background-color: rgba(6, 78, 59, 0.5);
+  border-left: 3px solid #fbbf24;
+  color: #fbbf24 !important;
+  font-weight: 800;
+}
+
+/* Mobile Menu */
+#mobile-menu { 
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+  max-height: 0; 
+  overflow: hidden; 
+}
+
+#mobile-menu.active { 
+  max-height: 450px; 
+}
+
+/* News Ticker Animation */
+.news-ticker {
+  display: inline-block;
+  padding-left: 100%;
+  animation: ticker-scrolling 25s linear infinite;
+}
+
+@keyframes ticker-scrolling {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
