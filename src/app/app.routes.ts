@@ -28,6 +28,12 @@ import { BulkEnrollment } from './module/clerk/bulk-enrollment/bulk-enrollment';
 import { FeeCollection } from './module/clerk/fee-collection/fee-collection';
 import { StudentRecords } from './module/clerk/student-records/student-records';
 import { GenerateChallan } from './module/clerk/generate-challan/generate-challan';
+import { FeeCollectionReports } from './module/clerk/fee-collection-reports/fee-collection-reports';
+import { StudentReports } from './module/clerk/student-reports/student-reports';
+import { ClerkProfile } from './module/clerk/clerk-profile/clerk-profile';
+import { FacultyDashboard } from './module/faculty/faculty-dashboard/faculty-dashboard';
+import { FacultyProfile } from './module/faculty/faculty-profile/faculty-profile';
+import { ProjectEvaluation } from './module/faculty/project-evaluation/project-evaluation';
 
 export const routes: Routes = 
 [
@@ -54,13 +60,18 @@ export const routes: Routes =
     {path: 'student-transcript',component:StudentTranscript},
     {path: 'student-notifications',component:StudentNotifications},
     {path: 'student-profile',component:StudentProfile},
-    {path: 'student-profile',component:StudentProfile},
     {path: 'clerk-dashboard',component:ClerkDashboard},
     {path: 'single-enrollment',component:SingleEnrollment},
     {path: 'bulk-enrollment',component:BulkEnrollment},
     {path: 'fee-collection',component:FeeCollection},
     {path: 'student-records',component:StudentRecords},
     {path: 'generate-challan',component:GenerateChallan},
+    {path: 'fee-collection-reports',component:FeeCollectionReports},
+    {path: 'student-reports',component:StudentReports},
+    {path: 'clerk-profile',component:ClerkProfile},
+    {path: 'faculty-dashboard',component:FacultyDashboard},
+    {path: 'faculty-profile',component:FacultyProfile},
+    {path: 'project-evaluation',component:ProjectEvaluation},
 
 
 ];

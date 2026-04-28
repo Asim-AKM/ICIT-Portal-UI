@@ -7,6 +7,7 @@ import { AdminHeader } from './shared/admin/admin-header/admin-header';
 import { filter } from 'rxjs/operators';
 import { StudentHeader } from './shared/student/student-header/student-header';
 import { ClerkHeader } from "./shared/clerk/clerk-header/clerk-header";
+import { FacultyHeader } from "./shared/faculty/faculty-header/faculty-header";
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,8 @@ import { ClerkHeader } from "./shared/clerk/clerk-header/clerk-header";
     AdminHeader,
     StudentHeader,
     CommonModule,
-    ClerkHeader
+    ClerkHeader,
+    FacultyHeader
 ],
   templateUrl: './app.html',
   styleUrl: './app.css'
@@ -132,6 +134,30 @@ export class App {
 
      else if (url.startsWith('/generate-challan')) {
       this.currentLayout = 'clerk-header';
+    }
+    else if (url.startsWith('/fee-collection-reports')) {
+      this.currentLayout = 'clerk-header';
+    }
+
+     else if (url.startsWith('/student-reports')) {
+      this.currentLayout = 'clerk-header';
+    }
+
+
+       else if (url.startsWith('/clerk-profile')) {
+      this.currentLayout = 'clerk-header';
+    }
+
+      else if (url.startsWith('/faculty-dashboard')) {
+      this.currentLayout = 'faculty-header';
+    }
+
+      else if (url.startsWith('/faculty-profile')) {
+      this.currentLayout = 'faculty-header';
+    }
+
+     else if (url.startsWith('/project-evaluation')) {
+      this.currentLayout = 'faculty-header';
     }
     // Default visitor layout (for home page, about, contact, etc.)
     else {

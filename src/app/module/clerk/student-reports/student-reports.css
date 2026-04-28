@@ -1,0 +1,33 @@
+/* 
+  ============================================================
+  STUDENT REPORTS STYLES
+  ============================================================
+*/
+
+/* Animations */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up { animation: slideUp 0.3s ease-out; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Print Styles */
+@media print {
+  .no-print { display: none !important; }
+  body { padding: 20px; }
+  .bg-white { box-shadow: none !important; border: 1px solid #ddd !important; }
+  button { display: none !important; }
+}
+
+/* Focus Styles */
+input:focus, select:focus { outline: none; }
+
+/* Button Active Effect */
+button:active { transform: scale(0.98); }

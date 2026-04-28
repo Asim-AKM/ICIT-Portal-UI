@@ -1,0 +1,170 @@
+<!-- 
+  ============================================================
+  FACULTY PROFILE COMPONENT
+  Faculty Dashboard - Profile Management
+  ============================================================
+-->
+
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-linear-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+          <i class="fas fa-user-circle text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Faculty Profile</h1>
+          <p class="text-slate-500 text-sm mt-1">View and manage your personal and professional information</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- LEFT COLUMN - Profile Card & Stats -->
+      <div class="lg:col-span-1 space-y-6">
+        
+        <!-- Profile Picture Card -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 text-center">
+            <div class="relative inline-block mb-4">
+              <div class="relative group cursor-pointer" (click)="triggerImageUpload()">
+                <div class="w-32 h-32 rounded-3xl flex items-center justify-center text-4xl font-bold overflow-hidden transition-all duration-300 shadow-lg mx-auto"
+                     [class]="profileImage ? '' : 'bg-linear-to-br from-purple-500 to-purple-600 text-white'">
+                  <img *ngIf="profileImage" [src]="profileImage" alt="Profile" class="w-full h-full object-cover">
+                  <span *ngIf="!profileImage">{{ profileInitials }}</span>
+                </div>
+                <div class="absolute inset-0 bg-black/50 rounded-3xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  <i class="fas fa-camera text-white text-2xl"></i>
+                </div>
+              </div>
+              <input type="file" id="fileInput" accept="image/*" class="hidden" (change)="onImageSelected($event)">
+              <button *ngIf="profileImage" (click)="removeImage(); $event.stopPropagation()" class="absolute -bottom-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-xl border-4 border-white flex items-center justify-center hover:bg-red-600 transition shadow-lg">
+                <i class="fas fa-trash-alt text-xs"></i>
+              </button>
+            </div>
+            
+            <h2 class="text-xl font-bold text-slate-900">{{ facultyName }}</h2>
+            <p class="text-sm text-slate-500 mt-1">{{ facultyId }}</p>
+            <p class="text-xs text-purple-600 font-bold mt-1">{{ facultyDesignation }}</p>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-100">
+              <div class="text-center">
+                <p class="text-2xl font-black text-purple-600">{{ totalCourses }}</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Courses</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-black text-blue-600">{{ totalStudents }}</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Students</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-black text-emerald-600">{{ totalPublications }}</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Publications</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-black text-amber-600">{{ totalCitations }}</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Citations</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Card -->
+        <div class="bg-linear-to-br from-slate-800 to-slate-900 rounded-3xl p-6 shadow-xl">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <i class="fas fa-shield-alt"></i> Security Overview
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+              <div class="flex items-center gap-2"><i class="fas fa-lock text-emerald-400 text-sm"></i><span class="text-sm text-white">Password Strength</span></div>
+              <span class="text-xs font-bold text-emerald-400">Strong</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+              <div class="flex items-center gap-2"><i class="fas fa-clock text-emerald-400 text-sm"></i><span class="text-sm text-white">Last Password Change</span></div>
+              <span class="text-xs text-slate-300">30 days ago</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+              <div class="flex items-center gap-2"><i class="fas fa-globe text-emerald-400 text-sm"></i><span class="text-sm text-white">Account Status</span></div>
+              <span class="text-xs font-bold text-emerald-400">Active</span>
+            </div>
+            <button (click)="toggleChangePassword()" class="w-full mt-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 text-sm font-bold rounded-xl hover:bg-emerald-500/30 transition">
+              <i class="fas fa-key mr-2"></i>Change Password
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN - Profile Details -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- Change Password Form -->
+        <div *ngIf="showChangePassword" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-slide-down">
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-amber-50 to-white">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center"><i class="fas fa-key text-sm"></i></div>
+              <div><h3 class="font-bold text-slate-800">Change Password</h3><p class="text-xs text-slate-500 mt-0.5">Update your password for better security</p></div>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="space-y-4">
+              <div><label class="block text-xs font-bold text-slate-600 mb-2">Current Password</label><input type="password" [(ngModel)]="passwordData.currentPassword" placeholder="Enter current password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"></div>
+              <div><label class="block text-xs font-bold text-slate-600 mb-2">New Password</label><input type="password" [(ngModel)]="passwordData.newPassword" placeholder="Enter new password (min 8 characters)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"></div>
+              <div><label class="block text-xs font-bold text-slate-600 mb-2">Confirm New Password</label><input type="password" [(ngModel)]="passwordData.confirmPassword" placeholder="Confirm new password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"></div>
+              <div class="flex gap-3 pt-2"><button (click)="toggleChangePassword()" class="flex-1 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">Cancel</button><button (click)="changePassword()" class="flex-1 px-4 py-2 bg-linear-to-r from-amber-500 to-amber-600 text-white text-sm font-bold rounded-xl hover:from-amber-600 hover:to-amber-700 transition shadow-lg">Update Password</button></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Personal Information -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3"><div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center"><i class="fas fa-id-card text-sm"></i></div><div><h3 class="font-bold text-slate-800">Personal Information</h3><p class="text-xs text-slate-500 mt-0.5">Your basic information and contact details</p></div></div>
+              <button *ngIf="!isEditing" (click)="toggleEdit()" class="px-4 py-2 text-sm font-bold text-purple-600 bg-purple-50 rounded-xl hover:bg-purple-100 transition"><i class="fas fa-edit mr-2"></i>Edit Profile</button>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Full Name</label><input type="text" [(ngModel)]="facultyName" [disabled]="!isEditing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Employee ID</label><input type="text" [(ngModel)]="facultyEmployeeId" disabled class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label><input type="email" [(ngModel)]="facultyEmail" [disabled]="!isEditing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Phone Number</label><input type="tel" [(ngModel)]="facultyPhone" [disabled]="!isEditing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Designation</label><input type="text" [(ngModel)]="facultyDesignation" [disabled]="!isEditing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Department</label><input type="text" [(ngModel)]="facultyDepartment" disabled class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Qualification</label><input type="text" [(ngModel)]="facultyQualification" [disabled]="!isEditing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Specialization</label><input type="text" [(ngModel)]="facultySpecialization" [disabled]="!isEditing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Joining Date</label><input type="text" [value]="formatDate(facultyJoiningDate)" disabled class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Office Room</label><input type="text" [(ngModel)]="facultyOfficeRoom" [disabled]="!isEditing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Office Hours</label><input type="text" [(ngModel)]="facultyOfficeHours" [disabled]="!isEditing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">City</label><input type="text" [(ngModel)]="facultyCity" [disabled]="!isEditing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600"></div>
+              <div class="md:col-span-2"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Bio</label><textarea [(ngModel)]="facultyBio" [disabled]="!isEditing" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600 resize-none"></textarea></div>
+              <div class="md:col-span-2"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Address</label><textarea [(ngModel)]="facultyAddress" [disabled]="!isEditing" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600 resize-none"></textarea></div>
+            </div>
+            <div *ngIf="isEditing" class="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100"><button (click)="cancelEdit()" class="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">Cancel</button><button (click)="toggleEdit()" class="px-6 py-2.5 bg-linear-to-r from-purple-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-purple-600 hover:to-purple-700 transition shadow-lg"><i class="fas fa-save mr-2"></i>Save Changes</button></div>
+          </div>
+        </div>
+
+        <!-- Teaching History -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fas fa-chalkboard-teacher text-sm"></i></div><div><h3 class="font-bold text-slate-800">Teaching History</h3><p class="text-xs text-slate-500 mt-0.5">Courses taught in previous semesters</p></div></div></div>
+          <div class="overflow-x-auto"><table class="w-full"><thead class="bg-slate-50"><tr><th class="px-6 py-3 text-left text-xs font-bold text-slate-500">Course</th><th class="px-6 py-3 text-left text-xs font-bold text-slate-500">Semester</th><th class="px-6 py-3 text-center text-xs font-bold text-slate-500">Students</th><th class="px-6 py-3 text-center text-xs font-bold text-slate-500">Rating</th></tr></thead><tbody class="divide-y divide-slate-50"><tr *ngFor="let course of teachingHistory"><td class="px-6 py-4"><div><p class="text-sm font-bold text-slate-800">{{ course.courseName }}</p><p class="text-xs text-slate-500 font-mono">{{ course.courseCode }}</p></div></td><td class="px-6 py-4">{{ course.semester }} {{ course.year }}</td><td class="px-6 py-4 text-center">{{ course.enrolledStudents }}</td><td class="px-6 py-4 text-center"><div class="flex items-center justify-center gap-1"><span *ngFor="let star of getStarRating(course.evaluation)" [innerHTML]="star" class="text-sm"></span><span class="ml-1 text-xs text-slate-500">({{ course.evaluation }})</span></div></td></tr></tbody></table></div>
+        </div>
+
+        <!-- Research Publications -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-book text-sm"></i></div><div><h3 class="font-bold text-slate-800">Research Publications</h3><p class="text-xs text-slate-500 mt-0.5">Journal papers and conference publications</p></div></div></div>
+          <div class="divide-y divide-slate-50"><div *ngFor="let pub of researchPublications" class="p-4 hover:bg-slate-50/50 transition"><div class="flex items-start justify-between gap-4"><div><p class="text-sm font-bold text-slate-800">{{ pub.title }}</p><p class="text-xs text-slate-500">{{ pub.journal }} • {{ pub.year }}</p></div><div class="text-right"><span class="text-xs font-bold text-emerald-600"><i class="fas fa-quote-left mr-1"></i>{{ pub.citations }} citations</span></div></div></div></div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center"><i class="fas fa-history text-sm"></i></div><div><h3 class="font-bold text-slate-800">Recent Activity</h3><p class="text-xs text-slate-500 mt-0.5">Your account activities and logins</p></div></div></div>
+          <div class="divide-y divide-slate-50"><div *ngFor="let activity of activities" class="p-4 hover:bg-slate-50/50 transition"><div class="flex gap-4"><div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" [class]="getActivityColor(activity.action)"><i [class]="getActivityIcon(activity.action)" class="text-sm"></i></div><div class="flex-1"><div class="flex flex-wrap items-start justify-between gap-2"><div><p class="text-sm font-bold text-slate-800">{{ activity.action }}</p><p class="text-xs text-slate-500 mt-0.5">{{ activity.description }}</p></div><span class="text-[10px] text-slate-400 whitespace-nowrap">{{ formatTimeAgo(activity.timestamp) }}</span></div><div class="flex items-center gap-4 mt-2"><span class="text-[10px] text-slate-400"><i class="fas fa-laptop mr-1"></i> {{ activity.device }}</span><span class="text-[10px] text-slate-400"><i class="fas fa-globe mr-1"></i> IP: {{ activity.ipAddress }}</span><span class="text-[10px] text-slate-400"><i class="fas fa-map-marker-alt mr-1"></i> {{ activity.location }}</span></div></div></div></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

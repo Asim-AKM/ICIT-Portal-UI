@@ -1,0 +1,362 @@
+<!-- 
+  ============================================================
+  STUDENT REPORTS COMPONENT
+  Clerk Dashboard - Student Reports
+  ============================================================
+  Features:
+  - Student List with Filters
+  - Statistics Dashboard
+  - Department/Program/Semester/Session Distribution
+  - Export to Excel/PDF
+  ============================================================
+-->
+
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- ============================================================
+         HEADER SECTION
+         ============================================================ -->
+    <div class="mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <i class="fas fa-chart-bar text-white text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Student Reports</h1>
+            <p class="text-slate-500 text-sm mt-1">View student statistics, distribution, and detailed reports</p>
+          </div>
+        </div>
+        
+        <div class="flex gap-2 no-print">
+          <button (click)="exportToExcel()" class="px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition">
+            <i class="fas fa-file-excel mr-2"></i>Excel
+          </button>
+          <button (click)="exportToPDF()" class="px-4 py-2 text-sm font-bold text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition">
+            <i class="fas fa-file-pdf mr-2"></i>PDF
+          </button>
+          <button (click)="printReport()" class="px-4 py-2 text-sm font-bold text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition">
+            <i class="fas fa-print mr-2"></i>Print
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         STATISTICS CARDS
+         ============================================================ -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500">Total Students</p>
+            <p class="text-2xl font-bold text-blue-600">{{ students.length }}</p>
+          </div>
+          <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-users text-blue-600"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500">Active Students</p>
+            <p class="text-2xl font-bold text-emerald-600">{{ totalActive }}</p>
+          </div>
+          <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-user-check text-emerald-600"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500">Graduated</p>
+            <p class="text-2xl font-bold text-purple-600">{{ totalGraduated }}</p>
+          </div>
+          <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-graduation-cap text-purple-600"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500">Avg CGPA</p>
+            <p class="text-2xl font-bold text-amber-600">{{ getAverageCGPA().toFixed(2) }}</p>
+          </div>
+          <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-chart-line text-amber-600"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TABS NAVIGATION
+         ============================================================ -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-1 mb-6 no-print">
+      <div class="flex gap-1">
+        <button (click)="activeTab = 'student-list'" 
+                class="flex-1 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200"
+                [class]="activeTab === 'student-list' ? 'bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'">
+          <i class="fas fa-list mr-2"></i>Student List
+        </button>
+        <button (click)="activeTab = 'statistics'" 
+                class="flex-1 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200"
+                [class]="activeTab === 'statistics' ? 'bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'">
+          <i class="fas fa-chart-pie mr-2"></i>Statistics
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         STUDENT LIST TAB
+         ============================================================ -->
+    <div *ngIf="activeTab === 'student-list'" class="space-y-6">
+      
+      <!-- Filters Section -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 no-print">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-3">
+          <div class="relative">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" 
+                   placeholder="Search by name, roll no, email..." 
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition">
+          </div>
+          <select [(ngModel)]="selectedProgram" (change)="applyFilters()" 
+                  class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none cursor-pointer hover:bg-slate-100 transition">
+            <option value="all">All Programs</option>
+            <option *ngFor="let p of programs" [value]="p">{{ p }}</option>
+          </select>
+          <select [(ngModel)]="selectedDepartment" (change)="applyFilters()" 
+                  class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none cursor-pointer hover:bg-slate-100 transition">
+            <option value="all">All Departments</option>
+            <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+          </select>
+          <select [(ngModel)]="selectedSemester" (change)="applyFilters()" 
+                  class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none cursor-pointer hover:bg-slate-100 transition">
+            <option value="all">All Semesters</option>
+            <option *ngFor="let s of semesters" [value]="s">Semester {{ s }}</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <select [(ngModel)]="selectedSession" (change)="applyFilters()" 
+                  class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none cursor-pointer hover:bg-slate-100 transition">
+            <option value="all">All Sessions</option>
+            <option *ngFor="let ses of sessions" [value]="ses">{{ ses }}</option>
+          </select>
+          <select [(ngModel)]="selectedStatus" (change)="applyFilters()" 
+                  class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none cursor-pointer hover:bg-slate-100 transition">
+            <option value="all">All Status</option>
+            <option *ngFor="let st of statuses" [value]="st">{{ st | titlecase }}</option>
+          </select>
+          <input type="date" [(ngModel)]="startDate" (change)="applyFilters()" 
+                 class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-600 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+          <input type="date" [(ngModel)]="endDate" (change)="applyFilters()" 
+                 class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-600 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+        </div>
+        <div class="mt-3 text-right">
+          <button (click)="resetFilters()" class="text-sm text-blue-600 hover:text-blue-700 transition">
+            <i class="fas fa-undo-alt mr-1"></i>Reset Filters
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 text-center">
+          <p class="text-xs text-slate-500">Filtered Students</p>
+          <p class="text-2xl font-bold text-blue-600">{{ filteredStudents.length }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 text-center">
+          <p class="text-xs text-slate-500">Average CGPA</p>
+          <p class="text-2xl font-bold text-emerald-600">{{ getAverageCGPA().toFixed(2) }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 text-center">
+          <p class="text-xs text-slate-500">Top Performer</p>
+          <p class="text-sm font-bold text-purple-600">{{ getTopPerformer()?.name || '-' }}</p>
+          <p class="text-xs text-slate-400">CGPA: {{ getTopPerformer()?.cgpa || '-' }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 text-center">
+          <p class="text-xs text-slate-500">Active Status</p>
+          <p class="text-2xl font-bold text-emerald-600">{{ filteredStudents.filter(s => s.status === 'active').length }}</p>
+        </div>
+      </div>
+
+      <!-- Students Table -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-linear-to-r from-slate-50 to-white border-b-2 border-slate-100">
+              <tr>
+                <th class="px-6 py-4 text-left"><div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Student Info</div></th>
+                <th class="px-6 py-4 text-left"><div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Program</div></th>
+                <th class="px-6 py-4 text-left"><div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Department</div></th>
+                <th class="px-6 py-4 text-center"><div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Semester</div></th>
+                <th class="px-6 py-4 text-center"><div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">CGPA</div></th>
+                <th class="px-6 py-4 text-left"><div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</div></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+              <tr *ngFor="let student of paginatedStudents" class="hover:bg-slate-50/50 transition group">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-600">
+                      {{ getInitials(student.name) }}
+                    </div>
+                    <div>
+                      <p class="text-sm font-bold text-slate-800">{{ student.name }}</p>
+                      <p class="text-xs text-slate-500 font-mono">{{ student.rollNo }}</p>
+                      <p class="text-xs text-slate-400">{{ student.email }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4"><span class="text-sm font-medium text-slate-800">{{ student.program }}</span></td>
+                <td class="px-6 py-4"><span class="text-sm text-slate-600">{{ student.department }}</span></td>
+                <td class="px-6 py-4 text-center"><span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700 text-sm font-bold">{{ student.semester }}</span></td>
+                <td class="px-6 py-4 text-center"><span class="text-sm font-bold" [class]="student.cgpa >= 3.5 ? 'text-emerald-600' : student.cgpa >= 3.0 ? 'text-blue-600' : 'text-amber-600'">{{ student.cgpa }}</span></td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full" [class]="student.status === 'active' ? 'bg-emerald-500' : student.status === 'inactive' ? 'bg-amber-500' : student.status === 'graduated' ? 'bg-blue-500' : 'bg-red-500'"></div>
+                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold" [class]="getStatusBadgeClass(student.status)">
+                      <i [class]="getStatusIcon(student.status)" class="text-[8px]"></i>{{ student.status | uppercase }}
+                    </span>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="filteredStudents.length === 0">
+                <td colspan="6" class="px-6 py-12 text-center">
+                  <div class="flex flex-col items-center gap-3">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user-slash text-2xl text-slate-400"></i>
+                    </div>
+                    <p class="text-slate-500 font-medium">No students found</p>
+                    <p class="text-sm text-slate-400">Try adjusting your search or filter criteria</p>
+                    <button (click)="resetFilters()" class="mt-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition">Clear Filters</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Showing {{ startItem }}-{{ endItem }} of {{ filteredStudents.length }} Students</p>
+          <div class="flex gap-1">
+            <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1" 
+                    class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-blue-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fas fa-chevron-left text-[10px]"></i>
+            </button>
+            <button *ngFor="let page of [].constructor(totalPages); let i = index" 
+                    (click)="changePage(i + 1)" 
+                    [class]="i + 1 === currentPage ? 'bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-md' : 'border border-slate-200 text-slate-600 hover:bg-white hover:border-blue-200'" 
+                    class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs transition-all duration-200">
+              {{ i + 1 }}
+            </button>
+            <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages" 
+                    class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-blue-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fas fa-chevron-right text-[10px]"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         STATISTICS TAB - Distribution Charts
+         ============================================================ -->
+    <div *ngIf="activeTab === 'statistics'" class="space-y-6">
+      
+      <!-- Department Wise Distribution -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+          <h3 class="font-bold text-slate-800">Department Wise Distribution</h3>
+        </div>
+        <div class="p-6">
+          <div class="space-y-4">
+            <div *ngFor="let dept of departmentWise" class="group">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-sm font-medium text-slate-700">{{ dept.department }}</span>
+                <span class="text-sm font-bold text-blue-600">{{ dept.count }} students ({{ dept.percentage.toFixed(1) }}%)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div class="h-full rounded-full bg-linear-to-r from-blue-500 to-blue-600 transition-all duration-500 group-hover:opacity-80" 
+                     [style.width]="dept.percentage + '%'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Program Wise Distribution -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+          <h3 class="font-bold text-slate-800">Program Wise Distribution</h3>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div *ngFor="let prog of programWise" class="p-4 bg-slate-50 rounded-xl text-center">
+              <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                <i class="fas fa-graduation-cap text-purple-600 text-xl"></i>
+              </div>
+              <p class="text-lg font-bold text-slate-800">{{ prog.program }}</p>
+              <p class="text-2xl font-bold text-purple-600">{{ prog.count }}</p>
+              <p class="text-xs text-slate-500">{{ prog.percentage.toFixed(1) }}% of total</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Semester Wise Distribution -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+          <h3 class="font-bold text-slate-800">Semester Wise Distribution</h3>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div *ngFor="let sem of semesterWise" class="p-4 bg-slate-50 rounded-xl text-center">
+              <p class="text-xs text-slate-500">Semester</p>
+              <p class="text-2xl font-bold text-emerald-600">{{ sem.semester }}</p>
+              <p class="text-sm font-medium text-slate-700">{{ sem.count }} students</p>
+              <div class="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-full bg-emerald-500 rounded-full" [style.width]="sem.percentage + '%'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session Wise Distribution -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+          <h3 class="font-bold text-slate-800">Session Wise Distribution</h3>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div *ngFor="let session of sessionWise" class="p-4 bg-slate-50 rounded-xl">
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="text-sm font-bold text-slate-800">{{ session.session }}</p>
+                  <p class="text-xs text-slate-500">{{ session.count }} students enrolled</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-2xl font-bold text-amber-600">{{ session.percentage.toFixed(1) }}%</p>
+                </div>
+              </div>
+              <div class="mt-2 w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div class="h-full bg-linear-to-r from-amber-500 to-amber-600 rounded-full" [style.width]="session.percentage + '%'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
