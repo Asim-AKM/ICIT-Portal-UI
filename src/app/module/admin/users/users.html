@@ -1,0 +1,260 @@
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div
+                            class="w-12 h-12 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                            <i class="fas fa-users text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+                                User Management
+                            </h1>
+                            <p class="text-slate-500 text-sm mt-1">
+                                Add, edit, and manage system access for Faculty, Clerks, and Administrators
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <a routerLink="/add-user"
+                    class="inline-flex items-center gap-2 bg-linear-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-bold shadow-xl shadow-slate-200 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-plus text-emerald-400 text-xs"></i>
+                    Add New User
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-users text-emerald-600 text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-black text-slate-900">{{ totalUsers }}</span>
+                </div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Users</p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-circle text-emerald-500 text-xs"></i>
+                    </div>
+                    <span class="text-2xl font-black text-slate-900">{{ activeUsers }}</span>
+                </div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Users</p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chalkboard-user text-blue-600 text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-black text-slate-900">{{ facultyCount }}</span>
+                </div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Faculty</p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-file-alt text-amber-600 text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-black text-slate-900">{{ clerkCount }}</span>
+                </div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Clerks</p>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-6">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Search -->
+                <div class="relative flex-1 min-w-50">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" [(ngModel)]="searchTerm" (input)="changePage(1)"
+                        placeholder="Search by name, email, or employee ID..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+                </div>
+
+                <!-- Role Filter -->
+                <select [(ngModel)]="selectedRole" (change)="changePage(1)"
+                    class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none cursor-pointer hover:bg-slate-100 transition">
+                    <option value="all">All Roles</option>
+                    <option value="faculty">Faculty</option>
+                    <option value="clerk">Clerk</option>
+                    <option value="admin">Admin</option>
+                </select>
+
+                <!-- Status Filter -->
+                <select [(ngModel)]="selectedStatus" (change)="changePage(1)"
+                    class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none cursor-pointer hover:bg-slate-100 transition">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                    <option value="pending">Pending</option>
+                </select>
+
+                <!-- Reset Filters -->
+                <button (click)="resetFilters()"
+                    class="px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition">
+                    <i class="fas fa-undo-alt mr-2"></i>Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-linear-to-r from-slate-50 to-white border-b-2 border-slate-100">
+                        <tr>
+                            <th class="px-6 py-4 text-left">
+                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">User Details
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left">
+                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Employee ID
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left">
+                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Department
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left">
+                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Role</div>
+                            </th>
+                            <th class="px-6 py-4 text-left">
+                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</div>
+                            </th>
+                            <th class="px-6 py-4 text-left">
+                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Last Login
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-right">
+                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Actions
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <tr *ngFor="let user of paginatedUsers"
+                            class="hover:bg-slate-50/50 transition-all duration-200 group">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-600 text-sm">
+                                        {{ user.avatar }}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800">{{ user.name }}</p>
+                                        <p class="text-xs text-slate-500">{{ user.email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-mono text-slate-600">{{ user.employeeId }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs text-slate-600">{{ user.department }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider"
+                                    [class]="getRoleBadgeClass(user.role)">
+                                    <i [class]="getRoleIcon(user.role)" class="text-xs"></i>
+                                    {{ getRoleLabel(user.role) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 rounded-full" [class]="getStatusDotColor(user.status)">
+                                    </div>
+                                    <span
+                                        class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold"
+                                        [class]="getStatusBadgeClass(user.status)">
+                                        <i [class]="getStatusIcon(user.status)" class="text-[8px]"></i>
+                                        {{ user.status | uppercase }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs text-slate-500">{{ formatLastLogin(user.lastLogin) }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button (click)="toggleUserStatus(user.id)"
+                                        class="w-8 h-8 rounded-lg text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition"
+                                        [title]="user.status === 'active' ? 'Suspend User' : 'Activate User'">
+                                        <i [class]="user.status === 'active' ? 'fas fa-ban' : 'fas fa-check-circle'"
+                                            class="text-xs"></i>
+                                    </button>
+                                    <button (click)="editUser(user.id)"
+                                        class="w-8 h-8 rounded-lg text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition"
+                                        title="Edit User">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </button>
+                                    <button (click)="deleteUser(user.id)"
+                                        class="w-8 h-8 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
+                                        title="Delete User">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Empty State -->
+                        <tr *ngIf="paginatedUsers.length === 0">
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center gap-3">
+                                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user-slash text-2xl text-slate-400"></i>
+                                    </div>
+                                    <p class="text-slate-500 font-medium">No users found</p>
+                                    <p class="text-sm text-slate-400">Try adjusting your search or filter criteria</p>
+                                    <button (click)="resetFilters()"
+                                        class="mt-2 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition">
+                                        Clear Filters
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div
+                class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    Showing {{ startItem }}-{{ endItem }} of {{ filteredUsers.length }} Users
+                </p>
+
+                <div class="flex gap-1">
+                    <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
+                        class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-emerald-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-left text-[10px]"></i>
+                    </button>
+
+                    <button *ngFor="let page of getTotalPagesArray()" (click)="changePage(page)" [class]="page === currentPage 
+              ? 'bg-linear-to-r from-emerald-500 to-emerald-600 text-white shadow-md' 
+              : 'border border-slate-200 text-slate-600 hover:bg-white hover:border-emerald-200'"
+                        class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs transition-all duration-200">
+                        {{ page }}
+                    </button>
+
+                    <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages"
+                        class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-emerald-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>

@@ -1,0 +1,374 @@
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <i class="fas fa-credit-card text-white text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+              Fee Records
+            </h1>
+            <p class="text-slate-500 text-sm mt-1">
+              View and manage your fee payments, due dates, and payment history
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-wallet text-emerald-600"></i>
+          </div>
+          <span class="text-2xl font-black text-slate-900">{{ formatCurrency(totalAmount) }}</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Fee</p>
+        <p class="text-xs text-slate-500 mt-1">For all semesters</p>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-check-circle text-blue-600"></i>
+          </div>
+          <span class="text-2xl font-black text-blue-600">{{ formatCurrency(totalPaid) }}</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Paid</p>
+        <p class="text-xs text-slate-500 mt-1">Successfully paid</p>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-clock text-amber-600"></i>
+          </div>
+          <span class="text-2xl font-black text-amber-600">{{ formatCurrency(totalPending) }}</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Pending</p>
+        <p class="text-xs text-slate-500 mt-1">Due for payment</p>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-percent text-purple-600"></i>
+          </div>
+          <span class="text-2xl font-black text-purple-600">{{ ((totalPaid / totalAmount) * 100).toFixed(1) }}%</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completion</p>
+        <p class="text-xs text-slate-500 mt-1">Payment progress</p>
+      </div>
+    </div>
+
+    <!-- Fee Structures Table -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+      <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+            <i class="fas fa-receipt text-sm"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800">Fee Structure</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Semester-wise fee breakdown</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-slate-50/50 border-b border-slate-100">
+            <tr>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Semester</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Tuition Fee</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Other Charges</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Total</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Due Date</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</div>
+              </th>
+              <th class="px-6 py-4 text-center">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Actions</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr *ngFor="let fee of feeStructures" class="hover:bg-slate-50/50 transition group">
+              <td class="px-6 py-4">
+                <div>
+                  <p class="text-sm font-bold text-slate-800">{{ fee.semester }}</p>
+                  <p class="text-xs text-slate-400">{{ fee.year }}</p>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-sm text-slate-700">{{ formatCurrency(fee.tuitionFee) }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-sm text-slate-700">{{ formatCurrency(fee.admissionFee + fee.libraryFee + fee.sportsFee + fee.labFee + fee.otherCharges) }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-sm font-bold text-slate-900">{{ formatCurrency(fee.total) }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div>
+                  <p class="text-sm text-slate-700">{{ formatDate(fee.dueDate) }}</p>
+                  <p *ngIf="fee.status === 'pending'" class="text-[10px] font-bold text-amber-600">
+                    {{ getDaysRemaining(fee.dueDate) }} days left
+                  </p>
+                  <p *ngIf="fee.status === 'overdue'" class="text-[10px] font-bold text-red-600">
+                    Overdue by {{ Math.abs(getDaysRemaining(fee.dueDate)) }} days
+                  </p>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full" [class]="fee.status === 'paid' ? 'bg-emerald-500' : fee.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'"></div>
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold" [class]="getStatusBadgeClass(fee.status)">
+                    <i [class]="getStatusIcon(fee.status)" class="text-[8px]"></i>
+                    {{ fee.status | uppercase }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <button (click)="viewFeeDetails(fee)" class="p-2 text-slate-400 hover:text-blue-600 transition" title="View Details">
+                    <i class="fas fa-eye text-sm"></i>
+                  </button>
+                  <button *ngIf="fee.status !== 'paid'" (click)="openPaymentModal(fee)" class="px-3 py-1.5 text-xs font-bold text-white bg-linear-to-r from-emerald-500 to-emerald-600 rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition">
+                    Pay Now
+                  </button>
+                  <button *ngIf="fee.status === 'paid'" (click)="downloadReceipt(fee)" class="p-2 text-slate-400 hover:text-emerald-600 transition" title="Download Receipt">
+                    <i class="fas fa-download text-sm"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Payment History -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+            <i class="fas fa-history text-sm"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800">Payment History</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Record of all your payments</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-slate-50/50 border-b border-slate-100">
+            <tr>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Semester</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Amount</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Payment Date</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Method</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Transaction ID</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr *ngFor="let payment of paymentHistory" class="hover:bg-slate-50/50 transition">
+              <td class="px-6 py-4">
+                <span class="text-sm font-medium text-slate-800">{{ payment.semester }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-sm font-bold text-slate-900">{{ formatCurrency(payment.amount) }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-sm text-slate-600">{{ formatDate(payment.paymentDate) }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <i [class]="getPaymentMethodIcon(payment.method)" class="text-slate-500"></i>
+                  <span class="text-sm text-slate-700">{{ getPaymentMethodLabel(payment.method) }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-xs font-mono text-slate-500">{{ payment.transactionId }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                  <i class="fas fa-check-circle text-[8px]"></i>
+                  {{ payment.status | uppercase }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="paymentHistory.length === 0">
+              <td colspan="6" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-receipt text-2xl text-slate-400"></i>
+                  </div>
+                  <p class="text-slate-500 font-medium">No payment history found</p>
+                  <p class="text-sm text-slate-400">Your payment records will appear here</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Fee Details Modal -->
+  <div *ngIf="showFeeDetailsModal && selectedFee" class="fixed inset-0 z-100 flex items-center justify-center p-4" (click)="closeFeeDetailsModal()">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in"></div>
+    
+    <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-emerald-500 to-emerald-600"></div>
+      
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+              <i class="fas fa-file-invoice text-sm"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-slate-900">Fee Breakdown</h3>
+              <p class="text-xs text-slate-500">{{ selectedFee.semester }} {{ selectedFee.year }}</p>
+            </div>
+          </div>
+          <button (click)="closeFeeDetailsModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 transition">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3 mb-6">
+          <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+            <span class="text-sm text-slate-600">Tuition Fee</span>
+            <span class="text-sm font-bold text-slate-800">{{ formatCurrency(selectedFee.tuitionFee) }}</span>
+          </div>
+          <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+            <span class="text-sm text-slate-600">Admission Fee</span>
+            <span class="text-sm font-bold text-slate-800">{{ formatCurrency(selectedFee.admissionFee) }}</span>
+          </div>
+          <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+            <span class="text-sm text-slate-600">Library Fee</span>
+            <span class="text-sm font-bold text-slate-800">{{ formatCurrency(selectedFee.libraryFee) }}</span>
+          </div>
+          <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+            <span class="text-sm text-slate-600">Sports Fee</span>
+            <span class="text-sm font-bold text-slate-800">{{ formatCurrency(selectedFee.sportsFee) }}</span>
+          </div>
+          <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+            <span class="text-sm text-slate-600">Lab Fee</span>
+            <span class="text-sm font-bold text-slate-800">{{ formatCurrency(selectedFee.labFee) }}</span>
+          </div>
+          <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+            <span class="text-sm text-slate-600">Other Charges</span>
+            <span class="text-sm font-bold text-slate-800">{{ formatCurrency(selectedFee.otherCharges) }}</span>
+          </div>
+          <div class="flex justify-between items-center p-4 bg-linear-to-r from-emerald-50 to-emerald-100/50 rounded-xl">
+            <span class="text-sm font-bold text-emerald-800">Total Amount</span>
+            <span class="text-xl font-black text-emerald-800">{{ formatCurrency(selectedFee.total) }}</span>
+          </div>
+        </div>
+
+        <button (click)="closeFeeDetailsModal()" class="w-full py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div *ngIf="showPaymentModal && selectedFee" class="fixed inset-0 z-100 flex items-center justify-center p-4" (click)="closePaymentModal()">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in"></div>
+    
+    <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-emerald-500 to-emerald-600"></div>
+      
+      <div class="p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+            <i class="fas fa-credit-card text-sm"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-slate-900">Make Payment</h3>
+            <p class="text-xs text-slate-500">{{ selectedFee.semester }} {{ selectedFee.year }}</p>
+          </div>
+        </div>
+
+        <div class="mb-6 p-4 bg-slate-50 rounded-xl">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-slate-600">Amount to Pay</span>
+            <span class="text-2xl font-black text-emerald-600">{{ formatCurrency(selectedFee.total) }}</span>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Payment Method</label>
+            <select [(ngModel)]="paymentMethod" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="credit_card">Credit / Debit Card</option>
+              <option value="online">Online Payment (JazzCash/Easypaisa)</option>
+            </select>
+          </div>
+
+          <div *ngIf="paymentMethod === 'credit_card'" class="space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Card Number</label>
+              <input type="text" [(ngModel)]="cardNumber" placeholder="1234 5678 9012 3456" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Expiry Date</label>
+                <input type="text" [(ngModel)]="cardExpiry" placeholder="MM/YY" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">CVV</label>
+                <input type="password" [(ngModel)]="cardCvv" placeholder="123" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button (click)="closePaymentModal()" class="flex-1 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+              Cancel
+            </button>
+            <button (click)="processPayment()" class="flex-1 px-4 py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg">
+              <i class="fas fa-lock mr-2"></i>Pay Securely
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,362 @@
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <i class="fas fa-user-circle text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+            Student Profile
+          </h1>
+          <p class="text-slate-500 text-sm mt-1">
+            View and manage your personal information
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column - Profile Card -->
+      <div class="lg:col-span-1 space-y-6">
+        
+        <!-- Profile Picture Card -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 text-center">
+            <div class="relative inline-block mb-4">
+              <div class="relative group cursor-pointer" (click)="triggerImageUpload()">
+                <div class="w-32 h-32 rounded-3xl flex items-center justify-center text-4xl font-bold overflow-hidden transition-all duration-300 shadow-lg mx-auto"
+                     [class]="profileImage ? '' : 'bg-linear-to-br from-emerald-500 to-emerald-600 text-white'">
+                  <img *ngIf="profileImage" [src]="profileImage" alt="Profile" class="w-full h-full object-cover">
+                  <span *ngIf="!profileImage">{{ profileInitials }}</span>
+                </div>
+                
+                <!-- Upload Overlay -->
+                <div class="absolute inset-0 bg-black/50 rounded-3xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  <i class="fas fa-camera text-white text-2xl"></i>
+                </div>
+              </div>
+              
+              <input type="file" id="fileInput" accept="image/*" class="hidden" (change)="onImageSelected($event)">
+              
+              <button *ngIf="profileImage" 
+                      (click)="removeImage(); $event.stopPropagation()"
+                      class="absolute -bottom-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-xl border-4 border-white flex items-center justify-center hover:bg-red-600 transition shadow-lg">
+                <i class="fas fa-trash-alt text-xs"></i>
+              </button>
+            </div>
+            
+            <h2 class="text-xl font-bold text-slate-900">{{ studentName }}</h2>
+            <p class="text-sm text-slate-500 mt-1">{{ studentRollNo }}</p>
+            <p class="text-xs text-emerald-600 font-bold mt-1">{{ studentProgram }}</p>
+            
+            <div class="mt-4 pt-4 border-t border-slate-100">
+              <div class="flex justify-between text-sm mb-2">
+                <span class="text-slate-500">CGPA</span>
+                <span class="font-bold text-emerald-600">{{ studentCgpa }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-slate-500">Semester</span>
+                <span class="font-bold text-slate-700">{{ studentSemester }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Card -->
+        <div class="bg-linear-to-br from-slate-800 to-slate-900 rounded-3xl p-6 shadow-xl">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <i class="fas fa-shield-alt"></i>
+            Security Overview
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-lock text-emerald-400 text-sm"></i>
+                <span class="text-sm text-white">Password Strength</span>
+              </div>
+              <span class="text-xs font-bold text-emerald-400">Strong</span>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-clock text-emerald-400 text-sm"></i>
+                <span class="text-sm text-white">Last Password Change</span>
+              </div>
+              <span class="text-xs text-slate-300">15 days ago</span>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-globe text-emerald-400 text-sm"></i>
+                <span class="text-sm text-white">Account Status</span>
+              </div>
+              <span class="text-xs font-bold text-emerald-400">Active</span>
+            </div>
+            
+            <button (click)="toggleChangePassword()"
+                    class="w-full mt-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 text-sm font-bold rounded-xl hover:bg-emerald-500/30 transition">
+              <i class="fas fa-key mr-2"></i>Change Password
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Profile Details -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- Change Password Form -->
+        <div *ngIf="showChangePassword" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-slide-down">
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-amber-50 to-white">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
+                <i class="fas fa-key text-sm"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-800">Change Password</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Update your password for better security</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="p-6">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-2">Current Password</label>
+                <input type="password" [(ngModel)]="passwordData.currentPassword" 
+                       placeholder="Enter current password"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-2">New Password</label>
+                <input type="password" [(ngModel)]="passwordData.newPassword" 
+                       placeholder="Enter new password (min 8 characters)"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-2">Confirm New Password</label>
+                <input type="password" [(ngModel)]="passwordData.confirmPassword" 
+                       placeholder="Confirm new password"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition">
+              </div>
+              <div class="flex gap-3 pt-2">
+                <button (click)="toggleChangePassword()"
+                        class="flex-1 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                  Cancel
+                </button>
+                <button (click)="changePassword()"
+                        class="flex-1 px-4 py-2 bg-linear-to-r from-amber-500 to-amber-600 text-white text-sm font-bold rounded-xl hover:from-amber-600 hover:to-amber-700 transition shadow-lg">
+                  Update Password
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Personal Information -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                  <i class="fas fa-id-card text-sm"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-800">Personal Information</h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Your basic information and contact details</p>
+                </div>
+              </div>
+              <button *ngIf="!isEditing" 
+                      (click)="toggleEdit()"
+                      class="px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition">
+                <i class="fas fa-edit mr-2"></i>Edit Profile
+              </button>
+            </div>
+          </div>
+          
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Full Name</label>
+                <input type="text" [(ngModel)]="studentName" [disabled]="!isEditing"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Roll Number</label>
+                <input type="text" [(ngModel)]="studentRollNo" disabled
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
+                <input type="email" [(ngModel)]="studentEmail" [disabled]="!isEditing"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Phone Number</label>
+                <input type="tel" [(ngModel)]="studentPhone" [disabled]="!isEditing"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Father's Name</label>
+                <input type="text" [(ngModel)]="studentFatherName" disabled
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">CNIC</label>
+                <input type="text" [(ngModel)]="studentCNIC" disabled
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date of Birth</label>
+                <input type="date" [(ngModel)]="studentDOB" [disabled]="!isEditing"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gender</label>
+                <select [(ngModel)]="studentGender" [disabled]="!isEditing"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600">
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Blood Group</label>
+                <select [(ngModel)]="studentBloodGroup" [disabled]="!isEditing"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600">
+                  <option>A+</option>
+                  <option>A-</option>
+                  <option>B+</option>
+                  <option>B-</option>
+                  <option>O+</option>
+                  <option>O-</option>
+                  <option>AB+</option>
+                  <option>AB-</option>
+                </select>
+              </div>
+              
+              <div class="md:col-span-2">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Address</label>
+                <textarea [(ngModel)]="studentAddress" [disabled]="!isEditing" rows="2"
+                          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-600 resize-none"></textarea>
+              </div>
+            </div>
+            
+            <div *ngIf="isEditing" class="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
+              <button (click)="cancelEdit()"
+                      class="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                Cancel
+              </button>
+              <button (click)="toggleEdit()"
+                      class="px-6 py-2.5 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg">
+                <i class="fas fa-save mr-2"></i>Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic Information -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                <i class="fas fa-graduation-cap text-sm"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-800">Academic Information</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Your educational details</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Department</label>
+                <input type="text" [(ngModel)]="studentDepartment" disabled
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Program</label>
+                <input type="text" [(ngModel)]="studentProgram" disabled
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Session</label>
+                <input type="text" [(ngModel)]="studentSession" disabled
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Current Semester</label>
+                <input type="text" [(ngModel)]="studentSemester" disabled
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm disabled:bg-slate-100 disabled:text-slate-600">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                <i class="fas fa-history text-sm"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-800">Recent Activity</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Your account activities and logins</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="divide-y divide-slate-50">
+            <div *ngFor="let activity of activities" class="p-4 hover:bg-slate-50/50 transition">
+              <div class="flex gap-4">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                     [class]="getActivityColor(activity.action)">
+                  <i [class]="getActivityIcon(activity.action)" class="text-sm"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p class="text-sm font-bold text-slate-800">{{ activity.action }}</p>
+                      <p class="text-xs text-slate-500 mt-0.5">{{ activity.description }}</p>
+                    </div>
+                    <span class="text-[10px] text-slate-400 whitespace-nowrap">
+                      {{ formatTimeAgo(activity.timestamp) }}
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-4 mt-2">
+                    <span class="text-[10px] text-slate-400">
+                      <i class="fas fa-laptop mr-1"></i> {{ activity.device }}
+                    </span>
+                    <span class="text-[10px] text-slate-400">
+                      <i class="fas fa-globe mr-1"></i> IP: {{ activity.ipAddress }}
+                    </span>
+                    <span class="text-[10px] text-slate-400">
+                      <i class="fas fa-map-marker-alt mr-1"></i> {{ activity.location }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

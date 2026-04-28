@@ -1,0 +1,123 @@
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Priority styles */
+.priority-high {
+  color: #dc2626;
+  background-color: #fee2e2;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.priority-medium {
+  color: #d97706;
+  background-color: #fed7aa;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.priority-low {
+  color: #3b82f6;
+  background-color: #dbeafe;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.priority-default {
+  color: #64748b;
+  background-color: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Notification card animations */
+.bg-white {
+  animation: fadeIn 0.3s ease-out backwards;
+}
+
+.bg-white:nth-child(1) { animation-delay: 0.05s; }
+.bg-white:nth-child(2) { animation-delay: 0.1s; }
+.bg-white:nth-child(3) { animation-delay: 0.15s; }
+.bg-white:nth-child(4) { animation-delay: 0.2s; }
+.bg-white:nth-child(5) { animation-delay: 0.25s; }
+
+/* Hover effects */
+.group:hover {
+  transform: translateY(-2px);
+}
+
+/* Button transitions */
+button {
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+/* Focus styles */
+input:focus, select:focus {
+  outline: none;
+}
+
+/* New notification pulse */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.new-badge {
+  animation: pulse 2s infinite;
+}

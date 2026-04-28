@@ -1,0 +1,124 @@
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <i class="fas fa-user-plus text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Student Enrollment</h1>
+          <p class="text-slate-500 text-sm mt-1">Register a new student manually</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="enrollmentSuccess" class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-check-circle text-emerald-600 text-xl"></i>
+        <div>
+          <p class="font-bold text-emerald-800">Student Enrolled Successfully!</p>
+          <p class="text-sm text-emerald-600">Roll Number: {{ generatedRollNumber || student.rollNumber }}</p>
+        </div>
+      </div>
+      <button (click)="newEnrollment()" class="px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition">Enroll Another</button>
+    </div>
+
+    <!-- Progress Tabs -->
+    <div class="flex flex-wrap gap-2 mb-8">
+      <button (click)="activeTab = 'personal'" [class]="getTabClass('personal')" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200">
+        <i class="fas fa-user mr-2"></i>Personal Info
+      </button>
+      <button (click)="activeTab = 'academic'" [class]="getTabClass('academic')" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200">
+        <i class="fas fa-graduation-cap mr-2"></i>Academic Info
+      </button>
+      <button (click)="activeTab = 'education'" [class]="getTabClass('education')" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200">
+        <i class="fas fa-university mr-2"></i>Previous Education
+      </button>
+      <button (click)="activeTab = 'guardian'" [class]="getTabClass('guardian')" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200">
+        <i class="fas fa-users mr-2"></i>Guardian Info
+      </button>
+      <button (click)="activeTab = 'documents'" [class]="getTabClass('documents')" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200">
+        <i class="fas fa-file-alt mr-2"></i>Documents
+      </button>
+    </div>
+
+    <!-- Form Content -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      
+      <!-- Personal Information Tab -->
+      <div *ngIf="activeTab === 'personal'" class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Full Name *</label><input type="text" [(ngModel)]="student.fullName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Father's Name *</label><input type="text" [(ngModel)]="student.fatherName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Mother's Name</label><input type="text" [(ngModel)]="student.motherName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Date of Birth</label><input type="date" [(ngModel)]="student.dateOfBirth" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Gender</label><select [(ngModel)]="student.gender" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"><option value="">Select</option><option *ngFor="let g of genders" [value]="g">{{ g }}</option></select></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Blood Group</label><select [(ngModel)]="student.bloodGroup" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"><option value="">Select</option><option *ngFor="let bg of bloodGroups" [value]="bg">{{ bg }}</option></select></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">CNIC *</label><input type="text" [(ngModel)]="student.cnic" placeholder="42101-1234567-8" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Email *</label><input type="email" [(ngModel)]="student.email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Phone Number *</label><input type="tel" [(ngModel)]="student.phone" placeholder="+92-XXX-XXXXXXX" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Alternate Phone</label><input type="tel" [(ngModel)]="student.alternatePhone" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"></div>
+          <div class="md:col-span-2"><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Address *</label><textarea [(ngModel)]="student.address" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none"></textarea></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">City</label><select [(ngModel)]="student.city" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"><option value="">Select</option><option *ngFor="let c of cities" [value]="c">{{ c }}</option></select></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Postal Code</label><input type="text" [(ngModel)]="student.postalCode" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"></div>
+        </div>
+      </div>
+
+      <!-- Academic Information Tab -->
+      <div *ngIf="activeTab === 'academic'" class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Program *</label><select [(ngModel)]="student.program" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"><option value="">Select Program</option><option *ngFor="let p of programs" [value]="p.value">{{ p.label }}</option></select></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Department *</label><select [(ngModel)]="student.department" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"><option value="">Select Department</option><option *ngFor="let d of departments" [value]="d">{{ d }}</option></select></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Current Semester</label><select [(ngModel)]="student.semester" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"><option *ngFor="let s of semesters" [value]="s">Semester {{ s }}</option></select></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Session *</label><select [(ngModel)]="student.session" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"><option value="">Select Session</option><option *ngFor="let s of sessions" [value]="s">{{ s }}</option></select></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Roll Number</label><div class="flex gap-2"><input type="text" [(ngModel)]="student.rollNumber" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-mono focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"><button (click)="generateRollNumber()" class="px-4 py-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition"><i class="fas fa-sync-alt"></i></button></div></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Registration Date</label><input type="date" [(ngModel)]="student.registrationDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"></div>
+        </div>
+      </div>
+
+      <!-- Previous Education Tab -->
+      <div *ngIf="activeTab === 'education'" class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2"><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Previous Institute *</label><input type="text" [(ngModel)]="student.previousInstitute" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Previous Degree *</label><input type="text" [(ngModel)]="student.previousDegree" placeholder="e.g., F.Sc, ICS, A-Level" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Percentage / CGPA *</label><input type="number" [(ngModel)]="student.percentage" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Year of Passing</label><select [(ngModel)]="student.yearOfPassing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"><option value="0">Select</option><option *ngFor="let y of [2020,2021,2022,2023,2024,2025]" [value]="y">{{ y }}</option></select></div>
+        </div>
+      </div>
+
+      <!-- Guardian Information Tab -->
+      <div *ngIf="activeTab === 'guardian'" class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Guardian Name *</label><input type="text" [(ngModel)]="student.guardianName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Relation *</label><select [(ngModel)]="student.guardianRelation" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"><option value="">Select</option><option *ngFor="let r of relations" [value]="r">{{ r }}</option></select></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Guardian Phone *</label><input type="tel" [(ngModel)]="student.guardianPhone" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"></div>
+          <div><label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Guardian Email</label><input type="email" [(ngModel)]="student.guardianEmail" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"></div>
+        </div>
+      </div>
+
+      <!-- Documents Tab -->
+      <div *ngIf="activeTab === 'documents'" class="p-6">
+        <div class="space-y-4">
+          <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl"><input type="checkbox" [(ngModel)]="student.cnicCopy" class="w-4 h-4 accent-blue-600"><label class="text-sm font-medium text-slate-700">CNIC / B-Form Copy</label></div>
+          <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl"><input type="checkbox" [(ngModel)]="student.domicile" class="w-4 h-4 accent-blue-600"><label class="text-sm font-medium text-slate-700">Domicile Certificate</label></div>
+          <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl"><input type="checkbox" [(ngModel)]="student.previousDegreeCert" class="w-4 h-4 accent-blue-600"><label class="text-sm font-medium text-slate-700">Previous Degree Certificate</label></div>
+          <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl"><input type="checkbox" [(ngModel)]="student.transcript" class="w-4 h-4 accent-blue-600"><label class="text-sm font-medium text-slate-700">Transcript / Marksheet</label></div>
+          <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl"><input type="checkbox" [(ngModel)]="student.passportPhoto" class="w-4 h-4 accent-blue-600"><label class="text-sm font-medium text-slate-700">Passport Size Photographs</label></div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-between">
+        <button (click)="previousTab()" *ngIf="activeTab !== 'personal'" class="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">Previous</button>
+        <div class="flex gap-3" [class.ml-auto]="activeTab === 'personal'">
+          <button *ngIf="activeTab !== 'documents'" (click)="nextTab()" class="px-6 py-2.5 bg-linear-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 transition shadow-lg">Next</button>
+          <button *ngIf="activeTab === 'documents'" (click)="submitEnrollment()" [disabled]="isSubmitting" class="px-8 py-2.5 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg disabled:opacity-50"><i *ngIf="isSubmitting" class="fas fa-spinner fa-spin mr-2"></i>{{ isSubmitting ? 'Processing...' : 'Submit Enrollment' }}</button>
+          <button (click)="resetForm()" type="button" class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-red-600 transition">Reset</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

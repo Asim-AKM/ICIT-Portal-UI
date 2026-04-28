@@ -1,0 +1,297 @@
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <i class="fas fa-book-open text-white text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+              Semester Details
+            </h1>
+            <p class="text-slate-500 text-sm mt-1">
+              View your academic progress, subjects, and grades
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Academic Summary Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-chart-line text-emerald-600"></i>
+          </div>
+          <span class="text-2xl font-black text-slate-900">{{ cgpa }}</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CGPA</p>
+        <p class="text-xs text-emerald-600 mt-1">↑ 0.15 from last semester</p>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-graduation-cap text-blue-600"></i>
+          </div>
+          <span class="text-2xl font-black text-slate-900">{{ totalEarnedCredits }}</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Earned Credits</p>
+        <p class="text-xs text-slate-500">of {{ totalRequiredCredits }} required</p>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-calendar-alt text-purple-600"></i>
+          </div>
+          <span class="text-2xl font-black text-slate-900">4th</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Current Semester</p>
+        <p class="text-xs text-slate-500">Spring 2026</p>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-trophy text-amber-600"></i>
+          </div>
+          <span class="text-2xl font-black text-slate-900">Top 15%</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Class Ranking</p>
+        <p class="text-xs text-emerald-600">↑ Improved by 5%</p>
+      </div>
+    </div>
+
+    <!-- Semester Selector -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-6">
+      <div class="flex flex-wrap gap-3">
+        <button *ngFor="let semester of semesters"
+                (click)="selectedSemester = semester.id"
+                class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200"
+                [class]="selectedSemester === semester.id 
+                  ? 'bg-linear-to-r from-emerald-500 to-emerald-600 text-white shadow-md' 
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100'">
+          <i [class]="getSemesterIcon(semester.season)" class="mr-2 text-xs"></i>
+          {{ semester.name }} ({{ semester.season }} {{ semester.year }})
+          <span *ngIf="semester.status === 'completed'" class="ml-2 text-[9px] opacity-80">
+            GPA: {{ semester.gpa }}
+          </span>
+          <span *ngIf="semester.status === 'ongoing'" class="ml-2 text-[9px] opacity-80">
+            Ongoing
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Semester GPA Display -->
+    <div *ngIf="selectedSemester !== 'semester-4'" class="mb-6 p-4 bg-linear-to-r from-emerald-50 to-emerald-100/50 rounded-2xl border border-emerald-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Semester GPA</p>
+          <p class="text-3xl font-black text-emerald-800">{{ semesterGPA }}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Status</p>
+          <p class="text-sm font-bold text-emerald-800">{{ selectedSemesterData?.status | titlecase }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="selectedSemester === 'semester-4' && semesterGPA > 0" class="mb-6 p-4 bg-linear-to-r from-amber-50 to-amber-100/50 rounded-2xl border border-amber-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-amber-700 uppercase tracking-wider">Current Semester GPA (Estimated)</p>
+          <p class="text-3xl font-black text-amber-800">{{ semesterGPA }}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs font-bold text-amber-700 uppercase tracking-wider">Status</p>
+          <p class="text-sm font-bold text-amber-800">In Progress</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subjects Table -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+            <i class="fas fa-chalkboard-teacher text-sm"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800">Subjects</h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              {{ subjects.length }} subjects • Total Credit Hours: {{ subjects.reduce((sum, s) => sum + s.creditHours, 0) }}
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-slate-50/50 border-b border-slate-100">
+            <tr>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Course</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Teacher</div>
+              </th>
+              <th class="px-6 py-4 text-center">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Credits</div>
+              </th>
+              <th class="px-6 py-4 text-center">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Attendance</div>
+              </th>
+              <th class="px-6 py-4 text-center">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Grade</div>
+              </th>
+              <th class="px-6 py-4 text-center">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Grade Points</div>
+              </th>
+              <th class="px-6 py-4 text-center">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Actions</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr *ngFor="let subject of subjects" class="hover:bg-slate-50/50 transition group">
+              <td class="px-6 py-4">
+                <div>
+                  <p class="text-sm font-bold text-slate-800">{{ subject.name }}</p>
+                  <p class="text-xs font-mono text-slate-400">{{ subject.code }}</p>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                    <i class="fas fa-user text-slate-500 text-xs"></i>
+                  </div>
+                  <span class="text-sm text-slate-700">{{ subject.teacher }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <span class="text-sm font-semibold text-slate-700">{{ subject.creditHours }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center justify-center gap-2">
+                  <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full transition-all"
+                         [class]="getAttendanceColor(subject.attendance)"
+                         [style.width]="subject.attendance + '%'"></div>
+                  </div>
+                  <span class="text-xs font-bold">{{ subject.attendance }}%</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <span class="inline-flex items-center justify-center w-12 py-1 rounded-lg text-xs font-bold"
+                      [class]="getGradeColor(subject.grade)">
+                  {{ subject.grade }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <span class="text-sm font-semibold"
+                      [class]="subject.gradePoints >= 3.5 ? 'text-emerald-600' : subject.gradePoints >= 3.0 ? 'text-blue-600' : 'text-slate-600'">
+                  {{ subject.gradePoints || '-' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <button *ngIf="subject.status === 'ongoing'" 
+                        (click)="viewMarks(subject)"
+                        class="px-3 py-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition">
+                  View Marks
+                </button>
+                <button *ngIf="subject.status === 'completed'" 
+                        (click)="viewMarks(subject)"
+                        class="px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+                  View Details
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Marks Modal -->
+  <div *ngIf="showMarksModal && selectedSubject" 
+       class="fixed inset-0 z-100 flex items-center justify-center p-4" (click)="closeModal()">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in"></div>
+    
+    <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-emerald-500 to-emerald-600"></div>
+      
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+              <i class="fas fa-chart-line text-sm"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-slate-900">{{ selectedSubject.name }}</h3>
+              <p class="text-xs text-slate-500">{{ selectedSubject.code }} • {{ selectedSubject.creditHours }} Credits</p>
+            </div>
+          </div>
+          <button (click)="closeModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 transition">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Marks Breakdown -->
+        <div class="space-y-4 mb-6">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3 bg-slate-50 rounded-xl">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Midterm</p>
+              <p class="text-2xl font-bold text-slate-800">{{ selectedSubject.marks.midterm || '-' }}/100</p>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Final Exam</p>
+              <p class="text-2xl font-bold text-slate-800">{{ selectedSubject.marks.final || '-' }}/100</p>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assignments</p>
+              <p class="text-2xl font-bold text-slate-800">{{ selectedSubject.marks.assignment || '-' }}/100</p>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Quizzes</p>
+              <p class="text-2xl font-bold text-slate-800">{{ selectedSubject.marks.quiz || '-' }}/100</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-linear-to-r from-emerald-50 to-emerald-100/50 rounded-2xl">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Total Marks</p>
+                <p class="text-3xl font-black text-emerald-800">{{ selectedSubject.marks.total }}/100</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Grade</p>
+                <p class="text-2xl font-black text-emerald-800">{{ selectedSubject.grade }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 bg-blue-50 rounded-2xl">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-chalkboard-teacher text-blue-600"></i>
+              <div>
+                <p class="text-xs font-bold text-blue-700 uppercase tracking-wider">Teacher's Comment</p>
+                <p class="text-sm text-slate-700 mt-1">Good performance! Keep up the excellent work.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button (click)="closeModal()" 
+                class="w-full py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

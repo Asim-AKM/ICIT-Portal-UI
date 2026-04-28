@@ -1,0 +1,313 @@
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Breadcrumb Navigation -->
+    <div class="mb-8">
+      <nav class="flex items-center gap-2 text-xs font-medium text-slate-500 mb-4">
+        <a routerLink="/users" class="hover:text-emerald-600 transition flex items-center gap-1">
+          <i class="fas fa-arrow-left text-xs"></i>
+          Back to Users
+        </a>
+      </nav>
+      
+      <div class="flex items-center gap-3">
+        <div class="w-14 h-14 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <i class="fas fa-user-plus text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+            Onboard New Member
+          </h1>
+          <p class="text-slate-500 text-sm mt-1">
+            Assign a system role and provide credentials for the new staff member
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <form #userForm="ngForm" (ngSubmit)="onSubmit(userForm)" class="space-y-6">
+      
+      <!-- Primary Identity Section -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+              <i class="fas fa-id-card text-sm"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-800">Primary Identity</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Basic personal and account information</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Full Name -->
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                Full Name <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input 
+                  type="text" 
+                  [(ngModel)]="user.fullName"
+                  name="fullName"
+                  (blur)="generateUsername()"
+                  required
+                  placeholder="e.g., Dr. Muhammad Ahmed"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+              </div>
+              <p class="text-[10px] text-slate-400">Full name as per official records</p>
+            </div>
+
+            <!-- Username -->
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                Username <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <i class="fas fa-at absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input 
+                  type="text" 
+                  [(ngModel)]="user.username"
+                  name="username"
+                  required
+                  placeholder="username"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+              </div>
+              <p class="text-[10px] text-slate-400">Unique login identifier (auto-generated from name)</p>
+            </div>
+
+            <!-- Email -->
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                Official Email <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input 
+                  type="email" 
+                  [(ngModel)]="user.email"
+                  name="email"
+                  required
+                  email
+                  placeholder="name@icit.edu.pk"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+              </div>
+            </div>
+
+            <!-- Employee ID -->
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                Employee ID
+              </label>
+              <div class="relative">
+                <i class="fas fa-id-badge absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input 
+                  type="text" 
+                  [(ngModel)]="user.employeeId"
+                  name="employeeId"
+                  placeholder="e.g., FAC-2024-001"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+              </div>
+            </div>
+
+            <!-- Department -->
+            <div class="space-y-2 md:col-span-2">
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                Department
+              </label>
+              <div class="relative">
+                <i class="fas fa-building absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <select 
+                  [(ngModel)]="user.department"
+                  name="department"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none cursor-pointer appearance-none">
+                  <option value="">Select Department</option>
+                  <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+                </select>
+                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Password Section (Conditional) -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+              <i class="fas fa-lock text-sm"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-800">Security Credentials</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Set up account password</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <div class="mb-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="user.generateTempPassword"
+                name="generateTempPassword"
+                class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+              <span class="text-sm font-medium text-slate-700">Generate temporary password and send to user email</span>
+            </label>
+          </div>
+
+          <div *ngIf="!user.generateTempPassword" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Password -->
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  Password <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                  <input 
+                    type="password" 
+                    [(ngModel)]="user.password"
+                    name="password"
+                    (input)="checkPasswordStrength()"
+                    required
+                    placeholder="Enter strong password"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+                </div>
+                
+                <!-- Password Strength Indicator -->
+                <div *ngIf="user.password" class="mt-2">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-[10px] font-bold text-slate-500">Password Strength:</span>
+                    <span class="text-[10px] font-bold" [class.text-red-600]="passwordStrength <= 2"
+                          [class.text-yellow-600]="passwordStrength === 3"
+                          [class.text-emerald-600]="passwordStrength >= 4">
+                      {{ passwordStrengthText }}
+                    </span>
+                  </div>
+                  <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full transition-all duration-300 rounded-full" 
+                         [class]="passwordStrengthColor"
+                         [style.width]="getPasswordStrengthWidth()"></div>
+                  </div>
+                  <p class="text-[10px] text-slate-400 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Use 8+ chars with uppercase, lowercase, number & symbol
+                  </p>
+                </div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  Confirm Password <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <i class="fas fa-check-circle absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                  <input 
+                    type="password" 
+                    [(ngModel)]="user.confirmPassword"
+                    name="confirmPassword"
+                    required
+                    placeholder="Confirm password"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+                </div>
+                <p *ngIf="user.confirmPassword && !passwordsMatch()" 
+                   class="text-[10px] text-red-500 mt-1">
+                  <i class="fas fa-exclamation-circle mr-1"></i>
+                  Passwords do not match
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Role Section -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+              <i class="fas fa-user-shield text-sm"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-800">System Role</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Select access level and permissions</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div *ngFor="let roleOption of roles"
+                 (click)="user.role = roleOption.value"
+                 [class]="user.role === roleOption.value 
+                   ? 'border-2 border-emerald-500 bg-emerald-50/50 shadow-md' 
+                   : 'border border-slate-200 hover:border-emerald-300 hover:shadow-sm'"
+                 class="relative p-4 rounded-2xl cursor-pointer transition-all duration-200">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+                     [class]="user.role === roleOption.value 
+                       ? 'bg-emerald-500 text-white' 
+                       : 'bg-slate-100 text-slate-600'">
+                  <i [class]="roleOption.icon" class="text-sm"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-sm text-slate-800">{{ roleOption.label }}</p>
+                  <p class="text-[10px] text-slate-500 mt-0.5">{{ roleOption.description }}</p>
+                </div>
+              </div>
+              <div *ngIf="user.role === roleOption.value" 
+                   class="absolute top-2 right-2">
+                <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Preferences -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6">
+          <div class="space-y-3">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="user.sendWelcomeEmail"
+                name="sendWelcomeEmail"
+                class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+              <div>
+                <span class="text-sm font-medium text-slate-700">Send welcome email</span>
+                <p class="text-xs text-slate-500">User will receive login instructions and orientation materials</p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4">
+        <button 
+          type="button"
+          (click)="cancel()"
+          class="px-8 py-3 text-sm font-bold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-2xl transition-all duration-200">
+          Cancel
+        </button>
+        
+        <button 
+          type="submit"
+          [disabled]="!isFormValid()"
+          class="px-10 py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl text-sm font-bold hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-emerald-500 disabled:hover:to-emerald-600">
+          <i class="fas fa-user-plus mr-2"></i>
+          Create Account
+        </button>
+      </div>
+    </form>
+  </main>
+</div>

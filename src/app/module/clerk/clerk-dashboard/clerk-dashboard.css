@@ -1,0 +1,39 @@
+/* Custom animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card animations */
+.bg-white {
+  animation: fadeInUp 0.4s ease-out backwards;
+}
+.bg-white:nth-child(1) { animation-delay: 0.05s; }
+.bg-white:nth-child(2) { animation-delay: 0.1s; }
+.bg-white:nth-child(3) { animation-delay: 0.15s; }
+
+/* Priority styles */
+.priority-high { background-color: #fee2e2; color: #dc2626; }
+.priority-medium { background-color: #fed7aa; color: #d97706; }
+.priority-low { background-color: #dbeafe; color: #3b82f6; }
+.priority-default { background-color: #f1f5f9; color: #64748b; }
+
+/* Status styles */
+.status-success { background-color: #d1fae5; color: #059669; }
+.status-pending { background-color: #fef3c7; color: #d97706; }
+.status-warning { background-color: #fee2e2; color: #dc2626; }
+.status-default { background-color: #f1f5f9; color: #64748b; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Hover effects */
+.group:hover { transform: translateY(-2px); }
+
+/* Progress bar animation */
+.bg-blue-500, .bg-emerald-500, .bg-purple-500, .bg-amber-500 {
+  transition: width 1s ease-in-out;
+}

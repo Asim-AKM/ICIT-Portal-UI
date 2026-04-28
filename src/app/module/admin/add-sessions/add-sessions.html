@@ -1,0 +1,369 @@
+<div class="min-h-screen g-linear-to-r from-slate-50 via-white to-slate-50">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header Section -->
+    <div class="mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-12 g-linear-to-r from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <i class="fas fa-calendar-plus text-white text-xl"></i>
+            </div>
+            <div>
+              <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+                Session Management
+              </h1>
+              <p class="text-slate-500 text-sm mt-1">
+                Create and manage academic timelines & session states
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <button 
+          (click)="openCreateModal()"
+          class="inline-flex items-center gap-2 bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-2xl text-sm font-bold shadow-lg shadow-emerald-500/25 transition-all duration-200 active:scale-95">
+          <i class="fas fa-plus text-xs"></i>
+          Initialize Session
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Sessions</p>
+            <p class="text-2xl font-black text-slate-900 mt-1">{{ sessions.length }}</p>
+          </div>
+          <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-calendar-alt text-emerald-600"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active</p>
+            <p class="text-2xl font-black text-emerald-600 mt-1">{{ getStatusCount('active') }}</p>
+          </div>
+          <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-play-circle text-emerald-600"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Inactive</p>
+            <p class="text-2xl font-black text-amber-600 mt-1">{{ getStatusCount('inactive') }}</p>
+          </div>
+          <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-pause-circle text-amber-600"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completed</p>
+            <p class="text-2xl font-black text-blue-600 mt-1">{{ getStatusCount('completed') }}</p>
+          </div>
+          <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-check-circle text-blue-600"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-6">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="relative flex-1 min-w-50">
+          <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()"
+            placeholder="Search sessions..."
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+        </div>
+        
+        <select 
+          [(ngModel)]="statusFilter"
+          (change)="onStatusFilterChange()"
+          class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none cursor-pointer hover:bg-slate-100 transition">
+          <option value="all">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Sessions Table -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-linear-to-r from-slate-50 to-white border-b-2 border-slate-100">
+            <tr>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">ID</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Session Title</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Date Range</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Duration</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Enrollments</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</div>
+              </th>
+              <th class="px-6 py-4 text-right">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Actions</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr *ngFor="let session of filteredSessions" 
+                class="hover:bg-slate-50/50 transition-all duration-200 group">
+              <td class="px-6 py-4">
+                <span class="text-xs font-mono text-slate-400">#{{ session.id.padStart(2, '0') }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div>
+                  <p class="text-sm font-bold text-slate-800">{{ session.title }}</p>
+                  <p class="text-xs text-slate-500">{{ session.description }}</p>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-xs text-slate-600">{{ formatDateRange(session) }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-xs text-slate-500">
+                  {{ Math.ceil((session.endDate.getTime() - session.startDate.getTime()) / (1000 * 60 * 60 * 24)) }} days
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-sm font-semibold text-slate-700">{{ session.enrollmentCount | number }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full" [class]="getStatusDotColor(session.status)"></div>
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold border"
+                        [class]="getStatusBadgeClass(session.status)">
+                    <i [class]="getStatusIcon(session.status)" class="text-[8px]"></i>
+                    {{ getStatusLabel(session.status) | uppercase }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button 
+                    (click)="openEditModal(session)"
+                    class="w-8 h-8 rounded-lg text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition"
+                    title="Configure Session">
+                    <i class="fas fa-sliders-h text-xs"></i>
+                  </button>
+                  <button 
+                    (click)="deleteSession(session.id)"
+                    class="w-8 h-8 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
+                    title="Delete Session">
+                    <i class="fas fa-trash-alt text-xs"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            
+            <!-- Empty State -->
+            <tr *ngIf="filteredSessions.length === 0">
+              <td colspan="7" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-calendar-times text-2xl text-slate-400"></i>
+                  </div>
+                  <p class="text-slate-500 font-medium">No sessions found</p>
+                  <p class="text-sm text-slate-400">Create a new session to get started</p>
+                  <button 
+                    (click)="openCreateModal()"
+                    class="mt-2 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition">
+                    Initialize Session
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Create Session Modal -->
+  <div *ngIf="showCreateModal" class="fixed inset-0 z-100 flex items-center justify-center p-4" (click)="closeCreateModal()">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in"></div>
+    
+    <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-emerald-500 to-emerald-600"></div>
+      
+      <div class="p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 g-linear-to-r from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+            <i class="fas fa-calendar-plus text-white text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-2xl font-black text-slate-900">New Session</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Initialize a new academic timeframe</p>
+          </div>
+        </div>
+        
+        <div class="space-y-5">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+              Session Title <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              [(ngModel)]="newSession.title"
+              placeholder="e.g., Summer Semester 2026"
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                Start Date <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="date" 
+                [(ngModel)]="newSession.startDate"
+                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                End Date <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="date" 
+                [(ngModel)]="newSession.endDate"
+                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+              Description
+            </label>
+            <textarea 
+              [(ngModel)]="newSession.description"
+              rows="3"
+              placeholder="Optional: Additional details about this session"
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition resize-none"></textarea>
+          </div>
+          
+          <div class="flex gap-3 pt-4">
+            <button 
+              (click)="closeCreateModal()"
+              class="flex-1 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+              Cancel
+            </button>
+            <button 
+              (click)="createSession()"
+              class="flex-1 px-4 py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg">
+              <i class="fas fa-check mr-2"></i>Initialize Session
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Session Modal -->
+  <div *ngIf="showEditModal && selectedSession" class="fixed inset-0 z-100 flex items-center justify-center p-4" (click)="closeEditModal()">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in"></div>
+    
+    <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-emerald-500 to-emerald-600"></div>
+      
+      <div class="p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 bg-linear-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center">
+            <i class="fas fa-sliders-h text-white text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-2xl font-black text-slate-900">Configure Session</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Update parameters and status for {{ selectedSession.title }}</p>
+          </div>
+        </div>
+        
+        <div class="space-y-5">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+              Session Status
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <div *ngFor="let status of statusOptions"
+                   (click)="updateSessionStatus(status.value)"
+                   [class]="selectedSession.status === status.value 
+                     ? 'border-2 border-emerald-500 bg-emerald-50/50 shadow-md' 
+                     : 'border border-slate-200 hover:border-emerald-300'"
+                   class="p-3 rounded-xl cursor-pointer transition-all duration-200">
+                <div class="flex flex-col items-center gap-1">
+                  <i [class]="status.icon" [class]="selectedSession.status === status.value ? 'text-emerald-600' : 'text-slate-400'"></i>
+                  <p class="text-xs font-bold" [class]="selectedSession.status === status.value ? 'text-emerald-700' : 'text-slate-600'">
+                    {{ status.label }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-slate-50 rounded-xl p-4">
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-slate-500">Start Date</span>
+                <span class="text-sm font-semibold text-slate-700">{{ selectedSession.startDate | date:'MMM dd, yyyy' }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-slate-500">End Date</span>
+                <span class="text-sm font-semibold text-slate-700">{{ selectedSession.endDate | date:'MMM dd, yyyy' }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-slate-500">Duration</span>
+                <span class="text-sm font-semibold text-slate-700">
+                  {{ Math.ceil((selectedSession.endDate.getTime() - selectedSession.startDate.getTime()) / (1000 * 60 * 60 * 24)) }} days
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-slate-500">Total Enrollments</span>
+                <span class="text-sm font-semibold text-emerald-600">{{ selectedSession.enrollmentCount | number }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex gap-3 pt-4">
+            <button 
+              (click)="closeEditModal()"
+              class="flex-1 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+              Cancel
+            </button>
+            <button 
+              (click)="updateSession()"
+              class="flex-1 px-4 py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg">
+              <i class="fas fa-save mr-2"></i>Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

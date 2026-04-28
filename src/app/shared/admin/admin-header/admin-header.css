@@ -1,0 +1,36 @@
+/* admin-header.css */
+.active {
+  color: rgb(5 150 105); /* emerald-600 */
+  border-bottom-width: 2px;
+  border-bottom-color: rgb(5 150 105); /* emerald-600 */
+}
+
+.active-mobile {
+  background-color: rgb(236 253 245); /* emerald-50 */
+  color: rgb(4 120 87); /* emerald-700 */
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Smooth transitions */
+button, a {
+  transition: all 0.2s ease;
+}
+
+/* Animation for dropdowns */
+#adminDropdown {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

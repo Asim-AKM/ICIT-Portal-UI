@@ -1,0 +1,360 @@
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-12 h-12 bg-linear-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+                        <i class="fas fa-project-diagram text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+                            FYP Proposal System
+                        </h1>
+                        <p class="text-slate-500 text-sm mt-1">
+                            Submit and track your final year project proposals
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <!-- Deadline Alert -->
+                    <div class="px-4 py-2 bg-amber-50 rounded-xl border border-amber-200">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-hourglass-half text-amber-600"></i>
+                            <span class="text-xs font-bold text-amber-700">
+                                Deadline: {{ formatDate(currentDeadline) }}
+                            </span>
+                            <span class="text-xs font-bold text-red-600">
+                                ({{ getDaysRemaining(currentDeadline) }} days left)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-1 mb-6">
+            <div class="flex gap-1">
+                <button (click)="activeTab = 'view'"
+                    class="flex-1 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200" [class]="activeTab === 'view' 
+                  ? 'bg-linear-to-r from-purple-500 to-purple-600 text-white shadow-md' 
+                  : 'text-slate-600 hover:bg-slate-100'">
+                    <i class="fas fa-list mr-2"></i>My Proposals
+                </button>
+                <button (click)="activeTab = 'submit'"
+                    class="flex-1 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200" [class]="activeTab === 'submit' 
+                  ? 'bg-linear-to-r from-purple-500 to-purple-600 text-white shadow-md' 
+                  : 'text-slate-600 hover:bg-slate-100'">
+                    <i class="fas fa-plus mr-2"></i>Submit New Proposal
+                </button>
+            </div>
+        </div>
+
+        <!-- View Proposals Tab -->
+        <div *ngIf="activeTab === 'view'" class="space-y-6">
+            <div *ngFor="let proposal of myProposals"
+                class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300">
+
+                <!-- Proposal Header -->
+                <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+                    <div class="flex flex-wrap items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border"
+                                    [class]="getStatusBadgeClass(proposal.status)">
+                                    <i [class]="getStatusIcon(proposal.status)" class="text-[8px]"></i>
+                                    {{ getStatusLabel(proposal.status) | uppercase }}
+                                </span>
+                                <span *ngIf="getProposalLockStatus(proposal).isLocked"
+                                    class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-[9px] font-bold">
+                                    <i class="fas fa-lock"></i> Locked
+                                </span>
+                            </div>
+                            <h2 class="text-xl font-bold text-slate-800">{{ proposal.title }}</h2>
+                            <p class="text-sm text-slate-600 mt-2">{{ proposal.description }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-slate-500">Submitted on</p>
+                            <p class="text-sm font-semibold text-slate-700">{{ formatDate(proposal.submittedDate!) }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proposal Details -->
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Category</p>
+                            <p class="text-sm font-semibold text-slate-700 mt-1">{{ proposal.category }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Supervisor</p>
+                            <p class="text-sm font-semibold text-slate-700 mt-1">{{ proposal.supervisor }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Technologies</p>
+                            <div class="flex flex-wrap gap-1 mt-1">
+                                <span *ngFor="let tech of proposal.technologies"
+                                    class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded">
+                                    {{ tech }}
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Team Members</p>
+                            <p class="text-sm font-semibold text-slate-700 mt-1">{{ proposal.teamMembers.length }}
+                                members</p>
+                        </div>
+                    </div>
+
+                    <!-- Review Comments -->
+                    <div *ngIf="proposal.reviewComments" class="mt-4 p-4 bg-blue-50 rounded-xl">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-comment-dots text-blue-500 mt-0.5"></i>
+                            <div>
+                                <p class="text-xs font-bold text-blue-700 uppercase tracking-wider">Reviewer Comments
+                                </p>
+                                <p class="text-sm text-slate-700 mt-1">{{ proposal.reviewComments }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Members List -->
+                    <div class="mt-4">
+                        <button (click)="openProposalModal(proposal)"
+                            class="px-4 py-2 text-sm font-bold text-purple-600 bg-purple-50 rounded-xl hover:bg-purple-100 transition"
+                            [disabled]="getProposalLockStatus(proposal).isLocked"
+                            [class.opacity-50]="getProposalLockStatus(proposal).isLocked">
+                            <i class="fas fa-eye mr-2"></i>View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="myProposals.length === 0" class="bg-white rounded-3xl border border-slate-200 p-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-project-diagram text-2xl text-slate-400"></i>
+                    </div>
+                    <p class="text-slate-500 font-medium">No proposals found</p>
+                    <p class="text-sm text-slate-400">Submit your first FYP proposal to get started</p>
+                    <button (click)="activeTab = 'submit'"
+                        class="mt-2 px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 rounded-xl hover:bg-purple-100 transition">
+                        Submit New Proposal
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Proposal Tab -->
+        <div *ngIf="activeTab === 'submit'"
+            class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-file-alt text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800">New Proposal Submission</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Fill in the details to submit your FYP proposal</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <div class="space-y-6">
+                    <!-- Proposal Title -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                            Proposal Title <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" [(ngModel)]="newProposal.title" placeholder="Enter your project title"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                            Description <span class="text-red-500">*</span>
+                        </label>
+                        <textarea [(ngModel)]="newProposal.description" rows="4"
+                            placeholder="Describe your project in detail..."
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition resize-none"></textarea>
+                    </div>
+
+                    <!-- Category & Supervisor -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                                Category <span class="text-red-500">*</span>
+                            </label>
+                            <select [(ngModel)]="newProposal.category"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition">
+                                <option value="">Select Category</option>
+                                <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                                Supervisor <span class="text-red-500">*</span>
+                            </label>
+                            <select [(ngModel)]="newProposal.supervisor"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition">
+                                <option value="">Select Supervisor</option>
+                                <option *ngFor="let sup of supervisors" [value]="sup.name">
+                                    {{ sup.name }} ({{ sup.designation }}) - {{ sup.availability | titlecase }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Technologies -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                            Technologies Used
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text" [(ngModel)]="techInput"
+                                placeholder="Add technology (e.g., Angular, Python, etc.)"
+                                class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition">
+                            <button (click)="addTechnology()"
+                                class="px-4 py-3 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span *ngFor="let tech of newProposal.technologies"
+                                class="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 text-sm rounded-lg">
+                                {{ tech }}
+                                <button (click)="removeTechnology(tech)" class="text-purple-400 hover:text-red-500">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Team Members -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                Team Members <span class="text-red-500">*</span>
+                            </label>
+                            <button (click)="openTeamModal()"
+                                class="text-xs font-bold text-purple-600 hover:text-purple-700 transition">
+                                <i class="fas fa-user-plus mr-1"></i>Add Member
+                            </button>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div *ngFor="let member of newProposal.teamMembers"
+                                class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-bold text-slate-800">{{ member.name }}</span>
+                                        <span class="text-[10px] font-bold"
+                                            [class]="member.role === 'leader' ? 'text-emerald-600' : 'text-slate-500'">
+                                            ({{ member.role | titlecase }})
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-slate-500">{{ member.rollNo }} | {{ member.email }}</p>
+                                </div>
+                                <button (click)="removeTeamMember(member.id)"
+                                    class="text-slate-400 hover:text-red-500 transition">
+                                    <i class="fas fa-trash-alt text-sm"></i>
+                                </button>
+                            </div>
+
+                            <div *ngIf="newProposal.teamMembers.length === 0"
+                                class="p-4 bg-slate-50 rounded-xl text-center">
+                                <p class="text-sm text-slate-500">No team members added yet</p>
+                                <p class="text-xs text-slate-400 mt-1">Click "Add Member" to add team members</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex gap-3 pt-4 border-t border-slate-100">
+                        <button (click)="activeTab = 'view'"
+                            class="flex-1 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                            Cancel
+                        </button>
+                        <button (click)="submitProposal()"
+                            class="flex-1 px-4 py-3 bg-linear-to-r from-purple-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-purple-600 hover:to-purple-700 transition shadow-lg">
+                            <i class="fas fa-paper-plane mr-2"></i>Submit Proposal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Team Member Modal -->
+    <div *ngIf="showTeamModal" class="fixed inset-0 z-100 flex items-center justify-center p-4"
+        (click)="closeTeamModal()">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in"></div>
+
+        <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-scale-up"
+            (click)="$event.stopPropagation()">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-purple-500 to-purple-600"></div>
+
+            <div class="p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-user-plus text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900">Add Team Member</h3>
+                        <p class="text-xs text-slate-500">Add your project team members</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-2">Full Name</label>
+                        <input type="text" [(ngModel)]="newMember.name" placeholder="Enter full name"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-2">Roll Number</label>
+                        <input type="text" [(ngModel)]="newMember.rollNo" placeholder="e.g., CS-2024-001"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-2">Email</label>
+                        <input type="email" [(ngModel)]="newMember.email" placeholder="student@icit.edu"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-2">Role</label>
+                        <select [(ngModel)]="newMember.role"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition">
+                            <option value="member">Member</option>
+                            <option value="leader">Leader</option>
+                        </select>
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button (click)="closeTeamModal()"
+                            class="flex-1 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                            Cancel
+                        </button>
+                        <button (click)="addTeamMember()"
+                            class="flex-1 px-4 py-3 bg-linear-to-r from-purple-500 to-purple-600 text-white text-sm font-bold rounded-xl hover:from-purple-600 hover:to-purple-700 transition shadow-lg">
+                            Add Member
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

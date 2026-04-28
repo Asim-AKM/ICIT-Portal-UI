@@ -1,0 +1,126 @@
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.2s ease-out;
+}
+
+/* Grade colors */
+.grade-a {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.grade-b {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.grade-c {
+  background-color: #fed7aa;
+  color: #ea580c;
+}
+
+.grade-progress {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.grade-default {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+/* Status badges */
+.status-completed {
+  background-color: #d1fae5;
+  color: #059669;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.status-ongoing {
+  background-color: #fef3c7;
+  color: #d97706;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.status-upcoming {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* Attendance colors */
+.attendance-excellent {
+  background-color: #10b981;
+}
+
+.attendance-good {
+  background-color: #f59e0b;
+}
+
+.attendance-poor {
+  background-color: #ef4444;
+}
+
+/* Table row hover */
+tbody tr {
+  transition: all 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

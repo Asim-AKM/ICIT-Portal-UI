@@ -1,0 +1,250 @@
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Welcome Section -->
+    <div class="mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-12 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <i class="fas fa-user-graduate text-white text-xl"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl lg:text-3xl font-black text-slate-900">
+                {{ getGreeting() }}, {{ studentName }}!
+              </h1>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="text-sm text-slate-500">{{ studentRollNo }} • {{ studentDepartment }}</span>
+                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">
+                  {{ currentSemester }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Semester Progress -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm min-w-50">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-bold text-slate-500">Semester Progress</span>
+            <span class="text-sm font-bold text-emerald-600">{{ semesterProgress }}%</span>
+          </div>
+          <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-linear-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-1000" 
+                 [style.width]="semesterProgress + '%'"></div>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-2">12 weeks remaining</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div *ngFor="let stat of quickStats" 
+           [routerLink]="stat.route"
+           class="group bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+               [class]="'bg-' + stat.color + '-50 text-' + stat.color + '-600'">
+            <i [class]="stat.icon" class="text-sm"></i>
+          </div>
+          <span *ngIf="stat.change !== 0" 
+                class="text-[10px] font-bold"
+                [class]="stat.change > 0 ? 'text-emerald-600' : 'text-red-600'">
+            <i [class]="stat.change > 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+            {{ stat.change > 0 ? '+' : '' }}{{ stat.change }}
+          </span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ stat.label }}</p>
+        <p class="text-xl font-black text-slate-900 mt-1">{{ stat.value }}</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Current Subjects -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                  <i class="fas fa-book-open text-sm"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-800">Current Semester Subjects</h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Spring 2026 • 15 Credit Hours</p>
+                </div>
+              </div>
+              <a routerLink="/student/semester" 
+                 class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 transition">
+                View All <i class="fas fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+          </div>
+          
+          <div class="divide-y divide-slate-50">
+            <div *ngFor="let subject of currentSubjects" class="p-4 hover:bg-slate-50/50 transition">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono text-slate-400">{{ subject.code }}</span>
+                    <span class="text-sm font-bold text-slate-800">{{ subject.name }}</span>
+                  </div>
+                  <p class="text-xs text-slate-500 mt-1">
+                    <i class="fas fa-chalkboard-teacher mr-1"></i>{{ subject.teacher }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="text-right">
+                    <p class="text-xs text-slate-500">Credit Hours</p>
+                    <p class="text-sm font-bold text-slate-700">{{ subject.creditHours }}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-xs text-slate-500">Grade</p>
+                    <p class="text-sm font-bold" [class]="getGradeColor(subject.grade)">{{ subject.grade }}</p>
+                  </div>
+                  <div class="text-right min-w-15">
+                    <p class="text-xs text-slate-500">Attendance</p>
+                    <div class="flex items-center gap-1 mt-1">
+                      <div class="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full" 
+                             [class]="getAttendanceColor(subject.attendance)"
+                             [style.width]="subject.attendance + '%'"></div>
+                      </div>
+                      <span class="text-xs font-bold">{{ subject.attendance }}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="space-y-6">
+        
+        <!-- Upcoming Events -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-calendar-alt text-emerald-500 text-sm"></i>
+              <h3 class="font-bold text-slate-800">Upcoming Events</h3>
+            </div>
+          </div>
+          
+          <div class="divide-y divide-slate-50">
+            <div *ngFor="let event of upcomingEvents" class="p-4">
+              <div class="flex gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                     [class]="getEventColor(event.type)">
+                  <i [class]="getEventIcon(event.type)" class="text-sm"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-bold text-slate-800">{{ event.title }}</p>
+                  <p class="text-xs text-slate-500 mt-0.5">{{ event.description }}</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <span class="text-[10px] text-slate-400">
+                      <i class="far fa-calendar mr-1"></i>{{ event.date | date:'MMM dd, yyyy' }}
+                    </span>
+                    <span *ngIf="getDaysRemaining(event.date) > 0" 
+                          class="text-[10px] font-bold text-amber-600">
+                      {{ getDaysRemaining(event.date) }} days left
+                    </span>
+                    <span *ngIf="getDaysRemaining(event.date) <= 0 && getDaysRemaining(event.date) > -1"
+                          class="text-[10px] font-bold text-red-600">
+                      Today!
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="p-4 bg-slate-50/50 border-t border-slate-100">
+            <a routerLink="/student/notifications" 
+               class="block text-center text-xs font-bold text-emerald-600 hover:text-emerald-700 transition">
+              View All Events <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Recent Notifications -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-bell text-emerald-500 text-sm"></i>
+                <h3 class="font-bold text-slate-800">Recent Notifications</h3>
+              </div>
+              <span class="px-2 py-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full">
+                {{ recentNotifications.filter(n => !n.isRead).length }} New
+              </span>
+            </div>
+          </div>
+          
+          <div class="divide-y divide-slate-50 max-h-80 overflow-y-auto">
+            <div *ngFor="let notification of recentNotifications" 
+                 class="p-4 hover:bg-slate-50/50 transition cursor-pointer"
+                 [class.opacity-60]="notification.isRead">
+              <div class="flex gap-3">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                     [class]="notification.type === 'warning' ? 'bg-amber-100 text-amber-600' :
+                              notification.type === 'success' ? 'bg-emerald-100 text-emerald-600' :
+                              'bg-blue-100 text-blue-600'">
+                  <i [class]="notification.type === 'warning' ? 'fas fa-exclamation-triangle' :
+                              notification.type === 'success' ? 'fas fa-check-circle' :
+                              'fas fa-info-circle'" class="text-sm"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm text-slate-700">{{ notification.message }}</p>
+                  <p class="text-[10px] text-slate-400 mt-1">{{ formatTimeAgo(notification.time) }}</p>
+                </div>
+                <div *ngIf="!notification.isRead" 
+                     class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="p-4 bg-slate-50/50 border-t border-slate-100">
+            <a routerLink="/student/notifications" 
+               class="block text-center text-xs font-bold text-emerald-600 hover:text-emerald-700 transition">
+              View All Notifications <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-linear-to-br from-emerald-500 to-emerald-600 rounded-3xl p-5 shadow-xl">
+          <h3 class="text-white font-bold mb-3 flex items-center gap-2">
+            <i class="fas fa-bolt"></i>
+            Quick Actions
+          </h3>
+          <div class="space-y-2">
+            <a routerLink="/student/fee" 
+               class="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition text-white text-sm">
+              <span>Pay Semester Fee</span>
+              <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+            <a routerLink="/student/fyp" 
+               class="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition text-white text-sm">
+              <span>Submit FYP Proposal</span>
+              <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+            <a routerLink="/student/transcript" 
+               class="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition text-white text-sm">
+              <span>Download Transcript</span>
+              <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+            <a routerLink="/student/semester" 
+               class="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition text-white text-sm">
+              <span>View Schedule</span>
+              <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

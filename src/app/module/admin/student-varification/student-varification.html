@@ -1,0 +1,332 @@
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header Section -->
+    <div class="mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-12 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <i class="fas fa-user-check text-white text-xl"></i>
+            </div>
+            <div>
+              <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+                Verification Center
+              </h1>
+              <p class="text-slate-500 text-sm mt-1">
+                Review and verify student enrollment applications
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Session Selector -->
+        <div class="w-full lg:w-72">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Academic Session</label>
+          <div class="relative">
+            <select 
+              [(ngModel)]="selectedSession"
+              class="w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer hover:border-emerald-300">
+              <option *ngFor="let session of sessions" [value]="session.id">
+                {{ session.name }}
+              </option>
+            </select>
+            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Tabs -->
+      <div class="mt-8">
+        <div class="gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 inline-flex shadow-sm">
+          <button 
+            (click)="filterByStatus('unverified')"
+            [class]="selectedStatus === 'unverified' ? 'bg-linear-to-r from-emerald-500 to-emerald-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'"
+            class="relative px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200">
+            <i class="fas fa-clock mr-2"></i>Unverified
+            <span *ngIf="getStatusCount('unverified') > 0" 
+                  [class]="selectedStatus === 'unverified' ? 'bg-white/20' : 'bg-emerald-100 text-emerald-700'"
+                  class="ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
+              {{ getStatusCount('unverified') }}
+            </span>
+          </button>
+          
+          <button 
+            (click)="filterByStatus('verified')"
+            [class]="selectedStatus === 'verified' ? 'bg-linear-to-r from-emerald-500 to-emerald-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'"
+            class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200">
+            <i class="fas fa-check-circle mr-2"></i>Verified
+            <span *ngIf="getStatusCount('verified') > 0" 
+                  [class]="selectedStatus === 'verified' ? 'bg-white/20' : 'bg-emerald-100 text-emerald-700'"
+                  class="ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
+              {{ getStatusCount('verified') }}
+            </span>
+          </button>
+          
+          <button 
+            (click)="filterByStatus('rejected')"
+            [class]="selectedStatus === 'rejected' ? 'bg-linear-to-r from-emerald-500 to-emerald-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'"
+            class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200">
+            <i class="fas fa-times-circle mr-2"></i>Rejected
+            <span *ngIf="getStatusCount('rejected') > 0" 
+                  [class]="selectedStatus === 'rejected' ? 'bg-white/20' : 'bg-red-100 text-red-700'"
+                  class="ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
+              {{ getStatusCount('rejected') }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-3 gap-4 mb-8">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Applications</p>
+            <p class="text-2xl font-black text-slate-900 mt-1">{{ filteredStudents.length }}</p>
+          </div>
+          <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-file-alt text-emerald-600"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completion Rate</p>
+            <p class="text-2xl font-black text-slate-900 mt-1">
+              {{ Math.round((getStatusCount('verified') / filteredStudents.length) * 100) || 0 }}%
+            </p>
+          </div>
+          <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-chart-line text-emerald-600"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Action</p>
+            <p class="text-2xl font-black text-amber-600 mt-1">{{ getStatusCount('unverified') }}</p>
+          </div>
+          <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+            <i class="fas fa-clock text-amber-600"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-linear-to-r from-slate-50 to-white border-b-2 border-slate-100">
+            <tr>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Student Information</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Roll Number</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Department</div>
+              </th>
+              <th class="px-6 py-4 text-left">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</div>
+              </th>
+              <th class="px-6 py-4 text-right">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Actions</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr *ngFor="let student of filteredStudents" 
+                class="hover:bg-slate-50/50 transition-all duration-200 group">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+                    <i class="fas fa-user-graduate text-slate-600 text-sm"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-slate-800">{{ student.name }}</p>
+                    <p class="text-xs text-slate-500">{{ student.email }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-xs font-mono text-slate-600">{{ student.rollNumber }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-xs text-slate-600">{{ student.department }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full" [class]="getStatusDotColor(student.status)"></div>
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold border"
+                        [class]="getStatusBadgeClass(student.status)">
+                    <i [class]="getStatusIcon(student.status)" class="text-[8px]"></i>
+                    {{ student.status | uppercase }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button *ngIf="student.status === 'unverified'"
+                          (click)="verifyStudent(student.id)"
+                          class="px-4 py-2 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 shadow-sm">
+                    <i class="fas fa-check mr-1"></i> Verify
+                  </button>
+                  <button *ngIf="student.status === 'unverified'"
+                          (click)="rejectStudent(student.id)"
+                          class="px-4 py-2 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-all duration-200">
+                    <i class="fas fa-times mr-1"></i> Reject
+                  </button>
+                  <button *ngIf="student.status === 'rejected'"
+                          (click)="reviewStudent(student.id)"
+                          class="px-4 py-2 bg-slate-600 text-white text-xs font-bold rounded-lg hover:bg-slate-700 transition-all duration-200">
+                    <i class="fas fa-eye mr-1"></i> Review
+                  </button>
+                  <button *ngIf="student.status === 'verified'"
+                          (click)="reviewStudent(student.id)"
+                          class="px-4 py-2 bg-blue-500 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition-all duration-200">
+                    <i class="fas fa-eye mr-1"></i> View
+                  </button>
+                </div>
+              </td>
+            </tr>
+            
+            <!-- Empty State -->
+            <tr *ngIf="filteredStudents.length === 0">
+              <td colspan="5" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-graduate text-2xl text-slate-400"></i>
+                  </div>
+                  <p class="text-slate-500 font-medium">No students found</p>
+                  <p class="text-sm text-slate-400">No {{ selectedStatus }} applications for this session</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Student Details Modal -->
+    <div *ngIf="showDetailsModal && selectedStudent" 
+         class="fixed inset-0 z-100 flex items-center justify-center p-4" (click)="closeModal()">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in"></div>
+      
+      <div class="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-scale-up max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="sticky top-0 bg-white border-b border-slate-100 p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                <i class="fas fa-id-card text-white"></i>
+              </div>
+              <h3 class="text-xl font-black text-slate-900">Student Details</h3>
+            </div>
+            <button (click)="closeModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <!-- Basic Information -->
+          <div class="mb-6">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Basic Information</h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-xs text-slate-500">Full Name</p>
+                <p class="text-sm font-semibold text-slate-800">{{ selectedStudent.name }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">Father's Name</p>
+                <p class="text-sm font-semibold text-slate-800">{{ selectedStudent.fatherName }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">Roll Number</p>
+                <p class="text-sm font-semibold text-slate-800">{{ selectedStudent.rollNumber }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">CNIC</p>
+                <p class="text-sm font-semibold text-slate-800">{{ selectedStudent.cnic }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">Email</p>
+                <p class="text-sm font-semibold text-slate-800">{{ selectedStudent.email }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">Registration Date</p>
+                <p class="text-sm font-semibold text-slate-800">{{ formatDate(selectedStudent.registrationDate) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Academic Information -->
+          <div class="mb-6">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Academic Information</h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-xs text-slate-500">Program</p>
+                <p class="text-sm font-semibold text-slate-800">{{ selectedStudent.program }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">Department</p>
+                <p class="text-sm font-semibold text-slate-800">{{ selectedStudent.department }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500">Current Semester</p>
+                <p class="text-sm font-semibold text-slate-800">{{ selectedStudent.semester }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Verification -->
+          <div class="mb-6">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Document Status</h4>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                <span class="text-sm text-slate-700">CNIC Copy</span>
+                <i [class]="getDocumentStatusIcon(selectedStudent.documents.cnicCopy)"></i>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                <span class="text-sm text-slate-700">Domicile Certificate</span>
+                <i [class]="getDocumentStatusIcon(selectedStudent.documents.domicile)"></i>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                <span class="text-sm text-slate-700">Previous Degree</span>
+                <i [class]="getDocumentStatusIcon(selectedStudent.documents.previousDegree)"></i>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                <span class="text-sm text-slate-700">Fee Challan</span>
+                <i [class]="getDocumentStatusIcon(selectedStudent.documents.feeChallan)"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="sticky bottom-0 bg-white border-t border-slate-100 p-6 flex gap-3">
+          <button (click)="closeModal()" class="flex-1 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+            Close
+          </button>
+          <button *ngIf="selectedStudent.status === 'unverified'" 
+                  (click)="confirmVerification()" 
+                  class="flex-1 px-4 py-2 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg">
+            <i class="fas fa-check mr-2"></i>Verify Student
+          </button>
+          <button *ngIf="selectedStudent.status === 'unverified'"
+                  (click)="confirmRejection()"
+                  class="flex-1 px-4 py-2 bg-red-500 text-white text-sm font-bold rounded-xl hover:bg-red-600 transition">
+            <i class="fas fa-times mr-2"></i>Reject Application
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
