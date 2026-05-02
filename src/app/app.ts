@@ -8,6 +8,7 @@ import { filter } from 'rxjs/operators';
 import { StudentHeader } from './shared/student/student-header/student-header';
 import { ClerkHeader } from "./shared/clerk/clerk-header/clerk-header";
 import { FacultyHeader } from "./shared/faculty/faculty-header/faculty-header";
+import { DashboardFooter } from './shared/dasboards/dashboard-footer/dashboard-footer';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,8 @@ import { FacultyHeader } from "./shared/faculty/faculty-header/faculty-header";
     StudentHeader,
     CommonModule,
     ClerkHeader,
-    FacultyHeader
+    FacultyHeader,
+    DashboardFooter
 ],
   templateUrl: './app.html',
   styleUrl: './app.css'
@@ -41,127 +43,40 @@ export class App {
     return this.currentLayout;
   }
   
-  private updateLayout() {
-    const url = this.router.url;
-    
-    // Login page (no header/footer)
-    if (url === '/login') {
-      this.currentLayout = 'none';
-    }
-    // Admin dashboard routes (fixed typo: 'admin-dashboard' not 'admin-dashbaord')
-    else if (url.startsWith('/admin-dashboard')) {
-      this.currentLayout = 'admin-header';
-    }
-
-     else if (url.startsWith('/users')) {
-      this.currentLayout = 'admin-header';
-    }
-
-     else if (url.startsWith('/add-user')) {
-      this.currentLayout = 'admin-header';
-    }
-
-     else if (url.startsWith('/admin-profile')) {
-      this.currentLayout = 'admin-header';
-    }
-       else if (url.startsWith('/announcement')) {
-      this.currentLayout = 'admin-header';
-    }
-
-     else if (url.startsWith('/bulk-student-verification')) {
-      this.currentLayout = 'admin-header';
-    }
-
-    else if (url.startsWith('/student-verification')) {
-      this.currentLayout = 'admin-header';
-    }
-
-    else if (url.startsWith('/session-details')) {
-      this.currentLayout = 'admin-header';
-    }
-
-    
-    else if (url.startsWith('/add-sessions')) {
-      this.currentLayout = 'admin-header';
-    }
-
-     else if (url.startsWith('/student-dashboard')) {
-      this.currentLayout = 'student-header';
-    }
-
-      else if (url.startsWith('/semester-details')) {
-      this.currentLayout = 'student-header';
-    }
-
-     else if (url.startsWith('/fee-records')) {
-      this.currentLayout = 'student-header';
-    }
-
-     else if (url.startsWith('/fyp-proposal')) {
-      this.currentLayout = 'student-header';
-    }
-     else if (url.startsWith('/student-transcript')) {
-      this.currentLayout = 'student-header';
-    }
-
-      else if (url.startsWith('/student-notifications')) {
-      this.currentLayout = 'student-header';
-    }
-       else if (url.startsWith('/student-profile')) {
-      this.currentLayout = 'student-header';
-    }
-
-       else if (url.startsWith('/clerk-dashboard')) {
-      this.currentLayout = 'clerk-header';
-    }
-
-        else if (url.startsWith('/single-enrollment')) {
-      this.currentLayout = 'clerk-header';
-    }
-
-      else if (url.startsWith('/bulk-enrollment')) {
-      this.currentLayout = 'clerk-header';
-    }
-
-      else if (url.startsWith('/fee-collection')) {
-      this.currentLayout = 'clerk-header';
-    }
-
-
-     else if (url.startsWith('/student-records')) {
-      this.currentLayout = 'clerk-header';
-    }
-
-     else if (url.startsWith('/generate-challan')) {
-      this.currentLayout = 'clerk-header';
-    }
-    else if (url.startsWith('/fee-collection-reports')) {
-      this.currentLayout = 'clerk-header';
-    }
-
-     else if (url.startsWith('/student-reports')) {
-      this.currentLayout = 'clerk-header';
-    }
-
-
-       else if (url.startsWith('/clerk-profile')) {
-      this.currentLayout = 'clerk-header';
-    }
-
-      else if (url.startsWith('/faculty-dashboard')) {
-      this.currentLayout = 'faculty-header';
-    }
-
-      else if (url.startsWith('/faculty-profile')) {
-      this.currentLayout = 'faculty-header';
-    }
-
-     else if (url.startsWith('/project-evaluation')) {
-      this.currentLayout = 'faculty-header';
-    }
-    // Default visitor layout (for home page, about, contact, etc.)
-    else {
-      this.currentLayout = 'visitor';
+private updateLayout() {
+  const url = this.router.url;
+  
+  // Define route groups
+  const layoutGroups = {
+    'none': ['/login'],
+    'admin-header': [
+      '/admin-dashboard', '/users', '/add-user', '/admin-profile',
+      '/announcement', '/bulk-student-verification', '/student-verification',
+      '/session-details', '/add-sessions'
+    ],
+    'student-header': [
+      '/student-dashboard', '/semester-details', '/fee-records',
+      '/fyp-proposal', '/student-transcript', '/student-notifications',
+      '/student-profile'
+    ],
+    'clerk-header': [
+      '/clerk-dashboard', '/single-enrollment', '/bulk-enrollment',
+      '/fee-collection', '/student-records', '/generate-challan',
+      '/fee-collection-reports', '/student-reports', '/clerk-profile'
+    ],
+    'faculty-header': [
+      '/faculty-dashboard', '/faculty-profile', '/project-evaluation'
+    ]
+  };
+  
+  // Find which group contains this URL
+  for (const [layout, routes] of Object.entries(layoutGroups)) {
+    if (routes.some(route => url.startsWith(route))) {
+      this.currentLayout = layout;
+      return;
     }
   }
+  
+  this.currentLayout = 'visitor';
+}
 }

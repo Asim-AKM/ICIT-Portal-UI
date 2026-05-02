@@ -12,23 +12,27 @@
   @case ('admin-header') {
     <app-admin-header></app-admin-header>
     <router-outlet></router-outlet>
+    <app-dashboard-footer></app-dashboard-footer>
   }
 
    <!-- Student Dashboard Layout -->
   @case ('student-header') {
     <app-student-header></app-student-header>
     <router-outlet></router-outlet>
+     <app-dashboard-footer></app-dashboard-footer>
   }
 
    <!-- Clerk Dashboard Layout -->
   @case ('clerk-header') {
     <app-clerk-header></app-clerk-header>
     <router-outlet></router-outlet>
+     <app-dashboard-footer></app-dashboard-footer>
   }
   <!-- faculty Dashboard Layout -->
   @case ('faculty-header') {
     <app-faculty-header></app-faculty-header>
     <router-outlet></router-outlet>
+     <app-dashboard-footer></app-dashboard-footer>
   }
 
   <!-- No layout for login page -->

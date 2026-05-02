@@ -1,0 +1,52 @@
+/* ============================================================
+   DASHBOARD FOOTER COMPONENT STYLES (Medium Size)
+   Professional Footer for All Dashboards
+   ============================================================ */
+
+/* Smooth transitions */
+a, button {
+  transition: all 0.2s ease;
+}
+
+/* Custom animation for social icons */
+.group:hover i {
+  transform: scale(1.05);
+}
+
+/* Newsletter input focus */
+input:focus {
+  outline: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  footer {
+    text-align: center;
+  }
+  
+  ul {
+    text-align: left;
+  }
+  
+  .grid-cols-2 {
+    gap: 0.5rem;
+  }
+  
+  .flex-col .items-center {
+    text-align: center;
+  }
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print styles */
+@media print {
+  footer {
+    display: none;
+  }
+}

@@ -5,7 +5,7 @@ import { Login } from '../../../module/auth/login/login';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, CommonModule,Login],
+  imports: [RouterLink, CommonModule],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })

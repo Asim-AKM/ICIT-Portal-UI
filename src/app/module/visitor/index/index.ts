@@ -5,7 +5,7 @@ import { RouterLink } from "@angular/router";
 @Component({
   selector: 'app-index',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './index.html',
   styleUrl: './index.css',
 })

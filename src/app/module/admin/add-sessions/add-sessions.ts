@@ -1,6 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit , ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AdminService } from '../../../core/services/admin.service';
+import { SessionAddDto } from '../../../core/models/admin/session-add.dto';
+import { SessionGetDto } from '../../../core/models/admin/session-get.dto';
+import { SessionStatusEnum } from '../../../core/models/enums/session-status.enum';
 
 interface Session {
   id: string;
@@ -30,8 +34,16 @@ export class AddSessions implements OnInit {
   showEditModal: boolean = false;
   selectedSession: Session | null = null;
   
+  // Store original status for revert on error
+  originalStatus: string = '';
+  
   searchTerm: string = '';
   statusFilter: string = 'all';
+  
+  // Loading states
+  isLoading: boolean = false;
+  isCreating: boolean = false;
+  isUpdating: boolean = false;
   
   // Form model for new session
   newSession = {
@@ -48,61 +60,95 @@ export class AddSessions implements OnInit {
     { value: 'completed', label: 'Completed', color: 'blue', icon: 'fas fa-check-circle' }
   ];
 
+ constructor(
+  private adminService: AdminService,
+  private cdr: ChangeDetectorRef
+) {}
+
   ngOnInit() {
     this.loadSessions();
   }
 
+  // ============================================================
+  // LOAD SESSIONS FROM API BASED ON SELECTED FILTER
+  // ============================================================
   loadSessions() {
-    // Mock data - replace with API call
-    this.sessions = [
-      {
-        id: '1',
-        title: 'Spring Semester 2026',
-        startDate: new Date('2026-01-15'),
-        endDate: new Date('2026-06-30'),
-        status: 'active',
-        createdAt: new Date('2025-10-01'),
-        enrollmentCount: 1245,
-        description: 'Regular spring semester for all programs'
+    this.isLoading = true;
+    
+    let statusParam: SessionStatusEnum | undefined = undefined;
+    
+    switch (this.statusFilter) {
+      case 'active':
+        statusParam = SessionStatusEnum.Active;
+        break;
+      case 'inactive':
+        statusParam = SessionStatusEnum.Inactive;
+        break;
+      case 'completed':
+        statusParam = SessionStatusEnum.Completed;
+        break;
+      default:
+        statusParam = undefined;
+        break;
+    }
+    
+    const apiCall = statusParam !== undefined
+      ? this.adminService.getSessionsByStatus(statusParam)
+      : this.adminService.getSessions();
+    
+    apiCall.subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          this.sessions = response.data.map((apiSession: SessionGetDto) => ({
+            id: apiSession.sessionId,
+            title: apiSession.name,
+            startDate: new Date(apiSession.startYear),
+            endDate: new Date(apiSession.endYear),
+            status: this.mapApiStatus(apiSession.status),
+            createdAt: new Date(),
+            enrollmentCount: 0,
+            description: apiSession.name
+          }));
+          this.applySearchFilter();
+            // ✅ Force change detection
+        this.cdr.detectChanges();
+        } else {
+          if (response.status === 404) {
+            this.sessions = [];
+            this.filteredSessions = [];
+            this.showToast('info', response.message || 'No sessions found');
+          } else {
+            this.showToast('error', response.message || 'Failed to load sessions');
+          }
+        }
+        this.isLoading = false;
       },
-      {
-        id: '2',
-        title: 'Winter Term 2025',
-        startDate: new Date('2025-10-01'),
-        endDate: new Date('2025-12-20'),
-        status: 'inactive',
-        createdAt: new Date('2025-07-15'),
-        enrollmentCount: 890,
-        description: 'Winter short courses and internships'
-      },
-      {
-        id: '3',
-        title: 'Fall Semester 2025',
-        startDate: new Date('2025-08-15'),
-        endDate: new Date('2025-12-10'),
-        status: 'completed',
-        createdAt: new Date('2025-05-20'),
-        enrollmentCount: 2100,
-        description: 'Regular fall semester'
-      },
-      {
-        id: '4',
-        title: 'Summer Break 2026',
-        startDate: new Date('2026-07-01'),
-        endDate: new Date('2026-08-31'),
-        status: 'inactive',
-        createdAt: new Date('2026-02-10'),
-        enrollmentCount: 450,
-        description: 'Summer vacation period'
+      error: (error) => {
+        console.error('Error loading sessions:', error);
+        if (error.status === 404) {
+          this.sessions = [];
+          this.filteredSessions = [];
+          this.showToast('info', error.error?.message || 'No sessions found');
+        } else {
+          this.showToast('error', 'Failed to load sessions. Please check your connection.');
+        }
+        this.isLoading = false;
       }
-    ];
-    this.applyFilters();
+    });
   }
 
-  applyFilters() {
+  private mapApiStatus(apiStatus: string): 'active' | 'inactive' | 'completed' {
+    switch (apiStatus?.toLowerCase()) {
+      case 'active': return 'active';
+      case 'inactive': return 'inactive';
+      case 'completed': return 'completed';
+      default: return 'inactive';
+    }
+  }
+
+  private applySearchFilter() {
     let filtered = [...this.sessions];
     
-    // Search filter
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(session => 
@@ -111,22 +157,148 @@ export class AddSessions implements OnInit {
       );
     }
     
-    // Status filter
-    if (this.statusFilter !== 'all') {
-      filtered = filtered.filter(session => session.status === this.statusFilter);
-    }
-    
     this.filteredSessions = filtered;
   }
 
+  // ============================================================
+  // CREATE SESSION VIA API
+  // ============================================================
+  createSession() {
+    if (!this.newSession.title || !this.newSession.startDate || !this.newSession.endDate) {
+      this.showToast('error', 'Please fill in all required fields');
+      return;
+    }
+
+    const startDate = new Date(this.newSession.startDate);
+    const endDate = new Date(this.newSession.endDate);
+
+    if (startDate >= endDate) {
+      this.showToast('error', 'End date must be after start date');
+      return;
+    }
+
+    this.isCreating = true;
+
+    const sessionData: SessionAddDto = {
+      name: this.newSession.title,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
+    };
+
+    this.adminService.createSession(sessionData).subscribe({
+      next: (response) => {
+        this.isCreating = false;
+        
+        if (response.isSuccess) {
+          this.showToast('success', response.message || 'Session created successfully!');
+          this.closeCreateModal();
+          this.loadSessions();
+        } else {
+          this.showToast('error', response.message || 'Failed to create session');
+        }
+      },
+      error: (error) => {
+        this.isCreating = false;
+        console.error('Error creating session:', error);
+        
+        let errorMessage = 'Failed to create session. Please try again.';
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        this.showToast('error', errorMessage);
+      }
+    });
+  }
+
+  // ============================================================
+  // UPDATE SESSION STATUS - LOCAL (for UI click)
+  // ============================================================
+  updateSessionStatusLocally(status: string) {
+    if (this.selectedSession) {
+      this.selectedSession.status = status as 'active' | 'inactive' | 'completed';
+    }
+  }
+
+  // ============================================================
+  // UPDATE SESSION STATUS - API CALL (for Save button)
+  // ============================================================
+  updateSessionStatusApi() {
+    if (!this.selectedSession) return;
+    
+    this.isUpdating = true;
+    
+    const status = this.selectedSession.status;
+    
+    let statusEnum: SessionStatusEnum;
+    switch (status) {
+      case 'active':
+        statusEnum = SessionStatusEnum.Active;
+        break;
+      case 'inactive':
+        statusEnum = SessionStatusEnum.Inactive;
+        break;
+      case 'completed':
+        statusEnum = SessionStatusEnum.Completed;
+        break;
+      default:
+        statusEnum = SessionStatusEnum.Inactive;
+    }
+    
+    const request = {
+      sessionId: this.selectedSession.id,
+      status: statusEnum
+    };
+    
+    this.adminService.updateSessionStatus(request).subscribe({
+      next: (response) => {
+        this.isUpdating = false;
+        
+        if (response.isSuccess) {
+          // Update in sessions array
+          const index = this.sessions.findIndex(s => s.id === this.selectedSession!.id);
+          if (index !== -1) {
+            this.sessions[index].status = this.selectedSession!.status;
+          }
+          this.applySearchFilter();
+          
+          this.showToast('success', response.message || 'Session status updated successfully!');
+          this.closeEditModal();
+          this.loadSessions();
+        } else {
+          this.showToast('error', response.message || 'Failed to update session status');
+        }
+      },
+      error: (error) => {
+        this.isUpdating = false;
+        console.error('Error updating session status:', error);
+        
+        let errorMessage = 'Failed to update session status. Please try again.';
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        this.showToast('error', errorMessage);
+      }
+    });
+  }
+
+  // ============================================================
+  // FILTER METHODS
+  // ============================================================
   onSearchChange() {
-    this.applyFilters();
+    this.applySearchFilter();
   }
 
   onStatusFilterChange() {
-    this.applyFilters();
+    this.loadSessions();
   }
 
+  // ============================================================
+  // UI HELPER METHODS
+  // ============================================================
   getStatusBadgeClass(status: string): string {
     switch(status) {
       case 'active': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
@@ -147,10 +319,10 @@ export class AddSessions implements OnInit {
 
   getStatusDotColor(status: string): string {
     switch(status) {
-      case 'active': return 'bg-emerald-500';
-      case 'inactive': return 'bg-amber-500';
-      case 'completed': return 'bg-blue-500';
-      default: return 'bg-slate-500';
+      case 'active': return '#10b981';
+      case 'inactive': return '#f59e0b';
+      case 'completed': return '#3b82f6';
+      default: return '#64748b';
     }
   }
 
@@ -164,6 +336,9 @@ export class AddSessions implements OnInit {
     return this.sessions.filter(s => s.status === status).length;
   }
 
+  // ============================================================
+  // MODAL METHODS
+  // ============================================================
   openCreateModal() {
     this.newSession = {
       title: '',
@@ -178,40 +353,9 @@ export class AddSessions implements OnInit {
     this.showCreateModal = false;
   }
 
-  createSession() {
-    if (!this.newSession.title || !this.newSession.startDate || !this.newSession.endDate) {
-      this.showToast('error', 'Please fill in all required fields');
-      return;
-    }
-
-    const startDate = new Date(this.newSession.startDate);
-    const endDate = new Date(this.newSession.endDate);
-
-    if (startDate >= endDate) {
-      this.showToast('error', 'End date must be after start date');
-      return;
-    }
-
-    const newId = (Math.max(...this.sessions.map(s => parseInt(s.id)), 0) + 1).toString();
-    const session: Session = {
-      id: newId,
-      title: this.newSession.title,
-      startDate: startDate,
-      endDate: endDate,
-      status: 'inactive',
-      createdAt: new Date(),
-      enrollmentCount: 0,
-      description: this.newSession.description || 'No description provided'
-    };
-
-    this.sessions.unshift(session);
-    this.applyFilters();
-    this.closeCreateModal();
-    this.showToast('success', 'Session created successfully!');
-  }
-
   openEditModal(session: Session) {
     this.selectedSession = { ...session };
+    this.originalStatus = session.status; // Store original status
     this.showEditModal = true;
   }
 
@@ -220,28 +364,10 @@ export class AddSessions implements OnInit {
     this.selectedSession = null;
   }
 
-  updateSession() {
-    if (this.selectedSession) {
-      const index = this.sessions.findIndex(s => s.id === this.selectedSession!.id);
-      if (index !== -1) {
-        this.sessions[index] = this.selectedSession;
-        this.applyFilters();
-        this.showToast('success', 'Session updated successfully!');
-      }
-    }
-    this.closeEditModal();
-  }
-
-  updateSessionStatus(status: string) {
-    if (this.selectedSession) {
-      this.selectedSession.status = status as 'active' | 'inactive' | 'completed';
-    }
-  }
-
   deleteSession(id: string) {
     if (confirm('Are you sure you want to delete this session?')) {
       this.sessions = this.sessions.filter(s => s.id !== id);
-      this.applyFilters();
+      this.applySearchFilter();
       this.showToast('success', 'Session deleted successfully!');
     }
   }
@@ -250,20 +376,36 @@ export class AddSessions implements OnInit {
     return date.toISOString().split('T')[0];
   }
 
+  // ============================================================
+  // TOAST NOTIFICATION
+  // ============================================================
   showToast(type: string, message: string) {
+    const existingToast = document.querySelector('.custom-toast');
+    if (existingToast) {
+      existingToast.remove();
+    }
+    
     const toast = document.createElement('div');
-    toast.className = `fixed bottom-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg animate-slide-up ${
-      type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+    toast.className = `custom-toast fixed bottom-4 right-4 z-[9999] px-6 py-3 rounded-xl shadow-lg animate-slide-up ${
+      type === 'success' ? 'bg-emerald-500 text-white' : 
+      type === 'info' ? 'bg-blue-500 text-white' : 'bg-red-500 text-white'
     }`;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '1rem';
+    toast.style.right = '1rem';
+    toast.style.zIndex = '9999';
     toast.innerHTML = `
       <div class="flex items-center gap-2">
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'info' ? 'fa-info-circle' : 'fa-exclamation-circle'}"></i>
         <span class="text-sm font-semibold">${message}</span>
       </div>
     `;
     document.body.appendChild(toast);
+    
     setTimeout(() => {
-      toast.remove();
+      if (toast && toast.remove) {
+        toast.remove();
+      }
     }, 3000);
   }
 

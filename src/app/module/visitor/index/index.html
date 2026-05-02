@@ -15,7 +15,7 @@
     </div>
 </div>
 
-<section id="hero-slider" class="relative h-[450px] md:h-[600px] flex items-center overflow-hidden">
+<section id="hero-slider" class="relative h-112.5 md:h-150 flex items-center overflow-hidden">
 
     <div class="absolute inset-0 z-0">
         <div *ngFor="let slide of slides; let i = index" 
@@ -24,7 +24,7 @@
             <img [src]="slide" alt="University Campus" class="w-full h-full object-cover">
         </div>
         
-        <div class="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-900/60 to-transparent z-10"></div>
+        <div class="absolute inset-0 bg-linear-to-r from-emerald-950/90 via-emerald-900/60 to-transparent z-10"></div>
     </div>
 
     <div class="max-w-7xl mx-auto px-6 w-full relative z-20">
@@ -74,8 +74,8 @@
     </div>
 
     <!-- Smaller SVG wave -->
-    <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] rotate-180 z-20">
-        <svg class="relative block w-[calc(100%+1.3px)] h-[30px] md:h-[40px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
+    <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-0 rotate-180 z-20">
+        <svg class="relative block w-[calc(100%+1.3px)] h-7.5 md:h-10" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#ffffff"></path>
         </svg>
     </div>

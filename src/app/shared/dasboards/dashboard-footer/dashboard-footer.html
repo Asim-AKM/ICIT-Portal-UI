@@ -1,0 +1,139 @@
+<!-- 
+  ============================================================
+  DASHBOARD FOOTER COMPONENT
+  Professional Footer for All Dashboards
+  ============================================================
+-->
+
+<footer class="bg-gradient-to-br from-slate-900 to-slate-800 text-white mt-auto">
+  
+  <!-- Main Footer Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    
+    <!-- Top Section - Logo & Social Links -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-4 pb-4 border-b border-slate-700">
+      <!-- Logo -->
+      <div class="flex items-center gap-2 mb-3 md:mb-0">
+        <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+          <i class="fas fa-graduation-cap text-white text-sm"></i>
+        </div>
+        <div>
+          <span class="text-lg font-bold tracking-tight text-white">
+            ICIT<span class="text-emerald-400">Portal</span>
+          </span>
+          <p class="text-[9px] text-slate-400 uppercase tracking-wider mt-0.5">Integrated Campus Portal</p>
+        </div>
+      </div>
+      
+      <!-- Social Links -->
+      <div class="flex gap-2">
+        <a *ngFor="let social of socialLinks"
+           [href]="social.url"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-300"
+           [class]="social.color">
+          <i [class]="social.icon" class="text-xs"></i>
+        </a>
+      </div>
+    </div>
+    
+    <!-- Middle Section - Links Grid (2 Columns instead of 4) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+      
+      <!-- Quick Links -->
+      <div>
+        <h3 class="text-[11px] font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+          <i class="fas fa-link text-emerald-400 text-[10px]"></i>
+          Quick Links
+        </h3>
+        <ul class="grid grid-cols-2 gap-x-3 gap-y-1">
+          <li *ngFor="let link of quickLinks">
+            <a [routerLink]="link.route"
+               class="text-slate-400 hover:text-emerald-400 text-xs transition duration-200 flex items-center gap-1 group">
+              <i class="fas fa-chevron-right text-[6px] text-emerald-400 opacity-0 group-hover:opacity-100 transition"></i>
+              {{ link.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Resources -->
+      <div>
+        <h3 class="text-[11px] font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+          <i class="fas fa-folder-open text-emerald-400 text-[10px]"></i>
+          Resources
+        </h3>
+        <ul class="grid grid-cols-2 gap-x-3 gap-y-1">
+          <li *ngFor="let resource of resources">
+            <a [routerLink]="resource.route"
+               class="text-slate-400 hover:text-emerald-400 text-xs transition duration-200 flex items-center gap-1 group">
+              <i class="fas fa-chevron-right text-[6px] text-emerald-400 opacity-0 group-hover:opacity-100 transition"></i>
+              {{ resource.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Contact Info & Stay Updated Combined -->
+      <div>
+        <div class="mb-3">
+          <h3 class="text-[11px] font-bold text-white uppercase tracking-wider mb-1.5 flex items-center gap-2">
+            <i class="fas fa-address-card text-emerald-400 text-[10px]"></i>
+            Contact
+          </h3>
+          <ul class="space-y-1">
+            <li class="flex items-center gap-1.5">
+              <i class="fas fa-map-marker-alt text-emerald-400 text-[9px]"></i>
+              <span class="text-slate-400 text-[10px]">{{ contactInfo.address.substring(0, 30) }}...</span>
+            </li>
+            <li class="flex items-center gap-1.5">
+              <i class="fas fa-phone-alt text-emerald-400 text-[9px]"></i>
+              <span class="text-slate-400 text-[10px]">{{ contactInfo.phone }}</span>
+            </li>
+            <li class="flex items-center gap-1.5">
+              <i class="fas fa-envelope text-emerald-400 text-[9px]"></i>
+              <span class="text-slate-400 text-[10px]">{{ contactInfo.email }}</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Stay Updated (Compact) -->
+        <div>
+          <h3 class="text-[11px] font-bold text-white uppercase tracking-wider mb-1.5 flex items-center gap-2">
+            <i class="fas fa-envelope-open-text text-emerald-400 text-[10px]"></i>
+            Updates
+          </h3>
+          <div class="flex gap-1.5">
+            <input type="email"
+                   placeholder="Email"
+                   class="flex-1 bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-1.5 text-[10px] text-white placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
+            <button class="px-2.5 py-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-[10px] font-bold rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg whitespace-nowrap">
+              <i class="fas fa-paper-plane text-[8px] mr-0.5"></i>Subscribe
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bottom Section - Copyright -->
+    <div class="pt-3 border-t border-slate-700">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+        <p class="text-slate-400 text-[10px] text-center md:text-left">
+          &copy; {{ currentYear }} ICIT Department. All rights reserved.
+        </p>
+        
+        <div class="flex gap-3">
+          <a routerLink="/privacy" class="text-slate-400 hover:text-emerald-400 text-[10px] transition">Privacy</a>
+          <a routerLink="/terms" class="text-slate-400 hover:text-emerald-400 text-[10px] transition">Terms</a>
+          <a routerLink="/cookies" class="text-slate-400 hover:text-emerald-400 text-[10px] transition">Cookies</a>
+        </div>
+        
+        <p class="text-slate-500 text-[9px]">
+          <i class="fas fa-heart text-red-500 text-[8px]"></i> Designed By AKM
+        </p>
+      </div>
+    </div>
+    
+  </div>
+</footer>
