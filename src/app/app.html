@@ -1,7 +1,7 @@
 <!-- Show different layouts based on route -->
 @switch (getLayoutType()) {
   
-  <!-- Visitor Layout (existing header/footer) -->
+  <!-- Visitor Layout -->
   @case ('visitor') {
     <app-header></app-header>
     <router-outlet></router-outlet>
@@ -15,27 +15,33 @@
     <app-dashboard-footer></app-dashboard-footer>
   }
 
-   <!-- Student Dashboard Layout -->
+  <!-- Student Dashboard Layout -->
   @case ('student-header') {
     <app-student-header></app-student-header>
     <router-outlet></router-outlet>
-     <app-dashboard-footer></app-dashboard-footer>
+    <app-dashboard-footer></app-dashboard-footer>
   }
 
-   <!-- Clerk Dashboard Layout -->
+  <!-- Clerk Dashboard Layout -->
   @case ('clerk-header') {
     <app-clerk-header></app-clerk-header>
     <router-outlet></router-outlet>
-     <app-dashboard-footer></app-dashboard-footer>
+    <app-dashboard-footer></app-dashboard-footer>
   }
-  <!-- faculty Dashboard Layout -->
+
+  <!-- Faculty Dashboard Layout -->
   @case ('faculty-header') {
     <app-faculty-header></app-faculty-header>
     <router-outlet></router-outlet>
-     <app-dashboard-footer></app-dashboard-footer>
+    <app-dashboard-footer></app-dashboard-footer>
   }
 
-  <!-- No layout for login page -->
+  <!-- ✅ Unauthorized — No header, no footer -->
+  @case ('unauthorized') {
+    <router-outlet></router-outlet>
+  }
+
+  <!-- No layout for login, forget-pass etc -->
   @default {
     <router-outlet></router-outlet>
   }

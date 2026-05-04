@@ -1,7 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
+import { CreateAccountService } from '../../../core/services/account-services/create-account-service';
+import { Department } from '../../../core/models/dept/department.model';
+import { ToastService } from '../../../core/services/toast-service/toast.service';
+import { CreateAccountRequest } from '../../../core/services/account-services/create-account-service';
 
 interface UserForm {
   fullName: string;
@@ -10,11 +14,11 @@ interface UserForm {
   password: string;
   confirmPassword: string;
   role: string;
-  employeeId: string;
-  department: string;
+  cnic: string;
+  departmentId: string;
   phoneNumber: string;
-  generateTempPassword: boolean;  // Explicitly set as boolean
-  sendWelcomeEmail: boolean;      // Explicitly set as boolean
+  generateTempPassword: boolean;
+  sendWelcomeEmail: boolean;
 }
 
 @Component({
@@ -24,7 +28,8 @@ interface UserForm {
   templateUrl: './add-user.html',
   styleUrl: './add-user.css',
 })
-export class AddUser {
+export class AddUser implements OnInit {
+  
   user: UserForm = {
     fullName: '',
     username: '',
@@ -32,38 +37,51 @@ export class AddUser {
     password: '',
     confirmPassword: '',
     role: '',
-    employeeId: '',
-    department: '',
+    cnic: '',
+    departmentId: '',
     phoneNumber: '',
-    generateTempPassword: true,   // boolean value
-    sendWelcomeEmail: true        // boolean value
+    generateTempPassword: true,
+    sendWelcomeEmail: true
   };
 
-  departments = [
-    'Computer Science',
-    'Software Engineering',
-    'Information Technology',
-    'Electrical Engineering',
-    'Mechanical Engineering',
-    'Business Administration',
-    'Registrar Office',
-    'Accounts Office',
-    'IT Administration',
-    'Human Resources'
-  ];
+  departments: Department[] = [];  // ✅ Ab backend se aayenge
+  isLoadingDepartments = false;
+  isSubmitting = false;
 
   roles = [
-    { value: 'admin', label: 'Admin', description: 'Full system access', icon: 'fas fa-user-shield', color: 'purple' },
-    { value: 'faculty', label: 'Faculty', description: 'Teaching staff access', icon: 'fas fa-chalkboard-user', color: 'blue' },
-    { value: 'clerk', label: 'Clerk', description: 'Administrative staff', icon: 'fas fa-file-alt', color: 'amber' },
-    { value: 'student', label: 'Student', description: 'Student portal access', icon: 'fas fa-user-graduate', color: 'emerald' }
+    { value: 'Admin', label: 'Admin', description: 'Full system access', icon: 'fas fa-user-shield' },
+    { value: 'Faculty', label: 'Faculty', description: 'Teaching staff access', icon: 'fas fa-chalkboard-user' },
+    { value: 'Clerk', label: 'Clerk', description: 'Administrative staff', icon: 'fas fa-file-alt' },
+    { value: 'Student', label: 'Student', description: 'Student portal access', icon: 'fas fa-user-graduate' }
   ];
 
   passwordStrength: number = 0;
   passwordStrengthText: string = '';
   passwordStrengthColor: string = '';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private createAccountService: CreateAccountService,
+    private toast: ToastService
+  ) {}
+
+  ngOnInit() {
+    this.loadDepartments();
+  }
+
+  loadDepartments() {
+    this.isLoadingDepartments = true;
+    this.createAccountService.getDepartments().subscribe({
+      next: (res) => {
+        this.departments = res.data;
+        this.isLoadingDepartments = false;
+      },
+      error: () => {
+        this.toast.error('Failed to load departments');
+        this.isLoadingDepartments = false;
+      }
+    });
+  }
 
   checkPasswordStrength() {
     const password = this.user.password;
@@ -111,7 +129,6 @@ export class AddUser {
   }
 
   isFormValid(): boolean {
-    // Explicitly check boolean values
     const generateTempPassword = this.user.generateTempPassword === true;
     
     return !!this.user.fullName &&
@@ -133,29 +150,37 @@ export class AddUser {
   }
 
   onSubmit(form: NgForm) {
-    if (form.valid && this.isFormValid()) {
-      console.log('Form submitted:', this.user);
-      // Here you would call your API service
-      
-      // Show success message
-      alert('User created successfully!');
-      
-      // Navigate back to users list
-      this.router.navigate(['/users']);
-    }
+    if (!form.valid || !this.isFormValid()) return;
+    
+    this.isSubmitting = true;
+    
+    const payload: CreateAccountRequest = {
+      departmentId: this.user.departmentId,
+      fullName: this.user.fullName,
+      userName: this.user.username,
+      email: this.user.email,
+      cnic: this.user.cnic,
+      password: this.user.generateTempPassword ? '' : this.user.password,
+      role: this.user.role,
+      generatTempPassword: this.user.generateTempPassword,
+      sendWelcomeEmail: this.user.sendWelcomeEmail
+    };
+    
+    this.createAccountService.createAccount(payload).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        this.toast.success(res.message || 'Account created successfully!');
+        this.router.navigate(['/users']);
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        const message = err.error?.message || 'Failed to create account';
+        this.toast.error(message);
+      }
+    });
   }
 
   cancel() {
     this.router.navigate(['/users']);
-  }
-
-  getRoleIcon(roleValue: string): string {
-    const role = this.roles.find(r => r.value === roleValue);
-    return role ? role.icon : 'fas fa-user';
-  }
-
-  getRoleDescription(roleValue: string): string {
-    const role = this.roles.find(r => r.value === roleValue);
-    return role ? role.description : '';
   }
 }

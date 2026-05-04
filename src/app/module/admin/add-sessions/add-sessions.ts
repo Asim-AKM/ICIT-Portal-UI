@@ -1,7 +1,7 @@
 import { Component, OnInit , ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService } from '../../../core/services/admin.service';
+import { AdminService } from '../../../core/services/admin-services/admin.service'; 
 import { SessionAddDto } from '../../../core/models/admin/session-add.dto';
 import { SessionGetDto } from '../../../core/models/admin/session-get.dto';
 import { SessionStatusEnum } from '../../../core/models/enums/session-status.enum';

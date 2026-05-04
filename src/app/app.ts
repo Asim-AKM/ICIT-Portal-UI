@@ -1,14 +1,15 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit, inject } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { Header } from './shared/visitor/header/header';
 import { Footer } from './shared/visitor/footer/footer';
 import { CommonModule } from '@angular/common';
 import { AdminHeader } from './shared/admin/admin-header/admin-header';
-import { filter } from 'rxjs/operators';
+import { filter, take } from 'rxjs/operators';
 import { StudentHeader } from './shared/student/student-header/student-header';
 import { ClerkHeader } from "./shared/clerk/clerk-header/clerk-header";
 import { FacultyHeader } from "./shared/faculty/faculty-header/faculty-header";
 import { DashboardFooter } from './shared/dasboards/dashboard-footer/dashboard-footer';
+import { AuthService } from './core/services/auth-services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -22,33 +23,88 @@ import { DashboardFooter } from './shared/dasboards/dashboard-footer/dashboard-f
     ClerkHeader,
     FacultyHeader,
     DashboardFooter
-],
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('ICIT-Portal');
   currentLayout: string = 'visitor';
-  
+
+  private authService = inject(AuthService);
+
   constructor(public router: Router) {
-    // Listen to route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updateLayout();
     });
   }
-  
+
+ngOnInit() {
+  this.authService.authReady$.pipe(
+    filter(ready => ready),
+    take(1)
+  ).subscribe(() => {
+    const user = this.authService.getStoredUser();
+    const currentPath = window.location.pathname;
+    
+    console.log('📍 App Init - Path:', currentPath, 'User:', !!user);
+
+    if (user) {
+      // ✅ Sirf /login se dashboard bhejo, / ko visitor rehne do
+      if (currentPath === '/login') {
+        const dashboardRoutes: Record<string, string> = {
+          Admin: '/admin-dashboard',
+          Faculty: '/faculty-dashboard',
+          Clerk: '/clerk-dashboard',
+          Student: '/student-dashboard'
+        };
+        const target = dashboardRoutes[user.role] || '/';
+        console.log('➡️ Redirecting to:', target);
+        this.router.navigateByUrl(target, { replaceUrl: true });
+      }
+      // ✅ Agar kisi protected route pe refresh hua → wahi raho
+      else if (currentPath !== '/') {
+        console.log('📍 Staying at:', currentPath);
+        this.router.navigateByUrl(currentPath, { replaceUrl: true });
+      }
+      // ✅ Agar / hai → visitor page allow karo
+      else {
+        console.log('🏠 Home page - OK');
+      }
+    } else {
+      // ⚠️ User null hai → public routes allow, baaki login par
+      // ✅ BUT /login ko force allow karo (logout ke baad yahi aana chahiye)
+      if (currentPath === '/login') {
+        console.log('✅ Login page - OK');
+        this.router.navigateByUrl('/login', { replaceUrl: true });
+        return;
+      }
+      
+      const publicRoutes = ['/', '/about', '/events', '/download', '/explore', '/forget-pass'];
+      if (!publicRoutes.includes(currentPath)) {
+        console.log('🚫 Protected route without login → /login');
+        this.router.navigateByUrl('/login', { replaceUrl: true });
+      } else {
+        console.log('✅ Public route - OK');
+        this.router.navigateByUrl(currentPath, { replaceUrl: true });
+      }
+    }
+  });
+}
+
+
   getLayoutType(): string {
     return this.currentLayout;
   }
-  
+
 private updateLayout() {
   const url = this.router.url;
-  
-  // Define route groups
+
   const layoutGroups = {
     'none': ['/login'],
+    'unauthorized': ['/unauthorized'],  // ✅ ADD THIS LINE
     'admin-header': [
       '/admin-dashboard', '/users', '/add-user', '/admin-profile',
       '/announcement', '/bulk-student-verification', '/student-verification',
@@ -68,15 +124,14 @@ private updateLayout() {
       '/faculty-dashboard', '/faculty-profile', '/project-evaluation'
     ]
   };
-  
-  // Find which group contains this URL
+
   for (const [layout, routes] of Object.entries(layoutGroups)) {
     if (routes.some(route => url.startsWith(route))) {
       this.currentLayout = layout;
       return;
     }
   }
-  
+
   this.currentLayout = 'visitor';
 }
 }

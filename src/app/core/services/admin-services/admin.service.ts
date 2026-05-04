@@ -3,10 +3,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse } from '../models/api-response/api-response.model';
-import { SessionAddDto } from '../models/admin/session-add.dto';
-import { SessionGetDto } from '../models/admin/session-get.dto';
-import { SessionStatusEnum } from '../models/enums/session-status.enum';
+import { ApiResponse } from '../../models/api-response/api-response.model'; 
+import { SessionAddDto } from '../../models/admin/session-add.dto';
+import { SessionGetDto } from '../../models/admin/session-get.dto';
+import { SessionStatusEnum } from '../../models/enums/session-status.enum';
 
 export interface UpdateSessionStatusRequest {
   sessionId: string;

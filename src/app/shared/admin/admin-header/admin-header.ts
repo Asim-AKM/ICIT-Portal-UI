@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { AuthService  } from '../../../core/services/auth-services/auth.service';
 
 @Component({
   selector: 'app-admin-header',
@@ -14,7 +15,7 @@ export class AdminHeader {
   enrollmentDropdownOpen = false;
   mobileEnrollmentOpen = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService : AuthService) {}
 
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
@@ -47,12 +48,9 @@ export class AdminHeader {
     }
     this.mobileEnrollmentOpen = !this.mobileEnrollmentOpen;
   }
-
-  logout() {
-    console.log('Logging out...');
-    this.router.navigate(['/login']);
-  }
-
+logout() {
+  this.authService.logout();
+}
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
     const target = event.target as HTMLElement;

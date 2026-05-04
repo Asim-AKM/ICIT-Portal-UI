@@ -54,7 +54,7 @@ interface FinalEvaluation {
 @Component({
   selector: 'app-project-evaluation',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './project-evaluation.html',
   styleUrls: ['./project-evaluation.css']
 })
