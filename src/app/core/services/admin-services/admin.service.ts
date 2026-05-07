@@ -8,6 +8,28 @@ import { SessionAddDto } from '../../models/admin/session-add.dto';
 import { SessionGetDto } from '../../models/admin/session-get.dto';
 import { SessionStatusEnum } from '../../models/enums/session-status.enum';
 
+
+export interface StudentDto {
+  studentId: string;
+  userId: string;
+  registrationNo: string;
+  rollNo: string;
+  semesterId: string;
+  sessionId: string;
+  studentName: string;
+  studentEmail: string;
+  cnic: string;
+  department: string;
+  status: string;
+}
+
+export interface VerifyStudentRequest {
+  studentIds: string[];
+  status: number; // 2 = Verified, 3 = Rejected
+}
+
+
+
 export interface UpdateSessionStatusRequest {
   sessionId: string;
   status: SessionStatusEnum;
@@ -67,4 +89,29 @@ export class AdminService {
       request
     );
   }
+
+
+
+// Get students by session, department, status
+getStudentsBySessionAndDept(sessionId: string, departmentId: string, studentStatus: number): Observable<ApiResponse<StudentDto[]>> {
+  const params = new HttpParams()
+    .set('SessionId', sessionId)
+    .set('DepartmentId', departmentId)
+    .set('StudentStatus', studentStatus.toString());
+
+  return this.http.get<ApiResponse<StudentDto[]>>(
+    `${this.baseUrl}/students-by-session-and-deprt`,
+    { params, withCredentials: true }
+  );
+}
+
+// Verify or reject students
+verifyStudents(request: VerifyStudentRequest): Observable<ApiResponse<string>> {
+  return this.http.put<ApiResponse<string>>(
+    `${this.baseUrl}/verify-students`,
+    request,
+    { withCredentials: true }
+  );
+}
+
 }

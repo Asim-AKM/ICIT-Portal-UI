@@ -36,7 +36,7 @@
                     <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
                         <i class="fas fa-users text-emerald-600 text-sm"></i>
                     </div>
-                    <span class="text-2xl font-black text-slate-900">{{ totalUsers }}</span>
+                    <span class="text-2xl font-black text-slate-900">{{ totalRecords }}</span>
                 </div>
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Users</p>
             </div>
@@ -48,7 +48,7 @@
                     </div>
                     <span class="text-2xl font-black text-slate-900">{{ activeUsers }}</span>
                 </div>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Users</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active</p>
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
@@ -79,26 +79,27 @@
                 <div class="relative flex-1 min-w-50">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                     <input type="text" [(ngModel)]="searchTerm" (input)="changePage(1)"
-                        placeholder="Search by name, email, or employee ID..."
+                        placeholder="Search by name, email, or username..."
                         class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
                 </div>
 
                 <!-- Role Filter -->
-                <select [(ngModel)]="selectedRole" (change)="changePage(1)"
+                <select [(ngModel)]="selectedRole" (change)="onFilterChange()"
                     class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none cursor-pointer hover:bg-slate-100 transition">
                     <option value="all">All Roles</option>
-                    <option value="faculty">Faculty</option>
-                    <option value="clerk">Clerk</option>
-                    <option value="admin">Admin</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Faculty">Faculty</option>
+                    <option value="Clerk">Clerk</option>
+                    <option value="Student">Student</option>
                 </select>
 
-                <!-- Status Filter -->
-                <select [(ngModel)]="selectedStatus" (change)="changePage(1)"
+                <select [(ngModel)]="selectedStatus" (change)="onFilterChange()"
                     class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none cursor-pointer hover:bg-slate-100 transition">
                     <option value="all">All Status</option>
                     <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="blocked">Blocked</option>
                     <option value="suspended">Suspended</option>
-                    <option value="pending">Pending</option>
                 </select>
 
                 <!-- Reset Filters -->
@@ -111,150 +112,169 @@
 
         <!-- Users Table -->
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-linear-to-r from-slate-50 to-white border-b-2 border-slate-100">
-                        <tr>
-                            <th class="px-6 py-4 text-left">
-                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">User Details
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left">
-                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Employee ID
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left">
-                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Department
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left">
-                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Role</div>
-                            </th>
-                            <th class="px-6 py-4 text-left">
-                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</div>
-                            </th>
-                            <th class="px-6 py-4 text-left">
-                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Last Login
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-right">
-                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Actions
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        <tr *ngFor="let user of paginatedUsers"
-                            class="hover:bg-slate-50/50 transition-all duration-200 group">
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-600 text-sm">
-                                        {{ user.avatar }}
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-slate-800">{{ user.name }}</p>
-                                        <p class="text-xs text-slate-500">{{ user.email }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="text-xs font-mono text-slate-600">{{ user.employeeId }}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="text-xs text-slate-600">{{ user.department }}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span
-                                    class="inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider"
-                                    [class]="getRoleBadgeClass(user.role)">
-                                    <i [class]="getRoleIcon(user.role)" class="text-xs"></i>
-                                    {{ getRoleLabel(user.role) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-1.5 h-1.5 rounded-full" [class]="getStatusDotColor(user.status)">
-                                    </div>
-                                    <span
-                                        class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold"
-                                        [class]="getStatusBadgeClass(user.status)">
-                                        <i [class]="getStatusIcon(user.status)" class="text-[8px]"></i>
-                                        {{ user.status | uppercase }}
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="text-xs text-slate-500">{{ formatLastLogin(user.lastLogin) }}</span>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <button (click)="toggleUserStatus(user.id)"
-                                        class="w-8 h-8 rounded-lg text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition"
-                                        [title]="user.status === 'active' ? 'Suspend User' : 'Activate User'">
-                                        <i [class]="user.status === 'active' ? 'fas fa-ban' : 'fas fa-check-circle'"
-                                            class="text-xs"></i>
-                                    </button>
-                                    <button (click)="editUser(user.id)"
-                                        class="w-8 h-8 rounded-lg text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition"
-                                        title="Edit User">
-                                        <i class="fas fa-edit text-xs"></i>
-                                    </button>
-                                    <button (click)="deleteUser(user.id)"
-                                        class="w-8 h-8 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
-                                        title="Delete User">
-                                        <i class="fas fa-trash-alt text-xs"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
 
-                        <!-- Empty State -->
-                        <tr *ngIf="paginatedUsers.length === 0">
-                            <td colspan="7" class="px-6 py-12 text-center">
-                                <div class="flex flex-col items-center gap-3">
-                                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-user-slash text-2xl text-slate-400"></i>
-                                    </div>
-                                    <p class="text-slate-500 font-medium">No users found</p>
-                                    <p class="text-sm text-slate-400">Try adjusting your search or filter criteria</p>
-                                    <button (click)="resetFilters()"
-                                        class="mt-2 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition">
-                                        Clear Filters
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div
-                class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    Showing {{ startItem }}-{{ endItem }} of {{ filteredUsers.length }} Users
-                </p>
-
-                <div class="flex gap-1">
-                    <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
-                        class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-emerald-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="fas fa-chevron-left text-[10px]"></i>
-                    </button>
-
-                    <button *ngFor="let page of getTotalPagesArray()" (click)="changePage(page)" [class]="page === currentPage 
-              ? 'bg-linear-to-r from-emerald-500 to-emerald-600 text-white shadow-md' 
-              : 'border border-slate-200 text-slate-600 hover:bg-white hover:border-emerald-200'"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs transition-all duration-200">
-                        {{ page }}
-                    </button>
-
-                    <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages"
-                        class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-emerald-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="fas fa-chevron-right text-[10px]"></i>
-                    </button>
+            <!-- Loading Spinner -->
+            <div *ngIf="isLoading" class="flex items-center justify-center py-20">
+                <div class="text-center">
+                    <div
+                        class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4">
+                    </div>
+                    <p class="text-slate-500 text-sm">Loading users...</p>
                 </div>
             </div>
+
+            <ng-container *ngIf="!isLoading">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-linear-to-r from-slate-50 to-white border-b-2 border-slate-100">
+                            <tr>
+                                <th class="px-6 py-4 text-left">
+                                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">User
+                                        Details</div>
+                                </th>
+                                <th class="px-6 py-4 text-left">
+                                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Username
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left">
+                                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                                        Department</div>
+                                </th>
+                                <th class="px-6 py-4 text-left">
+                                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Role
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left">
+                                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-right">
+                                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Actions
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            <tr *ngFor="let user of paginatedUsers"
+                                class="hover:bg-slate-50/50 transition-all duration-200 group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-10 h-10 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-600 text-sm overflow-hidden">
+                                            <img *ngIf="user.imageUrl" [src]="user.imageUrl"
+                                                class="w-full h-full object-cover">
+                                            <span *ngIf="!user.imageUrl">{{ getAvatar(user.fullName) }}</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-800">{{ user.fullName }}</p>
+                                            <p class="text-xs text-slate-500">{{ user.email }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-xs font-mono text-slate-600">{{ user.userName }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-xs text-slate-600">{{ user.department }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span
+                                        class="inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider"
+                                        [class]="getRoleBadgeClass(user.role)">
+                                        <i [class]="getRoleIcon(user.role)" class="text-xs"></i>
+                                        {{ getRoleLabel(user.role) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 rounded-full" [class]="getStatusDotColor(user.status)">
+                                        </div>
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold"
+                                            [class]="getStatusBadgeClass(user.status)">
+                                            <i [class]="getStatusIcon(user.status)" class="text-[8px]"></i>
+                                            {{ getStatusText(user.status) }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+
+                                        <!-- Toggle Status -->
+                                        <button (click)="toggleUserStatus(user)"
+                                            class="w-8 h-8 rounded-lg text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition"
+                                            [title]="user.status === 1 ? 'Deactivate User' : 'Activate User'">
+                                            <i [class]="user.status === 1 ? 'fas fa-ban' : 'fas fa-check-circle'"
+                                                class="text-xs"></i>
+                                        </button>
+                                        <!-- Edit User → Navigate to Edit Page -->
+                                        <button (click)="editUser(user)"
+                                            class="w-8 h-8 rounded-lg text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition"
+                                            title="Edit User">
+                                            <i class="fas fa-edit text-xs"></i>
+                                        </button>
+
+                                        <!-- Delete User -->
+                                        <button (click)="deleteUser(user.userId)"
+                                            class="w-8 h-8 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
+                                            title="Delete User">
+                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        </button>
+
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Empty State -->
+                            <tr *ngIf="paginatedUsers.length === 0">
+                                <td colspan="6" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <div
+                                            class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user-slash text-2xl text-slate-400"></i>
+                                        </div>
+                                        <p class="text-slate-500 font-medium">No users found</p>
+                                        <p class="text-sm text-slate-400">Try adjusting your search or filter criteria
+                                        </p>
+                                        <button (click)="resetFilters()"
+                                            class="mt-2 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition">
+                                            Clear Filters
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div
+                    class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Showing {{ startItem }}-{{ endItem }} of {{ totalRecords }} Users
+                    </p>
+
+                    <div class="flex gap-1">
+                        <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
+                            class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-emerald-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-chevron-left text-[10px]"></i>
+                        </button>
+
+                        <button *ngFor="let page of getTotalPagesArray()" (click)="changePage(page)" [class]="page === currentPage 
+                      ? 'bg-linear-to-r from-emerald-500 to-emerald-600 text-white shadow-md' 
+                      : 'border border-slate-200 text-slate-600 hover:bg-white hover:border-emerald-200'"
+                            class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs transition-all duration-200">
+                            {{ page }}
+                        </button>
+
+                        <button (click)="changePage(currentPage + 1)"
+                            [disabled]="currentPage === totalPages || totalPages === 0"
+                            class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-emerald-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-chevron-right text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+            </ng-container>
         </div>
     </main>
 </div>

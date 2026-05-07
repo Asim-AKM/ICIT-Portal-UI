@@ -16,18 +16,27 @@
           </div>
         </div>
 
-        <!-- Session Selector -->
-        <div class="w-full lg:w-72">
-          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Select Session</label>
-          <div class="relative">
-            <select 
-              [(ngModel)]="selectedSession"
-              class="w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer hover:border-emerald-300">
-              <option *ngFor="let session of sessions" [value]="session.id">
-                {{ session.name }}
-              </option>
-            </select>
-            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+        <!-- Session & Department Selectors -->
+        <div class="w-full lg:w-auto flex flex-col sm:flex-row gap-4">
+          <div class="w-full sm:w-56">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Session</label>
+            <div class="relative">
+              <select [(ngModel)]="selectedSession" (change)="onFilterChange()"
+                class="w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer hover:border-emerald-300">
+                <option *ngFor="let session of sessions" [value]="session.sessionId">{{ session.name }}</option>
+              </select>
+              <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+            </div>
+          </div>
+          <div class="w-full sm:w-56">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Department</label>
+            <div class="relative">
+              <select [(ngModel)]="selectedDepartmentId" (change)="onFilterChange()"
+                class="w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer hover:border-emerald-300">
+                <option *ngFor="let dept of departments" [value]="dept.departmentId">{{ dept.name }}</option>
+              </select>
+              <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -35,39 +44,35 @@
       <!-- Status Tabs -->
       <div class="mt-8">
         <div class="flex gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
-          <button 
-            (click)="filterByStatus('unverified')"
+          <button (click)="filterByStatus('unverified')"
             [class]="selectedStatus === 'unverified' ? 'bg-emerald-500 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'"
             class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200">
             <i class="fas fa-clock mr-2"></i>Unverified
-            <span class="ml-2 px-1.5 py-0.5 rounded text-[10px]" [class]="selectedStatus === 'unverified' ? 'bg-white/20' : 'bg-slate-100'">
-              {{ students.filter(s => s.status === 'unverified').length }}
-            </span>
           </button>
-          <button 
-            (click)="filterByStatus('verified')"
+          <button (click)="filterByStatus('verified')"
             [class]="selectedStatus === 'verified' ? 'bg-emerald-500 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'"
             class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200">
             <i class="fas fa-check-circle mr-2"></i>Verified
-            <span class="ml-2 px-1.5 py-0.5 rounded text-[10px]" [class]="selectedStatus === 'verified' ? 'bg-white/20' : 'bg-slate-100'">
-              {{ students.filter(s => s.status === 'verified').length }}
-            </span>
           </button>
-          <button 
-            (click)="filterByStatus('rejected')"
+          <button (click)="filterByStatus('rejected')"
             [class]="selectedStatus === 'rejected' ? 'bg-emerald-500 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'"
             class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200">
             <i class="fas fa-times-circle mr-2"></i>Rejected
-            <span class="ml-2 px-1.5 py-0.5 rounded text-[10px]" [class]="selectedStatus === 'rejected' ? 'bg-white/20' : 'bg-slate-100'">
-              {{ students.filter(s => s.status === 'rejected').length }}
-            </span>
           </button>
         </div>
       </div>
     </div>
 
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-20">
+      <div class="text-center">
+        <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-slate-500 text-sm">Loading students...</p>
+      </div>
+    </div>
+
     <!-- Bulk Action Bar -->
-    <div *ngIf="selectedCount > 0" 
+    <div *ngIf="selectedCount > 0 && !isLoading" 
          class="mb-6 p-4 bg-linear-to-r from-slate-900 to-slate-800 rounded-2xl shadow-xl animate-slide-down">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-4">
@@ -82,41 +87,36 @@
           </div>
         </div>
         <div class="flex gap-3">
-          <button 
-            (click)="handleBulkReject()"
-            class="px-6 py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-black uppercase rounded-xl hover:bg-red-500 hover:text-white hover:border-red-500 transition-all duration-200">
+          <button (click)="handleBulkReject()" [disabled]="isProcessing"
+            class="px-6 py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-black uppercase rounded-xl hover:bg-red-500 hover:text-white hover:border-red-500 transition-all duration-200 disabled:opacity-50">
             <i class="fas fa-times mr-2"></i>Reject All
           </button>
-          <button 
-            (click)="handleBulkVerify()"
-            class="px-6 py-2.5 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-xs font-black uppercase rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-emerald-500/20">
-            <i class="fas fa-check-double mr-2"></i>Verify Selected
+          <button (click)="handleBulkVerify()" [disabled]="isProcessing"
+            class="px-6 py-2.5 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-xs font-black uppercase rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-emerald-500/20 disabled:opacity-50">
+            <i class="fas fa-check-double mr-2"></i>{{ isProcessing ? 'Processing...' : 'Verify Selected' }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Students Table -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+    <div *ngIf="!isLoading" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
             <tr class="bg-linear-to-r from-slate-50 to-white border-b-2 border-slate-100">
               <th class="px-6 py-4 w-12">
-                <input 
-                  type="checkbox"
-                  [checked]="isAllSelected"
-                  (change)="toggleSelectAll()"
+                <input type="checkbox" [checked]="isAllSelected" (change)="toggleSelectAll()"
                   class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
               </th>
               <th class="px-6 py-4 text-left">
                 <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Student Information</div>
               </th>
               <th class="px-6 py-4 text-left">
-                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Department</div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Registration No</div>
               </th>
               <th class="px-6 py-4 text-left">
-                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Registration Date</div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">CNIC</div>
               </th>
               <th class="px-6 py-4 text-left">
                 <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</div>
@@ -130,10 +130,7 @@
             <tr *ngFor="let student of filteredStudents" 
                 class="hover:bg-slate-50/50 transition-all duration-150 group">
               <td class="px-6 py-4">
-                <input 
-                  type="checkbox"
-                  [checked]="selectedStudents.has(student.id)"
-                  (change)="toggleStudent(student.id)"
+                <input type="checkbox" [checked]="selectedStudents.has(student.id)" (change)="toggleStudent(student.id)"
                   class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
               </td>
               <td class="px-6 py-4">
@@ -143,16 +140,16 @@
                   </div>
                   <div>
                     <p class="font-bold text-slate-900">{{ student.name }}</p>
-                    <p class="text-xs text-slate-500 font-mono">{{ student.rollNumber }}</p>
+                    <p class="text-xs text-slate-500 font-mono">Roll: {{ student.rollNo }}</p>
                     <p class="text-xs text-slate-400">{{ student.email }}</p>
                   </div>
                 </div>
               </td>
               <td class="px-6 py-4">
-                <span class="text-sm text-slate-700 font-medium">{{ student.department }}</span>
+                <span class="text-sm font-mono text-slate-600">{{ student.registrationNo }}</span>
               </td>
               <td class="px-6 py-4">
-                <span class="text-sm text-slate-600">{{ student.registrationDate | date:'MMM dd, yyyy' }}</span>
+                <span class="text-sm text-slate-600 font-mono">{{ student.cnic }}</span>
               </td>
               <td class="px-6 py-4">
                 <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider" 
@@ -163,21 +160,17 @@
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
-                  <button *ngIf="student.status !== 'verified'" 
-                          (click)="handleSingleVerify(student.id)"
-                          class="opacity-0 group-hover:opacity-100 p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-all duration-200"
-                          title="Verify">
+                  <button *ngIf="student.status !== 'verified'" (click)="handleSingleVerify(student.id)"
+                    [disabled]="isProcessing"
+                    class="opacity-0 group-hover:opacity-100 p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-all duration-200 disabled:opacity-50"
+                    title="Verify">
                     <i class="fas fa-check text-xs"></i>
                   </button>
-                  <button *ngIf="student.status !== 'rejected'"
-                          (click)="handleSingleReject(student.id)"
-                          class="opacity-0 group-hover:opacity-100 p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all duration-200"
-                          title="Reject">
+                  <button *ngIf="student.status !== 'rejected'" (click)="handleSingleReject(student.id)"
+                    [disabled]="isProcessing"
+                    class="opacity-0 group-hover:opacity-100 p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all duration-200 disabled:opacity-50"
+                    title="Reject">
                     <i class="fas fa-times text-xs"></i>
-                  </button>
-                  <button class="opacity-0 group-hover:opacity-100 p-2 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 transition-all duration-200"
-                          title="View Details">
-                    <i class="fas fa-eye text-xs"></i>
                   </button>
                 </div>
               </td>
@@ -198,49 +191,4 @@
       </div>
     </div>
   </main>
-
-  <!-- Confirmation Modal -->
-  <div *ngIf="showModal" class="fixed inset-0 z-100 flex items-center justify-center p-4" (click)="closeModal()">
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in"></div>
-    
-    <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-scale-up" (click)="$event.stopPropagation()">
-      <div class="relative">
-        <!-- Decorative gradient bar -->
-        <div class="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-emerald-500 to-emerald-600"></div>
-        
-        <div class="p-8">
-          <div class="flex items-center justify-center mb-6">
-            <div class="w-16 h-16 bg-linear-to-br from-emerald-100 to-emerald-50 rounded-2xl flex items-center justify-center">
-              <i class="fas fa-shield-check text-2xl text-emerald-600"></i>
-            </div>
-          </div>
-          
-          <h3 class="text-2xl font-black text-slate-900 text-center mb-2">
-            {{ modalAction === 'verify' ? 'Verify Students' : 'Reject Students' }}
-          </h3>
-          
-          <p class="text-slate-500 text-center leading-relaxed">
-            Are you sure you want to {{ modalAction }} 
-            <span class="font-bold text-slate-900">{{ modalStudentIds.length }}</span> 
-            student{{ modalStudentIds.length > 1 ? 's' : '' }}?
-          </p>
-          
-          <div class="flex gap-3 mt-8">
-            <button 
-              (click)="closeModal()"
-              class="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-slate-500 hover:text-slate-700 hover:bg-slate-50 rounded-xl transition-all duration-200">
-              Cancel
-            </button>
-            <button 
-              (click)="executeAction()"
-              [class]="modalAction === 'verify' ? 'bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700' : 'bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700'"
-              class="flex-1 py-3 text-white text-sm font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shadow-lg">
-              <i [class]="modalAction === 'verify' ? 'fas fa-check' : 'fas fa-times'" class="mr-2"></i>
-              {{ modalAction === 'verify' ? 'Confirm Verify' : 'Confirm Reject' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>

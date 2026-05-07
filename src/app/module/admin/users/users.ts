@@ -1,300 +1,326 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { UserService, UserItem, UpdateUserRequest } from '../../../core/services/user-services/user.service';
+import { ToastService } from '../../../core/services/toast-service/toast.service';
+import { ConfirmDialogService } from '../../../core/services/generic-services/confirm-dialog.service';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'faculty' | 'clerk' | 'admin';
-  status: 'active' | 'suspended' | 'pending';
-  lastLogin: Date;
-  avatar: string;
-  employeeId: string;
-  department: string;
-  joinDate: Date;
-}
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule,RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './users.html',
   styleUrl: './users.css',
 })
+
+
 export class Users implements OnInit {
+
+  private router = inject(Router);
+  private userService = inject(UserService);
+  private toast = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
+  private confirmDialog = inject(ConfirmDialogService);
+
+
+  roleOptions = [
+    { value: 'Admin', label: 'Admin', icon: 'fas fa-user-shield' },
+    { value: 'Faculty', label: 'Faculty', icon: 'fas fa-chalkboard-user' },
+    { value: 'Clerk', label: 'Clerk', icon: 'fas fa-file-alt' },
+    { value: 'Student', label: 'Student', icon: 'fas fa-user-graduate' }
+  ];
+
+  // Filters
   searchTerm: string = '';
   selectedRole: string = 'all';
   selectedStatus: string = 'all';
+
+  // Pagination
   currentPage: number = 1;
-  itemsPerPage: number = 8;
-  
-  users: User[] = [];
-  
-  // Stats for dashboard
-  totalUsers: number = 0;
+  pageSize: number = 10;
+  totalRecords: number = 0;
+
+  // Data
+  users: UserItem[] = [];
+  isLoading: boolean = false;
+
+  // Stats
   activeUsers: number = 0;
   facultyCount: number = 0;
   clerkCount: number = 0;
-  
-  constructor() {}
-  
+
+
+
+
+
   ngOnInit() {
     this.loadUsers();
-    this.updateStats();
   }
-  
+
+  // Update editUser method
+  editUser(user: UserItem) {
+    this.router.navigate(['/edit-user'], {
+      state: { userData: user }
+    });
+  }
+
   loadUsers() {
-    // Mock data - replace with API call
-    this.users = [
-      {
-        id: '1',
-        name: 'Dr. Zaid Ali',
-        email: 'zaid.ali@icit.edu.pk',
-        role: 'faculty',
-        status: 'active',
-        lastLogin: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-        avatar: 'ZA',
-        employeeId: 'FAC-2024-001',
-        department: 'Computer Science',
-        joinDate: new Date('2023-08-15')
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
+    this.userService.getAllUsers(this.currentPage, this.pageSize).subscribe({
+      next: (res) => {
+        this.users = res.data.items;
+        this.totalRecords = res.data.totalRecords;
+        this.updateStats();
+        this.isLoading = false;
+        this.cdr.detectChanges();
       },
-      {
-        id: '2',
-        name: 'Sara Khan',
-        email: 'sara.khan@icit.edu.pk',
-        role: 'clerk',
-        status: 'suspended',
-        lastLogin: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-        avatar: 'SK',
-        employeeId: 'CLK-2024-042',
-        department: 'Registrar Office',
-        joinDate: new Date('2024-01-10')
-      },
-      {
-        id: '3',
-        name: 'Prof. Ahmed Raza',
-        email: 'ahmed.raza@icit.edu.pk',
-        role: 'faculty',
-        status: 'active',
-        lastLogin: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
-        avatar: 'AR',
-        employeeId: 'FAC-2023-089',
-        department: 'Software Engineering',
-        joinDate: new Date('2023-01-20')
-      },
-      {
-        id: '4',
-        name: 'Fatima Bilal',
-        email: 'fatima.b@icit.edu.pk',
-        role: 'clerk',
-        status: 'active',
-        lastLogin: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-        avatar: 'FB',
-        employeeId: 'CLK-2024-015',
-        department: 'Accounts Office',
-        joinDate: new Date('2024-02-01')
-      },
-      {
-        id: '5',
-        name: 'Admin User',
-        email: 'admin@icit.edu.pk',
-        role: 'admin',
-        status: 'active',
-        lastLogin: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-        avatar: 'AU',
-        employeeId: 'ADM-001',
-        department: 'IT Administration',
-        joinDate: new Date('2022-01-01')
-      },
-      {
-        id: '6',
-        name: 'Dr. Maria Khan',
-        email: 'maria.khan@icit.edu.pk',
-        role: 'faculty',
-        status: 'pending',
-        lastLogin: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
-        avatar: 'MK',
-        employeeId: 'FAC-2024-112',
-        department: 'Computer Science',
-        joinDate: new Date('2024-02-15')
-      },
-      {
-        id: '7',
-        name: 'Usman Chaudhry',
-        email: 'usman.c@icit.edu.pk',
-        role: 'clerk',
-        status: 'active',
-        lastLogin: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-        avatar: 'UC',
-        employeeId: 'CLK-2023-078',
-        department: 'Examination Office',
-        joinDate: new Date('2023-11-10')
-      },
-      {
-        id: '8',
-        name: 'Dr. Nida Aslam',
-        email: 'nida.aslam@icit.edu.pk',
-        role: 'faculty',
-        status: 'active',
-        lastLogin: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-        avatar: 'NA',
-        employeeId: 'FAC-2023-056',
-        department: 'Information Technology',
-        joinDate: new Date('2023-09-05')
+      error: () => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+        this.toast.error('Failed to load users');
       }
-    ];
+    });
+  }
+
+loadFilteredUsers() {
+  this.isLoading = true;
+  this.cdr.detectChanges();
+  
+  let roleParam: string | undefined = this.selectedRole !== 'all' ? this.selectedRole : undefined;
+  let statusParam: number | undefined = undefined;
+  
+  // ✅ All status values handle karo
+  switch(this.selectedStatus) {
+    case 'active': statusParam = 1; break;
+    case 'inactive': statusParam = 2; break;
+    case 'blocked': statusParam = 3; break;
+    case 'suspended': statusParam = 4; break;
+    default: statusParam = undefined;
   }
   
+  this.userService.filterUsers(roleParam, statusParam, this.currentPage, this.pageSize).subscribe({
+    next: (res) => {
+      this.users = res.data.items;
+      this.totalRecords = res.data.totalRecords;
+      this.updateStats();
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      this.toast.error('Failed to filter users');
+    }
+  });
+}
   updateStats() {
-    this.totalUsers = this.users.length;
-    this.activeUsers = this.users.filter(u => u.status === 'active').length;
-    this.facultyCount = this.users.filter(u => u.role === 'faculty').length;
-    this.clerkCount = this.users.filter(u => u.role === 'clerk').length;
+    this.facultyCount = this.users.filter(u => u.role.toLowerCase() === 'faculty').length;
+    this.clerkCount = this.users.filter(u => u.role.toLowerCase() === 'clerk').length;
+    this.activeUsers = this.users.filter(u => u.status === 1).length;
   }
-  
-  get filteredUsers(): User[] {
-    let filtered = this.users;
-    
-    // Filter by search term
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(user => 
-        user.name.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term) ||
-        user.employeeId.toLowerCase().includes(term)
-      );
-    }
-    
-    // Filter by role
-    if (this.selectedRole !== 'all') {
-      filtered = filtered.filter(user => user.role === this.selectedRole);
-    }
-    
-    // Filter by status
-    if (this.selectedStatus !== 'all') {
-      filtered = filtered.filter(user => user.status === this.selectedStatus);
-    }
-    
-    return filtered;
+
+  get paginatedUsers(): UserItem[] {
+    if (!this.searchTerm) return this.users;
+
+    const term = this.searchTerm.toLowerCase();
+    return this.users.filter(user =>
+      user.fullName.toLowerCase().includes(term) ||
+      user.email.toLowerCase().includes(term) ||
+      user.userName.toLowerCase().includes(term)
+    );
   }
-  
-  get paginatedUsers(): User[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    return this.filteredUsers.slice(start, end);
-  }
-  
+
   get totalPages(): number {
-    return Math.ceil(this.filteredUsers.length / this.itemsPerPage);
+    return Math.ceil(this.totalRecords / this.pageSize) || 1;
   }
-  
+
   get startItem(): number {
-    return (this.currentPage - 1) * this.itemsPerPage + 1;
+    if (this.totalRecords === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
   }
-  
+
   get endItem(): number {
-    return Math.min(this.currentPage * this.itemsPerPage, this.filteredUsers.length);
+    return Math.min(this.currentPage * this.pageSize, this.totalRecords);
   }
-  
+
+  onFilterChange() {
+    this.currentPage = 1;
+
+    const hasFilters = this.selectedRole !== 'all' ||
+      (this.selectedStatus !== 'all');
+
+    if (hasFilters) {
+      this.loadFilteredUsers();
+    } else {
+      this.loadUsers();
+    }
+  }
+
   changePage(page: number) {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-    }
-  }
-  
-  getRoleBadgeClass(role: string): string {
-    switch(role) {
-      case 'faculty': return 'bg-blue-50 text-blue-700 border border-blue-200';
-      case 'clerk': return 'bg-amber-50 text-amber-700 border border-amber-200';
-      case 'admin': return 'bg-purple-50 text-purple-700 border border-purple-200';
-      default: return 'bg-slate-50 text-slate-700';
-    }
-  }
-  
-  getRoleIcon(role: string): string {
-    switch(role) {
-      case 'faculty': return 'fas fa-chalkboard-user';
-      case 'clerk': return 'fas fa-file-alt';
-      case 'admin': return 'fas fa-user-shield';
-      default: return 'fas fa-user';
-    }
-  }
-  
-  getStatusBadgeClass(status: string): string {
-    switch(status) {
-      case 'active': return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-      case 'suspended': return 'bg-red-50 text-red-700 border border-red-200';
-      case 'pending': return 'bg-amber-50 text-amber-700 border border-amber-200';
-      default: return 'bg-slate-50 text-slate-700';
-    }
-  }
-  
-  getStatusIcon(status: string): string {
-    switch(status) {
-      case 'active': return 'fas fa-circle';
-      case 'suspended': return 'fas fa-ban';
-      case 'pending': return 'fas fa-clock';
-      default: return 'fas fa-question';
-    }
-  }
-  
-  getStatusDotColor(status: string): string {
-    switch(status) {
-      case 'active': return 'bg-emerald-500';
-      case 'suspended': return 'bg-red-500';
-      case 'pending': return 'bg-amber-500';
-      default: return 'bg-slate-500';
-    }
-  }
-  
-  formatLastLogin(date: Date): string {
-    const now = new Date();
-    const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffHours < 1) return 'Just now';
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-  }
-  
-  editUser(userId: string) {
-    console.log('Edit user:', userId);
-    // Navigate to edit page or open modal
-  }
-  
-  deleteUser(userId: string) {
-    if (confirm('Are you sure you want to delete this user?')) {
-      this.users = this.users.filter(u => u.id !== userId);
-      this.updateStats();
-      // Recalculate pagination
-      if (this.paginatedUsers.length === 0 && this.currentPage > 1) {
-        this.currentPage--;
+      if (this.selectedRole !== 'all' || this.selectedStatus !== 'all') {
+        this.loadFilteredUsers();
+      } else {
+        this.loadUsers();
       }
     }
   }
-  
-  toggleUserStatus(userId: string) {
-    const user = this.users.find(u => u.id === userId);
-    if (user) {
-      user.status = user.status === 'active' ? 'suspended' : 'active';
-      this.updateStats();
+
+  getAvatar(name: string): string {
+    if (!name) return '??';
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return (names[0].charAt(0) + names[1].charAt(0)).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
+
+  getStatusText(status: number): string {
+    switch (status) {
+      case 1: return 'Active';
+      case 2: return 'Inactive';
+      case 3: return 'Blocked';
+      case 4: return 'Suspended';
+      default: return 'Unknown';
     }
   }
+
+  getStatusBadgeClass(status: number): string {
+    switch (status) {
+      case 1: return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+      case 2: return 'bg-red-50 text-red-700 border border-red-200';
+      case 3: return 'bg-slate-100 text-slate-700 border border-slate-300';
+      case 4: return 'bg-amber-50 text-amber-700 border border-amber-200';
+      default: return 'bg-slate-50 text-slate-700';
+    }
+  }
+
+  getStatusIcon(status: number): string {
+    switch (status) {
+      case 1: return 'fas fa-circle';
+      case 2: return 'fas fa-ban';
+      case 3: return 'fas fa-lock';
+      case 4: return 'fas fa-clock';
+      default: return 'fas fa-question';
+    }
+  }
+
+  getStatusDotColor(status: number): string {
+    switch (status) {
+      case 1: return 'bg-emerald-500';
+      case 2: return 'bg-red-500';
+      case 3: return 'bg-slate-500';
+      case 4: return 'bg-amber-500';
+      default: return 'bg-slate-500';
+    }
+  }
+
+  getRoleLabel(role: string): string {
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  }
+
+  getRoleBadgeClass(role: string): string {
+    switch (role.toLowerCase()) {
+      case 'faculty': return 'bg-blue-50 text-blue-700 border border-blue-200';
+      case 'clerk': return 'bg-amber-50 text-amber-700 border border-amber-200';
+      case 'admin': return 'bg-purple-50 text-purple-700 border border-purple-200';
+      case 'student': return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+      default: return 'bg-slate-50 text-slate-700 border border-slate-200';
+    }
+  }
+
+  getRoleIcon(role: string): string {
+    switch (role.toLowerCase()) {
+      case 'faculty': return 'fas fa-chalkboard-user';
+      case 'clerk': return 'fas fa-file-alt';
+      case 'admin': return 'fas fa-user-shield';
+      case 'student': return 'fas fa-user-graduate';
+      default: return 'fas fa-user';
+    }
+  }
+
+  // ==================== ACTIONS ====================
+
+// Delete User
+async deleteUser(userId: string) {
+  const confirmed = await this.confirmDialog.confirm({
+    title: 'Delete User?',
+    message: 'This action is permanent and cannot be undone. All user data will be removed from the system.',
+    confirmText: 'Delete Forever',
+    cancelText: 'Keep User',
+    type: 'danger',
+    icon: 'fas fa-trash-alt'
+  });
   
+  if (confirmed) {
+    // API call
+    this.toast.success('User deleted');
+  }
+}
+ async toggleUserStatus(user: UserItem) {
+  const newStatus = user.status === 1 ? 2 : 1; // Active → Inactive, Inactive → Active
+  const action = newStatus === 1 ? 'Activate' : 'Deactivate';
+  
+  const confirmed = await this.confirmDialog.confirm({
+    title: `${action} User?`,
+    message: `Are you sure you want to ${action.toLowerCase()} <b>${user.fullName}</b>? Their access will be ${newStatus === 1 ? 'restored' : 'revoked'}.`,
+    confirmText: `Yes, ${action}`,
+    cancelText: 'Cancel',
+    type: action === 'Deactivate' ? 'warning' : 'info',
+    icon: action === 'Deactivate' ? 'fas fa-ban' : 'fas fa-check-circle'
+  });
+  
+  if (!confirmed) return;
+
+  const payload: UpdateUserRequest = {
+    userId: user.userId,
+    fullName: user.fullName,
+    userName: user.userName,
+    contact: user.contact,
+    cnic: user.cnic,
+    email: user.email,
+    role: user.role,
+    departmentId: user.departmentId,
+    status: newStatus
+  };
+
+  this.userService.updateUser(payload).subscribe({
+    next: () => {
+      this.toast.success(`User ${action}d successfully!`);
+      this.loadUsers();
+    },
+    error: (err) => {
+      this.toast.error(err.error?.message || `Failed to ${action.toLowerCase()} user`);
+    }
+  });
+}
+
   resetFilters() {
     this.searchTerm = '';
     this.selectedRole = 'all';
     this.selectedStatus = 'all';
     this.currentPage = 1;
+    this.loadUsers();
   }
-  
-  getRoleLabel(role: string): string {
-    return role.charAt(0).toUpperCase() + role.slice(1);
-  }
-  
+
   getTotalPagesArray(): number[] {
-    return Array(this.totalPages).fill(0).map((_, i) => i + 1);
+    const pages = this.totalPages;
+    if (pages <= 7) {
+      return Array(pages).fill(0).map((_, i) => i + 1);
+    }
+
+    // Show limited pages with ellipsis logic
+    const result: number[] = [];
+    for (let i = 1; i <= pages; i++) {
+      if (i === 1 || i === pages || (i >= this.currentPage - 1 && i <= this.currentPage + 1)) {
+        result.push(i);
+      }
+    }
+    return result;
   }
 }

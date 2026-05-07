@@ -19,6 +19,7 @@ import { BulkStudentVerification } from './module/admin/bulk-student-verificatio
 import { AdminProfile } from './module/admin/admin-profile/admin-profile';
 import { SessionDetails } from './module/admin/session-details/session-details';
 import { Users } from './module/admin/users/users';
+import { EditUser } from './module/admin/edit-user/edit-user';
 import { StudentVerification } from './module/admin/student-varification/student-varification';
 import { AddSessions } from './module/admin/add-sessions/add-sessions';
 
@@ -47,6 +48,9 @@ import { FacultyDashboard } from './module/faculty/faculty-dashboard/faculty-das
 import { FacultyProfile } from './module/faculty/faculty-profile/faculty-profile';
 import { ProjectEvaluation } from './module/faculty/project-evaluation/project-evaluation';
 
+// ================= Common =================
+import { ProfileComponent } from './shared/profile/profile';
+
 // ================= GUARD =================
 import { AuthGuard } from './core/guard/auth.guard';
 
@@ -65,6 +69,11 @@ export const routes: Routes = [
   { path: 'unauthorized', component: UnauthorizedComponent },
 
   // ============================================================
+  // Common ROUTES
+  // ============================================================
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+
+  // ============================================================
   // ADMIN ROUTES
   // ============================================================
   { path: 'admin-dashboard', component: AdminDashboard, canActivate: [AuthGuard], data: { role: 'Admin' } },
@@ -76,6 +85,7 @@ export const routes: Routes = [
   { path: 'users', component: Users, canActivate: [AuthGuard], data: { role: 'Admin' } },
   { path: 'student-verification', component: StudentVerification, canActivate: [AuthGuard], data: { role: 'Admin' } },
   { path: 'add-sessions', component: AddSessions, canActivate: [AuthGuard], data: { role: 'Admin' } },
+  { path: 'edit-user', component: EditUser, canActivate: [AuthGuard], data: { role: 'Admin' } },
 
   // ============================================================
   // STUDENT ROUTES

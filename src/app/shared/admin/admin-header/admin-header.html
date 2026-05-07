@@ -26,8 +26,7 @@
 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-6">
-                    <a routerLink="/admin-dashboard" routerLinkActive="active"
-                        [routerLinkActiveOptions]="{exact: true}"
+                    <a routerLink="/admin-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
                         class="text-sm font-medium text-slate-500 hover:text-emerald-600 transition pb-5 mt-5 border-b-2
                         border-transparent hover:border-emerald-600">
                         Home
@@ -43,7 +42,7 @@
 
                         <div
                             class="absolute left-0 top-full w-52 bg-white border border-slate-100 rounded-2xl shadow-xl py-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-70">
-                               <a routerLink="/add-sessions"
+                            <a routerLink="/add-sessions"
                                 class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition">
                                 <i class="fas fa-calendar-alt w-4"></i>Add Sessions
                             </a>
@@ -51,7 +50,7 @@
                                 class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition">
                                 <i class="fas fa-calendar-alt w-4"></i> Sessions Details
                             </a>
-                          
+
                             <a routerLink="/student-verification"
                                 class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition">
                                 <i class="fas fa-user-check w-4"></i> Verifications
@@ -73,46 +72,48 @@
                         Announcements
                     </a>
 
-                 
+
                 </div>
             </div>
 
             <!-- Right section - Admin Profile -->
             <div class="flex items-center gap-4 relative">
                 <div class="text-right hidden sm:block">
+                    <!-- ✅ Real user data -->
                     <p class="text-xs font-bold text-slate-900 leading-tight">
-                        Super Admin
+                        {{ user?.fullName || 'Admin' }}
                     </p>
                     <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-tighter">
-                        System Authority
+                        {{ user?.role || 'Administrator' }}
                     </p>
                 </div>
 
                 <!-- Admin Menu Button -->
                 <button id="adminMenuBtn" (click)="toggleAdminDropdown($event)"
                     class="focus:outline-none transition active:scale-95">
+                    <!-- ✅ Dynamic initials -->
                     <div
                         class="h-9 w-9 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-bold ring-2 ring-emerald-100 ring-offset-1 hover:ring-emerald-300">
-                        AD
+                        {{ getInitials() }}
                     </div>
                 </button>
 
                 <!-- Admin Dropdown -->
                 <div id="adminDropdown" *ngIf="adminDropdownOpen"
-                    class="absolute right-0 top-14 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-60">
+                    class="absolute right-0 top-full mt-1 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-60">
                     <div class="px-4 py-3 border-b border-slate-50 mb-1">
                         <p class="text-xs font-bold text-slate-900">
-                            Root Administrator
+                            {{ user?.fullName || 'Administrator' }}
                         </p>
-                        <p class="text-[10px] text-slate-400">admin@icit.edu.pk</p>
+                        <p class="text-[10px] text-slate-400">{{ user?.email || 'admin@icit.edu.pk' }}</p>
                     </div>
-                    <a routerLink="/admin-profile" (click)="closeAdminDropdown()"
+                    <a routerLink="/profile" (click)="closeAdminDropdown()"
                         class="flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition">
-                        <i class="fas fa-user-shield text-xs"></i> Admin Profile
+                        <i class="fas fa-user-shield text-xs"></i> Profile
                     </a>
                     <hr class="my-1 border-slate-100" />
                     <button (click)="logout()"
-                        class="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition w-full text-left">
+                        class="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition w-full text-left cursor-pointer">
                         <i class="fas fa-power-off text-xs"></i> System Sign Out
                     </button>
                 </div>

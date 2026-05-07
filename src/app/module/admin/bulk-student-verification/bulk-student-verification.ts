@@ -1,15 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AdminService, StudentDto, VerifyStudentRequest } from '../../../core/services/admin-services/admin.service';
+import { CreateAccountService, Department } from '../../../core/services/account-services/create-account-service';
+import { SessionGetDto } from '../../../core/models/admin/session-get.dto';
+import { ToastService } from '../../../core/services/toast-service/toast.service';
+import { ConfirmDialogService } from '../../../core/services/generic-services/confirm-dialog.service'; 
 
-interface Student {
+interface StudentDisplay {
   id: string;
   name: string;
-  rollNumber: string;
+  rollNo: string;
+  registrationNo: string;
   department: string;
-  status: 'unverified' | 'verified' | 'rejected';
+  status: string;
   email: string;
-  registrationDate: string;
+  cnic: string;
 }
 
 @Component({
@@ -20,77 +26,100 @@ interface Student {
   styleUrl: './bulk-student-verification.css',
 })
 export class BulkStudentVerification implements OnInit {
-  selectedSession = 'spring-2026';
-  selectedStatus = 'unverified';
-  students: Student[] = [];
+  
+  private adminService = inject(AdminService);
+  private createAccountService = inject(CreateAccountService);
+  private toast = inject(ToastService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private cdr = inject(ChangeDetectorRef);
+  
+  selectedSession = '';
+  selectedDepartmentId = '';
+  selectedStatus: string = 'unverified';
+  
+  sessions: SessionGetDto[] = [];
+  departments: Department[] = [];
+  students: StudentDisplay[] = [];
   selectedStudents: Set<string> = new Set();
-  showModal = false;
-  modalAction: 'verify' | 'reject' = 'verify';
-  modalStudentIds: string[] = [];
-
-  sessions = [
-    { id: 'spring-2026', name: 'Spring Semester 2026' },
-    { id: 'fall-2025', name: 'Fall Semester 2025' },
-    { id: 'spring-2025', name: 'Spring Semester 2025' }
-  ];
+  
+  isLoading = false;
+  isProcessing = false;
 
   ngOnInit() {
-    this.loadStudents();
+    this.loadSessions();
+    this.loadDepartments();
+  }
+
+  loadSessions() {
+    this.adminService.getSessionsByStatus(1).subscribe({
+      next: (res) => {
+        this.sessions = res.data;
+        if (this.sessions.length > 0) {
+          this.selectedSession = this.sessions[0].sessionId;
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadDepartments() {
+    this.createAccountService.getDepartments().subscribe({
+      next: (res) => {
+        this.departments = res.data;
+        if (this.departments.length > 0) {
+          this.selectedDepartmentId = this.departments[0].departmentId;
+        }
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadStudents() {
-    // Mock data - replace with API call
-    this.students = [
-      {
-        id: '1',
-        name: 'Ahmed Sheikh',
-        rollNumber: 'CS-2020-001',
-        department: 'Computer Science',
-        status: 'verified',
-        email: 'ahmed.sheikh@icit.edu',
-        registrationDate: '2025-01-15'
+    if (!this.selectedSession || !this.selectedDepartmentId) return;
+    
+    this.isLoading = true;
+    this.selectedStudents.clear();
+    this.cdr.detectChanges();
+
+    const statusMap: Record<string, number> = {
+      'unverified': 1,
+      'verified': 2,
+      'rejected': 3
+    };
+
+    this.adminService.getStudentsBySessionAndDept(
+      this.selectedSession,
+      this.selectedDepartmentId,
+      statusMap[this.selectedStatus]
+    ).subscribe({
+      next: (res) => {
+        this.students = res.data.map(s => ({
+          id: s.studentId,
+          name: s.studentName,
+          rollNo: s.rollNo,
+          registrationNo: s.registrationNo,
+          department: s.department,
+          status: s.status.toLowerCase(),
+          email: s.studentEmail,
+          cnic: s.cnic
+        }));
+        this.isLoading = false;
+        this.cdr.detectChanges();
       },
-      {
-        id: '2',
-        name: 'Kashif Farooq',
-        rollNumber: 'CS-2020-002',
-        department: 'Computer Science',
-        status: 'unverified',
-        email: 'kashif.farooq@icit.edu',
-        registrationDate: '2025-01-16'
-      },
-      {
-        id: '3',
-        name: 'Zain Ali',
-        rollNumber: 'SE-2020-015',
-        department: 'Software Engineering',
-        status: 'rejected',
-        email: 'zain.ali@icit.edu',
-        registrationDate: '2025-01-14'
-      },
-      {
-        id: '4',
-        name: 'Sara Khan',
-        rollNumber: 'CS-2020-008',
-        department: 'Computer Science',
-        status: 'unverified',
-        email: 'sara.khan@icit.edu',
-        registrationDate: '2025-01-17'
-      },
-      {
-        id: '5',
-        name: 'Omar Riaz',
-        rollNumber: 'SE-2020-023',
-        department: 'Software Engineering',
-        status: 'unverified',
-        email: 'omar.riaz@icit.edu',
-        registrationDate: '2025-01-15'
+      error: () => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+        this.toast.error('Failed to load students');
       }
-    ];
+    });
   }
 
-  get filteredStudents(): Student[] {
-    return this.students.filter(student => student.status === this.selectedStatus);
+  onFilterChange() {
+    this.loadStudents();
+  }
+
+  get filteredStudents(): StudentDisplay[] {
+    return this.students;
   }
 
   get selectedCount(): number {
@@ -98,8 +127,8 @@ export class BulkStudentVerification implements OnInit {
   }
 
   get isAllSelected(): boolean {
-    const filtered = this.filteredStudents;
-    return filtered.length > 0 && filtered.every(s => this.selectedStudents.has(s.id));
+    return this.filteredStudents.length > 0 && 
+           this.filteredStudents.every(s => this.selectedStudents.has(s.id));
   }
 
   toggleSelectAll() {
@@ -108,8 +137,8 @@ export class BulkStudentVerification implements OnInit {
     } else {
       this.filteredStudents.forEach(s => this.selectedStudents.add(s.id));
     }
-    // Trigger change detection
     this.selectedStudents = new Set(this.selectedStudents);
+    this.cdr.detectChanges();
   }
 
   toggleStudent(id: string) {
@@ -121,63 +150,102 @@ export class BulkStudentVerification implements OnInit {
     this.selectedStudents = new Set(this.selectedStudents);
   }
 
-  filterByStatus(status: 'unverified' | 'verified' | 'rejected') {
+  filterByStatus(status: string) {
     this.selectedStatus = status;
-    this.selectedStudents.clear();
-    this.selectedStudents = new Set();
+    this.loadStudents();
   }
 
-  openModal(action: 'verify' | 'reject', studentIds: string | string[]) {
-    this.modalAction = action;
-    this.modalStudentIds = Array.isArray(studentIds) ? studentIds : [studentIds];
-    this.showModal = true;
+  getStatusCount(status: string): number {
+    return this.students.filter(s => s.status === status).length;
   }
 
-  closeModal() {
-    this.showModal = false;
-    this.modalStudentIds = [];
-  }
-
-  executeAction() {
-    if (this.modalAction === 'verify') {
-      this.modalStudentIds.forEach(id => {
-        const student = this.students.find(s => s.id === id);
-        if (student) {
-          student.status = 'verified';
-        }
-      });
-      this.showToast('success', `${this.modalStudentIds.length} student(s) verified successfully!`);
-    } else {
-      this.modalStudentIds.forEach(id => {
-        const student = this.students.find(s => s.id === id);
-        if (student) {
-          student.status = 'rejected';
-        }
-      });
-      this.showToast('success', `${this.modalStudentIds.length} student(s) rejected successfully!`);
-    }
+  async handleBulkVerify() {
+    if (this.selectedCount === 0) return;
     
-    this.selectedStudents.clear();
-    this.selectedStudents = new Set();
-    this.closeModal();
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Verify Students?',
+      message: `Are you sure you want to verify <b>${this.selectedCount}</b> selected student(s)?`,
+      confirmText: 'Yes, Verify',
+      cancelText: 'Cancel',
+      type: 'info',
+      icon: 'fas fa-check-circle'
+    });
+    
+    if (!confirmed) return;
+    
+    this.processVerification(Array.from(this.selectedStudents), 2);
   }
 
-  handleSingleVerify(studentId: string) {
-    this.openModal('verify', studentId);
-  }
-
-  handleSingleReject(studentId: string) {
-    this.openModal('reject', studentId);
-  }
-
-  handleBulkVerify() {
+  async handleBulkReject() {
     if (this.selectedCount === 0) return;
-    this.openModal('verify', Array.from(this.selectedStudents));
+    
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Reject Students?',
+      message: `Are you sure you want to reject <b>${this.selectedCount}</b> selected student(s)?`,
+      confirmText: 'Yes, Reject',
+      cancelText: 'Cancel',
+      type: 'danger',
+      icon: 'fas fa-times-circle'
+    });
+    
+    if (!confirmed) return;
+    
+    this.processVerification(Array.from(this.selectedStudents), 3);
   }
 
-  handleBulkReject() {
-    if (this.selectedCount === 0) return;
-    this.openModal('reject', Array.from(this.selectedStudents));
+  async handleSingleVerify(studentId: string) {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Verify Student?',
+      message: 'Are you sure you want to verify this student?',
+      confirmText: 'Yes, Verify',
+      cancelText: 'Cancel',
+      type: 'info',
+      icon: 'fas fa-check-circle'
+    });
+    
+    if (!confirmed) return;
+    
+    this.processVerification([studentId], 2);
+  }
+
+  async handleSingleReject(studentId: string) {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Reject Student?',
+      message: 'Are you sure you want to reject this student?',
+      confirmText: 'Yes, Reject',
+      cancelText: 'Cancel',
+      type: 'danger',
+      icon: 'fas fa-times-circle'
+    });
+    
+    if (!confirmed) return;
+    
+    this.processVerification([studentId], 3);
+  }
+
+  processVerification(studentIds: string[], status: number) {
+    this.isProcessing = true;
+    this.cdr.detectChanges();
+
+    const request: VerifyStudentRequest = {
+      studentIds: studentIds,
+      status: status
+    };
+
+    this.adminService.verifyStudents(request).subscribe({
+      next: (res) => {
+        this.isProcessing = false;
+        this.selectedStudents.clear();
+        this.cdr.detectChanges();
+        this.toast.success(res.message || 'Students updated successfully!');
+        this.loadStudents();
+      },
+      error: (err) => {
+        this.isProcessing = false;
+        this.cdr.detectChanges();
+        this.toast.error(err.error?.message || 'Failed to update students');
+      }
+    });
   }
 
   getStatusBadgeClass(status: string): string {
@@ -198,26 +266,8 @@ export class BulkStudentVerification implements OnInit {
     }
   }
 
-  showToast(type: string, message: string) {
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.className = `fixed bottom-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg animate-slide-up ${
-      type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
-    }`;
-    toast.innerHTML = `
-      <div class="flex items-center gap-2">
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-        <span class="text-sm font-semibold">${message}</span>
-      </div>
-    `;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
-  }
-
   getSessionName(): string {
-    const session = this.sessions.find(s => s.id === this.selectedSession);
+    const session = this.sessions.find(s => s.sessionId === this.selectedSession);
     return session ? session.name : '';
   }
 }

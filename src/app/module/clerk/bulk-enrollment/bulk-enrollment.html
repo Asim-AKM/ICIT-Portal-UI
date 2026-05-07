@@ -1,10 +1,11 @@
 <div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
+
     <!-- Header -->
     <div class="mb-8">
       <div class="flex items-center gap-3">
-        <div class="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+        <div
+          class="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
           <i class="fas fa-file-upload text-white text-xl"></i>
         </div>
         <div>
@@ -14,48 +15,69 @@
       </div>
     </div>
 
-    <!-- Step 1: Select Session -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+    <!-- Step 1: Select Session & Department -->
+    <div *ngIf="!showPreview" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-6">
       <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
             <i class="fas fa-calendar-alt text-sm"></i>
           </div>
           <div>
-            <h3 class="font-bold text-slate-800">Step 1: Select Academic Session</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Choose the session for student enrollment</p>
+            <h3 class="font-bold text-slate-800">Step 1: Select Session & Department</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Choose the session and department for student enrollment</p>
           </div>
         </div>
       </div>
-      
+
       <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Session Dropdown -->
           <div>
             <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Select Session *</label>
-            <select [(ngModel)]="selectedSession" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition">
-              <option value="">-- Select Session --</option>
-              <option *ngFor="let session of sessions" [value]="session.id">{{ session.name }}</option>
+            <select [(ngModel)]="selectedSession" [disabled]="isLoadingSessions"
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition disabled:opacity-50">
+              <option value="">{{ isLoadingSessions ? 'Loading...' : '-- Select Session --' }}</option>
+              <option *ngFor="let session of sessions" [value]="session.sessionId">{{ session.name }}</option>
             </select>
           </div>
+
+          <!-- Department Dropdown -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Select Department
+              *</label>
+            <select [(ngModel)]="selectedDepartmentId" [disabled]="isLoadingDepartments"
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition disabled:opacity-50">
+              <option value="">{{ isLoadingDepartments ? 'Loading...' : '-- Select Department --' }}</option>
+              <option *ngFor="let dept of departments" [value]="dept.departmentId">{{ dept.name }}</option>
+            </select>
+          </div>
+
+          <!-- Proceed Button -->
           <div class="flex items-end">
-            <button (click)="proceedToUpload()" [disabled]="!selectedSession" class="px-6 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            <button (click)="proceedToUpload()" [disabled]="!selectedSession || !selectedDepartmentId"
+              class="w-full px-6 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
               <i class="fas fa-arrow-right mr-2"></i>Proceed to Upload
             </button>
           </div>
         </div>
-        
-        <!-- Selected Session Info -->
-        <div *ngIf="selectedSession" class="mt-4 p-3 bg-blue-50 rounded-xl">
-          <div class="flex items-center gap-2">
-            <i class="fas fa-info-circle text-blue-600"></i>
-            <span class="text-sm text-blue-800">Enrolling students for: <strong>{{ getSessionName() }}</strong></span>
+
+        <!-- Selected Info -->
+        <div *ngIf="selectedSession || selectedDepartmentId" class="mt-4 p-3 bg-blue-50 rounded-xl">
+          <div class="flex flex-wrap items-center gap-4">
+            <span *ngIf="selectedSession" class="text-sm text-blue-800">
+              <i class="fas fa-calendar-alt mr-1"></i> Session: <strong>{{ getSessionName() }}</strong>
+            </span>
+            <span *ngIf="selectedDepartmentId" class="text-sm text-blue-800">
+              <i class="fas fa-building mr-1"></i> Department: <strong>{{ getDepartmentName() }}</strong>
+            </span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Step 2: Upload Excel File -->
-    <div id="uploadSection" *ngIf="selectedSession && !showPreview" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+    <div id="uploadSection" *ngIf="selectedSession && selectedDepartmentId && !showPreview"
+      class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
@@ -67,47 +89,68 @@
           </div>
         </div>
       </div>
-      
+
       <div class="p-8 text-center">
         <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
           <i class="fas fa-file-excel text-blue-600 text-3xl"></i>
         </div>
         <h3 class="text-xl font-bold text-slate-800 mb-2">Upload Excel File</h3>
-        <p class="text-slate-500 text-sm mb-6">Upload an Excel file (.xlsx, .xls) containing student data for {{ getSessionName() }}</p>
-        
+        <p class="text-slate-500 text-sm mb-6">
+          Upload an Excel file (.xlsx, .xls) containing student data for<br>
+          <strong>{{ getSessionName() }}</strong> — <strong>{{ getDepartmentName() }}</strong>
+        </p>
+
         <div class="max-w-md mx-auto">
-          <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer hover:border-blue-400 transition bg-slate-50">
-            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+          <label
+            class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer hover:border-blue-400 transition bg-slate-50"
+            [class.border-blue-500]="selectedFile" [class.bg-blue-50]="selectedFile">
+            <div class="flex flex-col items-center justify-center pt-5 pb-6" *ngIf="!selectedFile">
               <i class="fas fa-cloud-upload-alt text-3xl text-slate-400 mb-2"></i>
               <p class="text-sm text-slate-500">Click to upload or drag and drop</p>
               <p class="text-xs text-slate-400">.xlsx, .xls files only</p>
             </div>
+            <div class="flex flex-col items-center justify-center pt-5 pb-6" *ngIf="selectedFile">
+              <i class="fas fa-file-excel text-3xl text-emerald-600 mb-2"></i>
+              <p class="text-sm font-semibold text-slate-800">{{ fileName }}</p>
+              <p class="text-xs text-emerald-600 mt-1">File ready! Click to change</p>
+            </div>
             <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden" (change)="onFileSelected($event)">
           </label>
         </div>
-        
-        <div class="mt-6 pt-6 border-t border-slate-100">
-          <button (click)="downloadTemplate()" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
-            <i class="fas fa-download mr-1"></i> Download Excel Template
+
+        <!-- ✅ Process Button -->
+        <div class="mt-6 flex flex-col items-center gap-4">
+          <button *ngIf="selectedFile" (click)="previewAndProceed()"
+            class="px-8 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 transition shadow-lg">
+            <i class="fas fa-search mr-2"></i>Preview & Process Data
           </button>
+
+          <div class="pt-4 border-t border-slate-100 w-full">
+            <button (click)="downloadTemplate()" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+              <i class="fas fa-download mr-1"></i> Download Excel Template
+            </button>
+          </div>
         </div>
       </div>
     </div>
-
     <!-- Preview Section -->
     <div *ngIf="showPreview">
       <!-- Session Info Banner -->
       <div class="mb-6 p-4 bg-linear-to-r from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
         <div class="flex items-center justify-between flex-wrap gap-3">
-          <div class="flex items-center gap-3">
-            <i class="fas fa-graduation-cap text-blue-600 text-xl"></i>
-            <div>
-              <p class="text-xs text-blue-700 font-bold uppercase tracking-wider">Enrolling For</p>
-              <p class="text-lg font-bold text-blue-800">{{ getSessionName() }}</p>
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-calendar-alt text-blue-600 text-sm"></i>
+              <span class="text-sm font-semibold text-blue-800">{{ getSessionName() }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-building text-blue-600 text-sm"></i>
+              <span class="text-sm font-semibold text-blue-800">{{ getDepartmentName() }}</span>
             </div>
           </div>
-          <button (click)="resetAll()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">
-            <i class="fas fa-arrow-left mr-1"></i> Change Session
+          <button (click)="resetAll()"
+            class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">
+            <i class="fas fa-arrow-left mr-1"></i> Change Selection
           </button>
         </div>
       </div>
@@ -116,26 +159,42 @@
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div class="flex items-center justify-between">
-            <div><p class="text-xs text-slate-500">Total Records</p><p class="text-2xl font-bold text-slate-800">{{ totalRecords }}</p></div>
-            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center"><i class="fas fa-database text-blue-600"></i></div>
+            <div>
+              <p class="text-xs text-slate-500">Total Records</p>
+              <p class="text-2xl font-bold text-slate-800">{{ totalRecords }}</p>
+            </div>
+            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center"><i
+                class="fas fa-database text-blue-600"></i></div>
           </div>
         </div>
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div class="flex items-center justify-between">
-            <div><p class="text-xs text-slate-500">Successful</p><p class="text-2xl font-bold text-emerald-600">{{ successCount }}</p></div>
-            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center"><i class="fas fa-check-circle text-emerald-600"></i></div>
+            <div>
+              <p class="text-xs text-slate-500">Successful</p>
+              <p class="text-2xl font-bold text-emerald-600">{{ successCount }}</p>
+            </div>
+            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center"><i
+                class="fas fa-check-circle text-emerald-600"></i></div>
           </div>
         </div>
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div class="flex items-center justify-between">
-            <div><p class="text-xs text-slate-500">Errors</p><p class="text-2xl font-bold text-red-600">{{ errorCount }}</p></div>
-            <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center"><i class="fas fa-exclamation-triangle text-red-600"></i></div>
+            <div>
+              <p class="text-xs text-slate-500">Errors</p>
+              <p class="text-2xl font-bold text-red-600">{{ errorCount }}</p>
+            </div>
+            <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center"><i
+                class="fas fa-exclamation-triangle text-red-600"></i></div>
           </div>
         </div>
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div class="flex items-center justify-between">
-            <div><p class="text-xs text-slate-500">Progress</p><p class="text-2xl font-bold text-purple-600">{{ uploadProgress }}%</p></div>
-            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center"><i class="fas fa-chart-line text-purple-600"></i></div>
+            <div>
+              <p class="text-xs text-slate-500">Progress</p>
+              <p class="text-2xl font-bold text-purple-600">{{ uploadProgress }}%</p>
+            </div>
+            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center"><i
+                class="fas fa-chart-line text-purple-600"></i></div>
           </div>
         </div>
       </div>
@@ -143,54 +202,58 @@
       <!-- Progress Bar -->
       <div *ngIf="isProcessing" class="mb-6">
         <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-          <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" [style.width]="uploadProgress + '%'"></div>
+          <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" [style.width]="uploadProgress + '%'">
+          </div>
         </div>
         <p class="text-xs text-slate-500 mt-2 text-center">Processing... {{ uploadProgress }}%</p>
       </div>
 
       <!-- Data Table -->
       <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white flex justify-between items-center">
+        <div
+          class="p-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white flex justify-between items-center">
           <h3 class="font-bold text-slate-800">Student Data Preview</h3>
           <div class="flex gap-2">
-            <button (click)="resetUpload()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">Cancel</button>
-            <button (click)="processBulkUpload()" [disabled]="isProcessing" class="px-4 py-2 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition disabled:opacity-50">
+            <button (click)="resetUpload()"
+              class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">Cancel</button>
+            <button (click)="processBulkUpload()" [disabled]="isProcessing"
+              class="px-4 py-2 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition disabled:opacity-50">
               <i class="fas fa-upload mr-2"></i>{{ isProcessing ? 'Processing...' : 'Upload All' }}
             </button>
           </div>
         </div>
-        
+
         <div class="overflow-x-auto max-h-96 overflow-y-auto">
           <table class="w-full">
             <thead class="bg-slate-50 sticky top-0">
               <tr>
                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-500">#</th>
                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-500">Name</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500">Father Name</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500">Email</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500">Roll No</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500">Reg No</th>
                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-500">CNIC</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500">Program</th>
-                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500">Status</th>
                 <th class="px-4 py-3 text-center text-xs font-bold text-slate-500">Action</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr *ngFor="let student of bulkStudents; let i = index" class="hover:bg-slate-50 transition">
                 <td class="px-4 py-3 text-sm text-slate-500">{{ i + 1 }}</td>
-                <td class="px-4 py-3"><span class="text-sm font-medium text-slate-800">{{ student.fullName || '-' }}</span></td>
-                <td class="px-4 py-3 text-sm text-slate-600">{{ student.fatherName || '-' }}</td>
+                <td class="px-4 py-3"><span class="text-sm font-medium text-slate-800">{{ student.name || '-' }}</span>
+                </td>
+                <td class="px-4 py-3 text-sm text-slate-600">{{ student.email || '-' }}</td>
+                <td class="px-4 py-3 text-sm font-mono text-slate-600">{{ student.rollNo || '-' }}</td>
+                <td class="px-4 py-3 text-sm font-mono text-slate-600">{{ student.regNo || '-' }}</td>
                 <td class="px-4 py-3 text-sm font-mono text-slate-600">{{ student.cnic || '-' }}</td>
-                <td class="px-4 py-3 text-sm text-slate-600">{{ student.program || '-' }}</td>
-                <td class="px-4 py-3">
-                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold" [class]="getStatusClass(student.status)">
-                    <i [class]="getStatusIcon(student.status)" class="text-[10px]"></i>
-                    {{ student.status === 'success' ? 'Success' : student.status === 'error' ? 'Error' : 'Pending' }}
-                  </span>
-                  <p *ngIf="student.errorMessage" class="text-[10px] text-red-500 mt-1">{{ student.errorMessage }}</p>
-                  <p *ngIf="student.rollNumber" class="text-[10px] text-emerald-600 font-mono mt-1">Roll: {{ student.rollNumber }}</p>
-                </td>
                 <td class="px-4 py-3 text-center">
-                  <button *ngIf="student.status !== 'success' && !isProcessing" (click)="removeStudent(i)" class="text-red-500 hover:text-red-700 transition"><i class="fas fa-trash-alt"></i></button>
+                  <button *ngIf="!isProcessing" (click)="removeStudent(i)"
+                    class="text-red-500 hover:text-red-700 transition">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
                 </td>
+              </tr>
+              <tr *ngIf="bulkStudents.length === 0">
+                <td colspan="7" class="px-4 py-8 text-center text-slate-500">No students data available</td>
               </tr>
             </tbody>
           </table>

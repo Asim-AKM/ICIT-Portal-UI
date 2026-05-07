@@ -104,30 +104,47 @@ private updateLayout() {
 
   const layoutGroups = {
     'none': ['/login'],
-    'unauthorized': ['/unauthorized'],  // ✅ ADD THIS LINE
+    'unauthorized': ['/unauthorized'],
+    
     'admin-header': [
-      '/admin-dashboard', '/users', '/add-user', '/admin-profile',
+      '/admin-dashboard', '/users', '/add-user',
       '/announcement', '/bulk-student-verification', '/student-verification',
-      '/session-details', '/add-sessions'
+      '/session-details', '/add-sessions', '/edit-user'
     ],
     'student-header': [
       '/student-dashboard', '/semester-details', '/fee-records',
-      '/fyp-proposal', '/student-transcript', '/student-notifications',
-      '/student-profile'
+      '/fyp-proposal', '/student-transcript', '/student-notifications'
     ],
     'clerk-header': [
       '/clerk-dashboard', '/single-enrollment', '/bulk-enrollment',
       '/fee-collection', '/student-records', '/generate-challan',
-      '/fee-collection-reports', '/student-reports', '/clerk-profile'
+      '/fee-collection-reports', '/student-reports'
     ],
     'faculty-header': [
-      '/faculty-dashboard', '/faculty-profile', '/project-evaluation'
+      '/faculty-dashboard', '/project-evaluation'
     ]
   };
 
+  // ✅ Ab role ke hisaab se dynamic layout set karo
+  
   for (const [layout, routes] of Object.entries(layoutGroups)) {
     if (routes.some(route => url.startsWith(route))) {
       this.currentLayout = layout;
+      return;
+    }
+  }
+
+  // ✅ /profile ke liye role-based layout
+  if (url.startsWith('/profile')) {
+    const user = this.authService.getStoredUser();
+    if (user) {
+      const roleLayoutMap: Record<string, string> = {
+        'Admin': 'admin-header',
+        'Faculty': 'faculty-header',
+        'Clerk': 'clerk-header',
+        'Student': 'student-header'
+      };
+      this.currentLayout = roleLayoutMap[user.role] || 'visitor';
       return;
     }
   }

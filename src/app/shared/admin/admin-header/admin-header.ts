@@ -1,21 +1,37 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { AuthService  } from '../../../core/services/auth-services/auth.service';
+import { AuthService } from '../../../core/services/auth-services/auth.service';
+import { UserData } from '../../../core/services/auth-services/auth.service';
 
 @Component({
   selector: 'app-admin-header',
-  imports: [RouterLink, RouterLinkActive, CommonModule], // Add RouterLinkActive here
+  imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './admin-header.html',
   styleUrl: './admin-header.css',
 })
-export class AdminHeader {
+export class AdminHeader implements OnInit {
   mobileMenuOpen = false;
   adminDropdownOpen = false;
   enrollmentDropdownOpen = false;
   mobileEnrollmentOpen = false;
+  
+  user: UserData | null = null;
 
-  constructor(private router: Router, private authService : AuthService) {}
+  constructor(private router: Router, private authService: AuthService) {}
+
+  ngOnInit() {
+    this.user = this.authService.getStoredUser();
+  }
+
+  getInitials(): string {
+    if (!this.user?.fullName) return 'AD';
+    const names = this.user.fullName.split(' ');
+    if (names.length >= 2) {
+      return (names[0].charAt(0) + names[1].charAt(0)).toUpperCase();
+    }
+    return this.user.fullName.substring(0, 2).toUpperCase();
+  }
 
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
@@ -48,9 +64,11 @@ export class AdminHeader {
     }
     this.mobileEnrollmentOpen = !this.mobileEnrollmentOpen;
   }
-logout() {
-  this.authService.logout();
-}
+
+  logout() {
+    this.authService.logout();
+  }
+
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
     const target = event.target as HTMLElement;

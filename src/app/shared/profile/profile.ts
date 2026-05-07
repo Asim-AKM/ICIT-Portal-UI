@@ -1,8 +1,8 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ProfileService, UserProfile } from '../../../core/services/account-services/profile.service';
-import { ToastService } from '../../../core/services/toast-service/toast.service';
+import { ProfileService, UserProfile } from '../../core/services/account-services/profile.service';
+import { ToastService } from '../../core/services/toast-service/toast.service';
 
 interface ActivityItem {
   id: string;
@@ -17,13 +17,13 @@ interface ActivityItem {
 }
 
 @Component({
-  selector: 'app-admin-profile',
+  selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './admin-profile.html',
-  styleUrl: './admin-profile.css',
+  templateUrl: './profile.html',
+  styleUrl: './profile.css',
 })
-export class AdminProfile implements OnInit {
+export class ProfileComponent implements OnInit {
   Math = Math;
   
   private profileService = inject(ProfileService);
@@ -121,12 +121,9 @@ export class AdminProfile implements OnInit {
     this.profileService.getProfile().subscribe({
       next: (res) => {
         this.profile = res.data;
-        
-        // ✅ Set profile image from API response
         if (this.profile.imageUrl) {
           this.profileImage = this.profile.imageUrl;
         }
-        
         this.generateInitials();
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -151,20 +148,17 @@ export class AdminProfile implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ✅ Image Upload to Server
   onImageSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
       
-      // Validate file type
       const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
         this.toast.error('Only JPG, PNG, and WebP images are allowed');
         return;
       }
       
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         this.toast.error('Image size must be less than 5MB');
         return;
@@ -180,7 +174,6 @@ export class AdminProfile implements OnInit {
     
     this.profileService.uploadProfileImage(this.profile.userId, file).subscribe({
       next: (res) => {
-        // ✅ Update both profileImage (local) and profile.imageUrl (from server)
         this.profileImage = res.data;
         this.profile.imageUrl = res.data;
         this.isUploading = false;
@@ -200,19 +193,19 @@ export class AdminProfile implements OnInit {
     if (fileInput) fileInput.click();
   }
 
-removeImage() {
-  this.profileService.removeProfileImage(this.profile.userId).subscribe({
-    next: () => {
-      this.profileImage = null;
-      this.profile.imageUrl = '';
-      this.cdr.detectChanges();
-      this.toast.success('Profile picture removed');
-    },
-    error: () => {
-      this.toast.error('Failed to remove image');
-    }
-  });
-}
+  removeImage() {
+    this.profileService.removeProfileImage(this.profile.userId).subscribe({
+      next: () => {
+        this.profileImage = null;
+        this.profile.imageUrl = '';
+        this.cdr.detectChanges();
+        this.toast.success('Profile picture removed');
+      },
+      error: () => {
+        this.toast.error('Failed to remove image');
+      }
+    });
+  }
 
   toggleEdit() {
     this.isEditing = !this.isEditing;

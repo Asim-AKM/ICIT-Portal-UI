@@ -1,6 +1,8 @@
-import { Component, HostListener, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, HostListener, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth-services/auth.service';
+import { UserData } from '../../../core/services/auth-services/auth.service';
 
 @Component({
   selector: 'app-clerk-header',
@@ -14,14 +16,11 @@ export class ClerkHeader implements OnInit {
   profileDropdownOpen = false;
   notificationsDropdownOpen = false;
   
-  // Mobile dropdown states
   mobileEnrollmentOpen = false;
   mobileFeeOpen = false;
   mobileReportsOpen = false;
   
-  clerkName = 'Fatima Ahmed';
-  clerkId = 'CLK-2024-001';
-  private isBrowser: boolean;
+  user: UserData | null = null;
 
   notifications = [
     {
@@ -55,16 +54,20 @@ export class ClerkHeader implements OnInit {
 
   constructor(
     private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-    this.isBrowser = isPlatformBrowser(this.platformId);
-  }
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
-    if (this.isBrowser) {
-      const savedName = localStorage.getItem('clerkName');
-      if (savedName) this.clerkName = savedName;
+    this.user = this.authService.getStoredUser();
+  }
+
+  getInitials(): string {
+    if (!this.user?.fullName) return 'CK';
+    const names = this.user.fullName.split(' ');
+    if (names.length >= 2) {
+      return (names[0].charAt(0) + names[1].charAt(0)).toUpperCase();
     }
+    return this.user.fullName.substring(0, 2).toUpperCase();
   }
 
   get unreadCount(): number {
@@ -76,7 +79,6 @@ export class ClerkHeader implements OnInit {
     if (this.mobileMenuOpen) {
       this.profileDropdownOpen = false;
       this.notificationsDropdownOpen = false;
-      // Close mobile submenus when main menu closes
       this.mobileEnrollmentOpen = false;
       this.mobileFeeOpen = false;
       this.mobileReportsOpen = false;
@@ -92,7 +94,6 @@ export class ClerkHeader implements OnInit {
 
   toggleMobileEnrollment() {
     this.mobileEnrollmentOpen = !this.mobileEnrollmentOpen;
-    // Close other dropdowns when opening this one
     if (this.mobileEnrollmentOpen) {
       this.mobileFeeOpen = false;
       this.mobileReportsOpen = false;
@@ -101,7 +102,6 @@ export class ClerkHeader implements OnInit {
 
   toggleMobileFee() {
     this.mobileFeeOpen = !this.mobileFeeOpen;
-    // Close other dropdowns when opening this one
     if (this.mobileFeeOpen) {
       this.mobileEnrollmentOpen = false;
       this.mobileReportsOpen = false;
@@ -110,7 +110,6 @@ export class ClerkHeader implements OnInit {
 
   toggleMobileReports() {
     this.mobileReportsOpen = !this.mobileReportsOpen;
-    // Close other dropdowns when opening this one
     if (this.mobileReportsOpen) {
       this.mobileEnrollmentOpen = false;
       this.mobileFeeOpen = false;
@@ -139,10 +138,6 @@ export class ClerkHeader implements OnInit {
     }
   }
 
-  closeNotificationsDropdown() {
-    this.notificationsDropdownOpen = false;
-  }
-
   markAsRead(notificationId: string) {
     const notification = this.notifications.find(n => n.id === notificationId);
     if (notification) notification.isRead = true;
@@ -150,23 +145,11 @@ export class ClerkHeader implements OnInit {
 
   clearAllNotifications() {
     this.notifications = [];
-    this.showToast('info', 'All notifications cleared');
     this.notificationsDropdownOpen = false;
   }
 
   logout() {
-    if (confirm('Are you sure you want to logout?')) {
-      if (this.isBrowser) {
-        localStorage.removeItem('clerkToken');
-        localStorage.removeItem('clerkName');
-      }
-      this.router.navigate(['/login']);
-      this.showToast('success', 'Logged out successfully');
-    }
-  }
-
-  getInitials(): string {
-    return this.clerkName.split(' ').map(n => n[0]).join('').toUpperCase();
+    this.authService.logout();
   }
 
   getNotificationIconClass(type: string): string {
@@ -178,22 +161,8 @@ export class ClerkHeader implements OnInit {
     }
   }
 
-  showToast(type: string, message: string) {
-    if (!this.isBrowser) return;
-    const toast = document.createElement('div');
-    toast.className = `fixed bottom-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg animate-slide-up ${
-      type === 'success' ? 'bg-emerald-500 text-white' : 
-      type === 'error' ? 'bg-red-500 text-white' : 
-      'bg-blue-500 text-white'
-    }`;
-    toast.innerHTML = `<div class="flex items-center gap-2"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i><span class="text-sm font-semibold">${message}</span></div>`;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  }
-
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
-    if (!this.isBrowser) return;
     const target = event.target as HTMLElement;
     if (this.profileDropdownOpen && !target.closest('#profileMenuBtn') && !target.closest('#profileDropdown')) {
       this.profileDropdownOpen = false;
@@ -215,7 +184,7 @@ export class ClerkHeader implements OnInit {
 
   @HostListener('window:resize')
   onResize() {
-    if (this.isBrowser && window.innerWidth >= 768) {
+    if (window.innerWidth >= 768) {
       this.mobileMenuOpen = false;
       this.mobileEnrollmentOpen = false;
       this.mobileFeeOpen = false;
