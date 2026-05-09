@@ -1,29 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AdminService, StudentDto } from '../../../core/services/admin-services/admin.service';
+import { CreateAccountService, Department } from '../../../core/services/account-services/create-account-service';
+import { SessionGetDto } from '../../../core/models/admin/session-get.dto';
+import { ToastService } from '../../../core/services/toast-service/toast.service';
 
-interface Student {
-  id: string;
+interface StudentDisplay {
+  studentId: string;
   name: string;
-  rollNumber: string;
+  rollNo: string;
+  registrationNo: string;
   email: string;
   department: string;
-  program: string;
-  semester: number;
-  status: 'verified' | 'unverified' | 'rejected';
-  registrationDate: Date;
+  status: string;
   cnic: string;
-  fatherName: string;
-  contactNumber: string;
-}
-
-interface Session {
-  id: string;
-  name: string;
-  year: number;
-  isActive: boolean;
-  startDate: Date;
-  endDate: Date;
+  semesterName : string;
 }
 
 @Component({
@@ -36,231 +28,173 @@ interface Session {
 export class SessionDetails implements OnInit {
   Math = Math;
   
-  selectedSession: string = 'spring-2026';
-  selectedStatus: string = 'verified';
+  private adminService = inject(AdminService);
+  private createAccountService = inject(CreateAccountService);
+  private toast = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
   
-  sessions: Session[] = [
-    { id: 'spring-2026', name: 'Spring Semester', year: 2026, isActive: true, startDate: new Date('2026-01-15'), endDate: new Date('2026-05-30') },
-    { id: 'fall-2025', name: 'Fall Semester', year: 2025, isActive: false, startDate: new Date('2025-09-01'), endDate: new Date('2025-12-20') },
-    { id: 'winter-2025', name: 'Winter Term', year: 2025, isActive: false, startDate: new Date('2025-01-10'), endDate: new Date('2025-03-25') }
-  ];
-
-  students: Student[] = [];
+  selectedSession = '';
+  selectedDepartmentId = '';
+  
+  sessions: SessionGetDto[] = [];
+  departments: Department[] = [];
+  students: StudentDisplay[] = [];
+  
+  isLoading = false;
+  searchTerm = '';
+  currentPage = 1;
+  pageSize = 10;
 
   ngOnInit() {
-    this.loadStudents();
+    this.loadSessions();
+  }
+
+  loadSessions() {
+    this.adminService.getSessionsByStatus(1).subscribe({
+      next: (res) => {
+        this.sessions = res.data;
+        if (this.sessions.length > 0) {
+          this.selectedSession = this.sessions[0].sessionId;
+          this.loadDepartments();
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadDepartments() {
+    this.createAccountService.getDepartments().subscribe({
+      next: (res) => {
+        this.departments = res.data;
+        if (this.departments.length > 0) {
+          this.selectedDepartmentId = this.departments[0].departmentId;
+          this.loadStudents();
+        }
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadStudents() {
-    // Mock data - replace with API call
-    this.students = [
-      {
-        id: '1',
-        name: 'Ahmed Sheikh',
-        rollNumber: 'STU-2026-001',
-        email: 'ahmed.sheikh@icit.edu',
-        department: 'Computer Science',
-        program: 'BS Computer Science',
-        semester: 4,
-        status: 'verified',
-        registrationDate: new Date('2026-01-15'),
-        cnic: '42101-1234567-8',
-        fatherName: 'Mohammad Sheikh',
-        contactNumber: '+92-300-1234567'
+    if (!this.selectedSession || !this.selectedDepartmentId) return;
+    
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
+    // Status 2 = Verified students (enrolled)
+    this.adminService.getStudentsBySessionAndDept(
+      this.selectedSession,
+      this.selectedDepartmentId,
+      2
+    ).subscribe({
+      next: (res) => {
+        this.students = res.data.map(s => ({
+          studentId: s.studentId,
+          name: s.studentName,
+          rollNo: s.rollNo,
+          registrationNo: s.registrationNo,
+          email: s.studentEmail,
+          department: s.department,
+          status: s.status.toLowerCase(),
+          cnic: s.cnic,
+          semesterName: s.semesterName
+        }));
+        this.isLoading = false;
+        this.cdr.detectChanges();
       },
-      {
-        id: '2',
-        name: 'Kashif Farooq',
-        rollNumber: 'STU-2026-042',
-        email: 'kashif.farooq@icit.edu',
-        department: 'Computer Science',
-        program: 'BS Computer Science',
-        semester: 4,
-        status: 'unverified',
-        registrationDate: new Date('2026-01-16'),
-        cnic: '42101-7654321-8',
-        fatherName: 'Farooq Ahmed',
-        contactNumber: '+92-300-7654321'
-      },
-      {
-        id: '3',
-        name: 'Zain Ali',
-        rollNumber: 'STU-2026-089',
-        email: 'zain.ali@icit.edu',
-        department: 'Software Engineering',
-        program: 'BS Software Engineering',
-        semester: 4,
-        status: 'rejected',
-        registrationDate: new Date('2026-01-14'),
-        cnic: '42101-9876543-8',
-        fatherName: 'Ali Raza',
-        contactNumber: '+92-300-9876543'
-      },
-      {
-        id: '4',
-        name: 'Fatima Zahra',
-        rollNumber: 'STU-2026-015',
-        email: 'fatima.zahra@icit.edu',
-        department: 'Computer Science',
-        program: 'BS Computer Science',
-        semester: 4,
-        status: 'verified',
-        registrationDate: new Date('2026-01-17'),
-        cnic: '42101-4567890-8',
-        fatherName: 'Hassan Ahmed',
-        contactNumber: '+92-300-4567890'
-      },
-      {
-        id: '5',
-        name: 'Omar Riaz',
-        rollNumber: 'STU-2026-023',
-        email: 'omar.riaz@icit.edu',
-        department: 'Software Engineering',
-        program: 'BS Software Engineering',
-        semester: 4,
-        status: 'unverified',
-        registrationDate: new Date('2026-01-15'),
-        cnic: '42101-3456789-8',
-        fatherName: 'Riaz Ahmed',
-        contactNumber: '+92-300-3456789'
-      },
-      {
-        id: '6',
-        name: 'Sara Khan',
-        rollNumber: 'STU-2026-067',
-        email: 'sara.khan@icit.edu',
-        department: 'Information Technology',
-        program: 'BS IT',
-        semester: 4,
-        status: 'verified',
-        registrationDate: new Date('2026-01-13'),
-        cnic: '42101-2345678-9',
-        fatherName: 'Khan Muhammad',
-        contactNumber: '+92-300-2345678'
+      error: () => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+        this.toast.error('Failed to load students');
       }
-    ];
+    });
   }
 
-  get filteredStudents(): Student[] {
-    let filtered = this.students;
-    
-    if (this.selectedStatus !== 'all') {
-      filtered = filtered.filter(s => s.status === this.selectedStatus);
+  onSessionChange() {
+    this.currentPage = 1;
+    this.loadStudents();
+  }
+
+  onDepartmentChange() {
+    this.currentPage = 1;
+    this.loadStudents();
+  }
+
+  get filteredStudents(): StudentDisplay[] {
+    if (!this.searchTerm) return this.students;
+    const term = this.searchTerm.toLowerCase();
+    return this.students.filter(s =>
+      s.name.toLowerCase().includes(term) ||
+      s.rollNo.toLowerCase().includes(term) ||
+      s.registrationNo.toLowerCase().includes(term) ||
+      s.email.toLowerCase().includes(term) ||
+      s.cnic.includes(term)
+    );
+  }
+
+  get paginatedStudents(): StudentDisplay[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredStudents.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredStudents.length / this.pageSize) || 1;
+  }
+
+  get startItem(): number {
+    return this.filteredStudents.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endItem(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredStudents.length);
+  }
+
+  changePage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
     }
-    
-    return filtered;
   }
 
-  getStatusCount(status: string): number {
-    return this.students.filter(s => s.status === status).length;
-  }
-
-  getStatusBadgeClass(status: string): string {
-    switch(status) {
-      case 'verified': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      case 'unverified': return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
-      default: return 'bg-slate-50 text-slate-700';
+  getTotalPagesArray(): number[] {
+    const pages = this.totalPages;
+    if (pages <= 7) return Array(pages).fill(0).map((_, i) => i + 1);
+    const result: number[] = [];
+    for (let i = 1; i <= pages; i++) {
+      if (i === 1 || i === pages || (i >= this.currentPage - 1 && i <= this.currentPage + 1)) {
+        result.push(i);
+      }
     }
+    return result;
   }
 
-  getStatusIcon(status: string): string {
-    switch(status) {
-      case 'verified': return 'fas fa-check-circle';
-      case 'unverified': return 'fas fa-clock';
-      case 'rejected': return 'fas fa-times-circle';
-      default: return 'fas fa-question-circle';
-    }
-  }
-
-  getStatusDotColor(status: string): string {
-    switch(status) {
-      case 'verified': return 'bg-emerald-500';
-      case 'unverified': return 'bg-amber-500';
-      case 'rejected': return 'bg-red-500';
-      default: return 'bg-slate-500';
-    }
+  getDepartmentCount(): number {
+    return this.students.length;
   }
 
   getInitials(name: string): string {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  }
-
-  getAvatarColor(status: string): string {
-    switch(status) {
-      case 'verified': return 'bg-emerald-100 text-emerald-700';
-      case 'unverified': return 'bg-amber-100 text-amber-700';
-      case 'rejected': return 'bg-red-100 text-red-700';
-      default: return 'bg-slate-100 text-slate-700';
+    if (!name) return '??';
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return (names[0].charAt(0) + names[1].charAt(0)).toUpperCase();
     }
-  }
-
-  filterByStatus(status: string) {
-    this.selectedStatus = status;
-  }
-
-  verifyStudent(studentId: string) {
-    const student = this.students.find(s => s.id === studentId);
-    if (student && student.status === 'unverified') {
-      student.status = 'verified';
-      this.showToast('success', `${student.name} has been verified successfully!`);
-    }
-  }
-
-  rejectStudent(studentId: string) {
-    const student = this.students.find(s => s.id === studentId);
-    if (student && student.status === 'unverified') {
-      if (confirm(`Are you sure you want to reject ${student.name}'s application?`)) {
-        student.status = 'rejected';
-        this.showToast('error', `${student.name}'s application has been rejected.`);
-      }
-    }
-  }
-
-  reevaluateStudent(studentId: string) {
-    const student = this.students.find(s => s.id === studentId);
-    if (student && student.status === 'rejected') {
-      if (confirm(`Re-evaluate ${student.name}'s application?`)) {
-        student.status = 'unverified';
-        this.showToast('info', `${student.name}'s application is now pending review.`);
-      }
-    }
-  }
-
-  editStudent(studentId: string) {
-    console.log('Edit student:', studentId);
-    this.showToast('info', 'Edit functionality coming soon!');
+    return name.substring(0, 2).toUpperCase();
   }
 
   getSessionName(): string {
-    const session = this.sessions.find(s => s.id === this.selectedSession);
-    return session ? `${session.name} ${session.year}` : '';
+    const session = this.sessions.find(s => s.sessionId === this.selectedSession);
+    return session ? session.name : '';
   }
 
-  getSessionDates(): string {
-    const session = this.sessions.find(s => s.id === this.selectedSession);
-    if (session) {
-      return `${session.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${session.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
-    }
-    return '';
+  getDepartmentName(): string {
+    const dept = this.departments.find(d => d.departmentId === this.selectedDepartmentId);
+    return dept ? dept.name : '';
   }
 
-  showToast(type: string, message: string) {
-    const toast = document.createElement('div');
-    toast.className = `fixed bottom-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg animate-slide-up ${
-      type === 'success' ? 'bg-emerald-500 text-white' : 
-      type === 'error' ? 'bg-red-500 text-white' : 
-      'bg-blue-500 text-white'
-    }`;
-    toast.innerHTML = `
-      <div class="flex items-center gap-2">
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-        <span class="text-sm font-semibold">${message}</span>
-      </div>
-    `;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
+  viewStudentDetails(studentId: string) {
+    this.toast.info('Student details coming soon!');
+  }
+
+  editStudent(studentId: string) {
+    this.toast.info('Edit student coming soon!');
   }
 }

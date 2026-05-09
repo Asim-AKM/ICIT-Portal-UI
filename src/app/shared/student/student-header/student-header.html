@@ -4,13 +4,12 @@
       
       <!-- Logo and Mobile Menu Button -->
       <div class="flex items-center gap-4 lg:gap-8">
-        <button 
-          (click)="toggleMobileMenu()"
+        <button (click)="toggleMobileMenu()"
           class="md:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition">
           <i [class]="mobileMenuOpen ? 'fas fa-times text-xl' : 'fas fa-bars text-xl'"></i>
         </button>
 
-        <a routerLink="/student/dashboard" class="flex items-center gap-2">
+        <a routerLink="/student-dashboard" class="flex items-center gap-2">
           <div class="w-9 h-9 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
             <i class="fas fa-graduation-cap text-white text-sm"></i>
           </div>
@@ -38,28 +37,26 @@
       <!-- Right Section -->
       <div class="flex items-center gap-3">
         
-        <!-- Notifications -->
-        <button 
-          id="notificationsBtn"
-          (click)="toggleNotificationsDropdown($event)"
-          class="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition">
+        <!-- Notifications Bell -->
+        <button id="notificationsBtn" (click)="toggleNotificationsDropdown($event)" 
+          class="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition cursor-pointer">
           <i class="fas fa-bell text-sm"></i>
           <span *ngIf="unreadCount > 0" 
-                class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+            {{ unreadCount }}
+          </span>
         </button>
 
         <!-- Student Info & Profile -->
         <div class="flex items-center gap-2">
           <div class="hidden sm:block text-right">
-            <p class="text-xs font-bold text-slate-800 leading-tight">{{ studentName }}</p>
-            <p class="text-[10px] text-slate-500 font-mono">{{ studentRollNo }}</p>
+            <p class="text-xs font-bold text-slate-800 leading-tight">{{ user?.fullName || 'Student' }}</p>
+            <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-tighter">{{ user?.role || 'Student' }}</p>
           </div>
 
-          <button 
-            id="profileMenuBtn"
-            (click)="toggleProfileDropdown($event)"
-            class="focus:outline-none transition active:scale-95">
-            <div class="h-9 w-9 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-md hover:shadow-lg transition">
+          <button id="profileMenuBtn" (click)="toggleProfileDropdown($event)" 
+            class="focus:outline-none transition active:scale-95 cursor-pointer">
+            <div class="h-9 w-9 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-bold ring-2 ring-emerald-100 ring-offset-1 hover:ring-emerald-300">
               {{ getInitials() }}
             </div>
           </button>
@@ -68,120 +65,130 @@
     </div>
 
     <!-- Notifications Dropdown -->
-    <div *ngIf="notificationsDropdownOpen" 
-         id="notificationsDropdown"
-         class="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fade-in">
+    <div *ngIf="notificationsDropdownOpen" id="notificationsDropdown"
+      class="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fade-in">
+      
+      <!-- Header -->
       <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-linear-to-r from-slate-50 to-white">
         <h3 class="font-bold text-slate-800 text-sm">
-          <i class="fas fa-bell mr-2 text-emerald-500"></i>
-          Notifications
+          <i class="fas fa-bell mr-2 text-emerald-500"></i>Notifications
         </h3>
-        <button (click)="clearAllNotifications()" 
-                class="text-[10px] font-bold text-slate-400 hover:text-red-500 transition">
-          Clear all
+        <button *ngIf="unreadCount > 0" (click)="clearAllNotifications()" 
+          class="text-[10px] font-bold text-slate-400 hover:text-red-500 transition cursor-pointer">
+          Mark all read
         </button>
       </div>
       
-      <div class="max-h-96 overflow-y-auto">
+      <!-- List -->
+      <div class="max-h-80 overflow-y-auto">
         <div *ngFor="let notification of notifications" 
-             (click)="markAsRead(notification.id)"
+             (click)="markAsRead(notification)" 
              class="p-4 border-b border-slate-50 hover:bg-slate-50 transition cursor-pointer"
-             [class.opacity-60]="notification.isRead">
+             [class.bg-blue-50/30]="!notification.isRead">
           <div class="flex gap-3">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                 [class]="getNotificationIconClass(notification.type)">
-              <i [class]="notification.icon" class="text-sm"></i>
+                 [class]="getNotificationColor(notification.notificationType, notification.announcementType)">
+              <i [class]="getNotificationIcon(notification.notificationType, notification.announcementType)" class="text-sm"></i>
             </div>
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
               <div class="flex justify-between items-start gap-2">
-                <p class="text-sm font-bold text-slate-800">{{ notification.title }}</p>
-                <span class="text-[10px] text-slate-400 whitespace-nowrap">{{ notification.time }}</span>
+                <p class="text-sm font-bold text-slate-800 truncate">{{ notification.title }}</p>
+                <span class="text-[10px] text-slate-400 whitespace-nowrap">{{ formatTimeAgo(notification.createdAt) }}</span>
               </div>
-              <p class="text-xs text-slate-600 mt-1">{{ notification.message }}</p>
-              <div *ngIf="!notification.isRead" 
-                   class="mt-2">
-                <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">New</span>
+              <p class="text-xs text-slate-500 mt-0.5 line-clamp-2">{{ notification.message }}</p>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="text-[9px] text-slate-400">By {{ notification.senderName }}</span>
+                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
               </div>
             </div>
           </div>
         </div>
         
-        <div *ngIf="notifications.length === 0" class="p-8 text-center">
+        <!-- Empty -->
+        <div *ngIf="notifications.length === 0 && !isLoadingNotifications" class="p-8 text-center">
           <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <i class="fas fa-bell-slash text-slate-400 text-lg"></i>
           </div>
-          <p class="text-sm text-slate-500">No notifications</p>
-          <p class="text-xs text-slate-400 mt-1">You're all caught up!</p>
+          <p class="text-sm text-slate-500">No notifications yet</p>
         </div>
+        
+        <!-- Loading -->
+        <div *ngIf="isLoadingNotifications" class="p-8 text-center">
+          <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        </div>
+      </div>
+
+      <!-- ✅ View All Footer -->
+      <div class="p-3 border-t border-slate-100 bg-slate-50/50">
+        <a routerLink="/notifications-center" 
+           (click)="notificationsDropdownOpen = false"
+           class="flex items-center justify-center gap-2 py-2 text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition cursor-pointer">
+          <i class="fas fa-bell"></i>
+          View All Notifications
+          <i class="fas fa-arrow-right text-[10px]"></i>
+        </a>
       </div>
     </div>
 
     <!-- Profile Dropdown -->
-    <div *ngIf="profileDropdownOpen" 
-         id="profileDropdown"
-         class="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fade-in">
+    <div *ngIf="profileDropdownOpen" id="profileDropdown"
+      class="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fade-in">
       <div class="p-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-lg font-bold shadow-md">
+          <div class="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center text-white text-lg font-bold shadow-md">
             {{ getInitials() }}
           </div>
           <div>
-            <p class="text-sm font-bold text-slate-800">{{ studentName }}</p>
-            <p class="text-xs text-slate-500 font-mono">{{ studentRollNo }}</p>
-            <p class="text-[10px] text-emerald-600 font-bold mt-0.5">Student</p>
+            <p class="text-sm font-bold text-slate-800">{{ user?.fullName || 'Student' }}</p>
+            <p class="text-xs text-slate-500">{{ user?.email || 'student@icit.edu.pk' }}</p>
+            <p class="text-[10px] text-emerald-600 font-bold mt-0.5">{{ user?.role || 'Student' }}</p>
           </div>
         </div>
       </div>
       
       <div class="py-2">
-        <a routerLink="/student-profile" 
-           (click)="closeProfileDropdown()"
-           class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition">
-          <i class="fas fa-user-circle w-4"></i>
-          <span>My Profile</span>
+        <a routerLink="/profile" (click)="closeProfileDropdown()"
+          class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition cursor-pointer">
+          <i class="fas fa-user-circle w-4"></i>My Profile
         </a>
         
         <div class="border-t border-slate-100 my-1"></div>
         
         <button (click)="logout()" 
-                class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition w-full text-left">
-          <i class="fas fa-sign-out-alt w-4"></i>
-          <span>Logout</span>
+          class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition w-full text-left cursor-pointer">
+          <i class="fas fa-sign-out-alt w-4"></i>Logout
         </button>
       </div>
     </div>
   </nav>
 
   <!-- Mobile Menu -->
-  <div *ngIf="mobileMenuOpen" 
-       class="md:hidden bg-white border-t border-slate-200 shadow-xl animate-slide-down">
+  <div *ngIf="mobileMenuOpen" class="md:hidden bg-white border-t border-slate-200 shadow-xl animate-slide-down">
     <div class="px-4 py-3 space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto">
       <a *ngFor="let item of navItems"
          [routerLink]="item.path"
          (click)="closeMobileMenu()"
          routerLinkActive="active-mobile"
-         class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 font-medium text-sm hover:bg-emerald-50 hover:text-emerald-600 transition">
+         class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 font-medium text-sm hover:bg-emerald-50 hover:text-emerald-600 transition cursor-pointer">
         <i [class]="item.icon + ' w-5 text-center'"></i>
         {{ item.label }}
       </a>
       
+      <!-- ✅ Mobile Notifications -->
+      <a routerLink="/notifications-center" (click)="closeMobileMenu()" 
+        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 font-medium text-sm hover:bg-emerald-50 transition cursor-pointer">
+        <i class="fas fa-bell w-5 text-center"></i>Notifications
+        <span *ngIf="unreadCount > 0" class="ml-auto px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">{{ unreadCount }}</span>
+      </a>
+      
       <div class="border-t border-slate-100 my-2 pt-2">
-        <a routerLink="/student/profile" 
-           (click)="closeMobileMenu()"
-           class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 font-medium text-sm hover:bg-emerald-50 transition">
-          <i class="fas fa-user-circle w-5 text-center"></i>
-          My Profile
-        </a>
-        <a routerLink="/student/settings" 
-           (click)="closeMobileMenu()"
-           class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 font-medium text-sm hover:bg-emerald-50 transition">
-          <i class="fas fa-cog w-5 text-center"></i>
-          Settings
+        <a routerLink="/profile" (click)="closeMobileMenu()"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 font-medium text-sm hover:bg-emerald-50 transition cursor-pointer">
+          <i class="fas fa-user-circle w-5 text-center"></i>My Profile
         </a>
         <button (click)="logout()" 
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 font-medium text-sm hover:bg-red-50 transition w-full">
-          <i class="fas fa-sign-out-alt w-5 text-center"></i>
-          Logout
+          class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 font-medium text-sm hover:bg-red-50 transition w-full cursor-pointer">
+          <i class="fas fa-sign-out-alt w-5 text-center"></i>Logout
         </button>
       </div>
     </div>

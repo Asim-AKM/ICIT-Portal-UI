@@ -50,6 +50,8 @@ import { ProjectEvaluation } from './module/faculty/project-evaluation/project-e
 
 // ================= Common =================
 import { ProfileComponent } from './shared/profile/profile';
+import { NotificationView } from './shared/notification-view/notification-view';
+import { NotificationCenter } from './shared/notification-center/notification-center';
 
 // ================= GUARD =================
 import { AuthGuard } from './core/guard/auth.guard';
@@ -72,6 +74,8 @@ export const routes: Routes = [
   // Common ROUTES
   // ============================================================
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'notification-view/:id', component: NotificationView, canActivate: [AuthGuard] },
+  { path: 'notifications-center', component: NotificationCenter, canActivate: [AuthGuard] },
 
   // ============================================================
   // ADMIN ROUTES

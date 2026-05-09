@@ -173,6 +173,7 @@ export class AddUser implements OnInit {
         this.router.navigate(['/users']);
       },
       error: (err) => {
+        console.log('Full error:', err);  // ✅ Add this
         this.isSubmitting = false;
         const message = err.error?.message || 'Failed to create account';
         this.toast.error(message);

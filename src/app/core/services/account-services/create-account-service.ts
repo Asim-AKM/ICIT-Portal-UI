@@ -43,6 +43,8 @@ export class CreateAccountService {
   }
 
   createAccount(payload: CreateAccountRequest): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/api/Account/Account`, payload);
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/api/Account/Account`, payload,
+      { withCredentials : true}
+    );
   }
 }

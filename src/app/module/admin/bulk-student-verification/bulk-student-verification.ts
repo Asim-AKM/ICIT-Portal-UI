@@ -223,30 +223,41 @@ export class BulkStudentVerification implements OnInit {
     this.processVerification([studentId], 3);
   }
 
-  processVerification(studentIds: string[], status: number) {
-    this.isProcessing = true;
-    this.cdr.detectChanges();
+processVerification(studentIds: string[], status: number) {
+  this.isProcessing = true;
+  this.cdr.detectChanges();
 
-    const request: VerifyStudentRequest = {
-      studentIds: studentIds,
-      status: status
-    };
+  const request: VerifyStudentRequest = {
+    studentIds: studentIds,
+    status: status
+  };
 
-    this.adminService.verifyStudents(request).subscribe({
-      next: (res) => {
-        this.isProcessing = false;
-        this.selectedStudents.clear();
-        this.cdr.detectChanges();
-        this.toast.success(res.message || 'Students updated successfully!');
-        this.loadStudents();
-      },
-      error: (err) => {
-        this.isProcessing = false;
-        this.cdr.detectChanges();
-        this.toast.error(err.error?.message || 'Failed to update students');
+  this.adminService.verifyStudents(request).subscribe({
+    next: (res) => {
+      this.isProcessing = false;
+      this.selectedStudents.clear();
+      this.cdr.detectChanges();
+      
+      // Show detailed success message
+      const result = res.data;
+      let message = `${result.success} student(s) updated successfully!`;
+      if (result.failed > 0) {
+        message += ` ${result.failed} failed.`;
       }
-    });
-  }
+      if (result.alreadyVerified.length > 0) {
+        message += ` ${result.alreadyVerified.length} already processed.`;
+      }
+      
+      this.toast.success(message);
+      this.loadStudents();
+    },
+    error: (err) => {
+      this.isProcessing = false;
+      this.cdr.detectChanges();
+      this.toast.error(err.error?.message || 'Failed to update students');
+    }
+  });
+}
 
   getStatusBadgeClass(status: string): string {
     switch(status) {

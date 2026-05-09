@@ -10,7 +10,7 @@
           </div>
           <div>
             <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-              {{ getGreeting() }}, {{ clerkName }}!
+              {{ getGreeting() }}, {{ user?.fullName || 'Clerk' }}!
             </h1>
             <p class="text-slate-500 text-sm mt-1">
               {{ getFormattedDate() }} • {{ currentTime | date:'h:mm:ss a' }}
@@ -106,14 +106,14 @@
           </div>
           
           <div class="p-4 bg-slate-50/50 border-t border-slate-100">
-            <a routerLink="/clerk/tasks" class="block text-center text-xs font-bold text-blue-600 hover:text-blue-700 transition">
+            <a routerLink="/student-records" class="block text-center text-xs font-bold text-blue-600 hover:text-blue-700 transition">
               View All Tasks <i class="fas fa-arrow-right ml-1"></i>
             </a>
           </div>
         </div>
       </div>
 
-      <!-- Today's Targets -->
+      <!-- Today's Targets & Quick Actions -->
       <div class="space-y-6">
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="p-5 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
@@ -128,7 +128,7 @@
               <div class="flex justify-between items-center mb-2">
                 <div class="flex items-center gap-2">
                   <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
-                    <i [class]="target.icon" [class]="'text-' + target.color + '-500 text-xs'"></i>
+                    <i [class]="target.icon + ' text-' + target.color + '-500 text-xs'"></i>
                   </div>
                   <span class="text-sm font-medium text-slate-700">{{ target.label }}</span>
                 </div>
@@ -154,7 +154,7 @@
           <div class="space-y-2">
             <a *ngFor="let action of quickActions" 
                [routerLink]="action.route"
-               class="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition text-white text-sm">
+               class="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition text-white text-sm cursor-pointer">
               <div class="flex items-center gap-2">
                 <i [class]="action.icon"></i>
                 <span>{{ action.label }}</span>
@@ -202,7 +202,7 @@
         </div>
         
         <div class="p-4 bg-slate-50/50 border-t border-slate-100">
-          <a routerLink="/clerk/activities" class="block text-center text-xs font-bold text-blue-600 hover:text-blue-700 transition">
+          <a routerLink="/student-records" class="block text-center text-xs font-bold text-blue-600 hover:text-blue-700 transition">
             View All Activities <i class="fas fa-arrow-right ml-1"></i>
           </a>
         </div>

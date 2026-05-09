@@ -10,18 +10,13 @@
               <i class="fas fa-bullhorn text-white text-xl"></i>
             </div>
             <div>
-              <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-                Announcements
-              </h1>
-              <p class="text-slate-500 text-sm mt-1">
-                Broadcast official news, deadlines, and alerts to the department
-              </p>
+              <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Announcements</h1>
+              <p class="text-slate-500 text-sm mt-1">Broadcast official news, deadlines, and alerts to the department</p>
             </div>
           </div>
         </div>
         
-        <button 
-          (click)="toggleNewPostForm()"
+        <button (click)="toggleNewPostForm()"
           class="inline-flex items-center gap-2 bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-2xl text-sm font-bold shadow-lg shadow-emerald-500/25 transition-all duration-200 active:scale-95">
           <i class="fas fa-plus text-xs"></i>
           {{ showNewPostForm ? 'Cancel' : 'New Post' }}
@@ -46,23 +41,20 @@
         
         <div class="p-6">
           <div class="space-y-6">
+            
             <!-- Title -->
             <div>
               <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
                 Title <span class="text-red-500">*</span>
               </label>
-              <input 
-                type="text" 
-                [(ngModel)]="newAnnouncement.title"
+              <input type="text" [(ngModel)]="newAnnouncement.title"
                 placeholder="e.g., Midterm Schedule Update"
                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
             </div>
 
             <!-- Announcement Type -->
             <div>
-              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                Announcement Type
-              </label>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Announcement Type</label>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div *ngFor="let type of typeOptions"
                      (click)="newAnnouncement.type = type.value"
@@ -72,14 +64,10 @@
                      class="p-3 rounded-xl cursor-pointer transition-all duration-200">
                   <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-                         [class]="newAnnouncement.type === type.value 
-                           ? 'bg-emerald-500 text-white' 
-                           : 'bg-slate-100 text-slate-600'">
+                         [class]="newAnnouncement.type === type.value ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600'">
                       <i [class]="type.icon" class="text-sm"></i>
                     </div>
-                    <div>
-                      <p class="text-xs font-bold text-slate-700">{{ type.label }}</p>
-                    </div>
+                    <p class="text-xs font-bold text-slate-700">{{ type.label }}</p>
                   </div>
                 </div>
               </div>
@@ -87,28 +75,52 @@
 
             <!-- Target Audience -->
             <div>
-              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                Target Audience
-              </label>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Target Audience</label>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div *ngFor="let audience of audienceOptions"
-                     (click)="newAnnouncement.targetAudience = audience.value"
+                     (click)="newAnnouncement.targetAudience = audience.value; onAudienceChange()"
                      [class]="newAnnouncement.targetAudience === audience.value 
                        ? 'border-2 border-emerald-500 bg-emerald-50/50 shadow-md' 
                        : 'border border-slate-200 hover:border-emerald-300'"
                      class="p-3 rounded-xl cursor-pointer transition-all duration-200">
                   <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-                         [class]="newAnnouncement.targetAudience === audience.value 
-                           ? 'bg-emerald-500 text-white' 
-                           : 'bg-slate-100 text-slate-600'">
+                         [class]="newAnnouncement.targetAudience === audience.value ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600'">
                       <i [class]="audience.icon" class="text-sm"></i>
                     </div>
-                    <div>
-                      <p class="text-xs font-bold text-slate-700">{{ audience.label }}</p>
-                    </div>
+                    <p class="text-xs font-bold text-slate-700">{{ audience.label }}</p>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <!-- ✅ Department Dropdown (Faculty, Students, Clerks) -->
+            <div *ngIf="showDepartmentDropdown" class="animate-fade-in">
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                Department <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <select [(ngModel)]="selectedDepartmentId"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none cursor-pointer appearance-none transition">
+                  <option value="">-- Select Department --</option>
+                  <option *ngFor="let dept of departments" [value]="dept.departmentId">{{ dept.name }}</option>
+                </select>
+                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+              </div>
+            </div>
+
+            <!-- ✅ Session Dropdown (Students Only) -->
+            <div *ngIf="showSessionDropdown" class="animate-fade-in">
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                Session <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <select [(ngModel)]="selectedSessionId"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none cursor-pointer appearance-none transition">
+                  <option value="">-- Select Session --</option>
+                  <option *ngFor="let session of sessions" [value]="session.sessionId">{{ session.name }}</option>
+                </select>
+                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
               </div>
             </div>
 
@@ -117,38 +129,28 @@
               <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
                 Message <span class="text-red-500">*</span>
               </label>
-              <textarea 
-                [(ngModel)]="newAnnouncement.message"
-                rows="4"
+              <textarea [(ngModel)]="newAnnouncement.message" rows="4"
                 placeholder="Write your announcement here..."
                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition resize-none"></textarea>
-              <p class="text-right text-xs text-slate-400 mt-1">
-                {{ newAnnouncement.message.length }} characters
-              </p>
+              <p class="text-right text-xs text-slate-400 mt-1">{{ newAnnouncement.message.length }} characters</p>
             </div>
 
             <!-- Email Notification -->
             <div class="flex items-center gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-              <input 
-                type="checkbox" 
-                id="sendEmail"
-                [(ngModel)]="newAnnouncement.sendEmail"
+              <input type="checkbox" id="sendEmail" [(ngModel)]="newAnnouncement.sendEmail"
                 class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
               <label for="sendEmail" class="text-xs font-bold text-blue-700 uppercase tracking-wider cursor-pointer">
-                <i class="fas fa-envelope mr-2"></i>
-                Send Email Notification
+                <i class="fas fa-envelope mr-2"></i>Send Email Notification
               </label>
             </div>
 
             <!-- Form Actions -->
             <div class="flex gap-3 pt-4">
-              <button 
-                (click)="toggleNewPostForm()"
+              <button (click)="toggleNewPostForm()"
                 class="flex-1 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
                 Cancel
               </button>
-              <button 
-                (click)="publishAnnouncement()"
+              <button (click)="publishAnnouncement()"
                 class="flex-1 px-4 py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg">
                 <i class="fas fa-paper-plane mr-2"></i>
                 {{ isEditing ? 'Update' : 'Publish' }} Announcement
@@ -166,8 +168,7 @@
       <div class="lg:col-span-1">
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sticky top-24">
           <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <i class="fas fa-chart-bar text-emerald-500"></i>
-            Statistics
+            <i class="fas fa-chart-bar text-emerald-500"></i>Statistics
           </h3>
           
           <div class="space-y-4">
@@ -184,12 +185,11 @@
             </div>
             
             <div class="p-4 bg-purple-50 rounded-2xl">
-              <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Announcements by Type</p>
+              <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">By Type</p>
               <div class="space-y-2 mt-2">
                 <div *ngFor="let type of typeOptions" class="flex justify-between items-center text-sm">
                   <span class="flex items-center gap-2">
-                    <i [class]="type.icon" [class]="'text-' + type.color + '-500'"></i>
-                    {{ type.label }}
+                    <i [class]="type.icon" class="text-slate-500"></i>{{ type.label }}
                   </span>
                   <span class="font-bold">{{ announcements.filter(a => a.type === type.value).length }}</span>
                 </div>
@@ -206,7 +206,6 @@
              (click)="incrementViews(announcement.id)">
           
           <div class="p-6">
-            <!-- Header -->
             <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
               <div class="flex flex-wrap items-center gap-3">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border"
@@ -215,32 +214,25 @@
                   {{ getTypeLabel(announcement.type) | uppercase }}
                 </span>
                 <span class="text-xs text-slate-400">
-                  <i class="far fa-clock mr-1"></i>
-                  {{ formatTimeAgo(announcement.createdAt) }}
+                  <i class="far fa-clock mr-1"></i>{{ formatTimeAgo(announcement.createdAt) }}
                 </span>
               </div>
               
               <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <button 
-                  (click)="$event.stopPropagation(); editAnnouncement(announcement.id)"
-                  class="w-8 h-8 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition"
-                  title="Edit">
+                <button (click)="$event.stopPropagation(); editAnnouncement(announcement.id)"
+                  class="w-8 h-8 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition" title="Edit">
                   <i class="fas fa-edit text-xs"></i>
                 </button>
-                <button 
-                  (click)="$event.stopPropagation(); deleteAnnouncement(announcement.id)"
-                  class="w-8 h-8 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition"
-                  title="Delete">
+                <button (click)="$event.stopPropagation(); deleteAnnouncement(announcement.id)"
+                  class="w-8 h-8 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition" title="Delete">
                   <i class="fas fa-trash-alt text-xs"></i>
                 </button>
               </div>
             </div>
             
-            <!-- Content -->
             <h2 class="text-xl font-bold text-slate-800 mb-3">{{ announcement.title }}</h2>
             <p class="text-sm text-slate-600 leading-relaxed">{{ announcement.message }}</p>
             
-            <!-- Footer -->
             <div class="mt-6 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
               <div class="flex items-center gap-3">
                 <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50">
@@ -252,9 +244,7 @@
                 
                 <div *ngIf="announcement.sendEmail" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50">
                   <i class="fas fa-envelope text-blue-400 text-xs"></i>
-                  <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">
-                    Email Sent
-                  </span>
+                  <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Email Sent</span>
                 </div>
               </div>
               

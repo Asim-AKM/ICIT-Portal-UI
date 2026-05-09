@@ -1,13 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AdminService } from '../../../core/services/admin-services/admin.service';
+import { CreateAccountService, Department } from '../../../core/services/account-services/create-account-service';
+import { SessionGetDto } from '../../../core/models/admin/session-get.dto';
+import { ToastService } from '../../../core/services/toast-service/toast.service';
+import { AnnouncementService,AnnouncementRequest } from '../../../core/services/announcement-services/announcement.service';
+import { ConfirmDialogService } from '../../../core/services/generic-services/confirm-dialog.service';
+
 
 interface AnnouncementItem {
   id: string;
   title: string;
   message: string;
   type: 'urgent' | 'event' | 'info' | 'deadline';
-  targetAudience: 'everyone' | 'faculty' | 'students' | 'staff';
+  targetAudience: 'everyone' | 'faculty' | 'students' | 'clerk';
   createdAt: Date;
   views: number;
   sendEmail: boolean;
@@ -24,17 +31,29 @@ interface AnnouncementItem {
 export class Announcement implements OnInit {
   Math = Math;
   
+  private adminService = inject(AdminService);
+  private createAccountService = inject(CreateAccountService);
+  private toast = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
+  // Inject
+private announcementService = inject(AnnouncementService);
+private confirmDialog = inject(ConfirmDialogService);
+  
   announcements: AnnouncementItem[] = [];
   showNewPostForm: boolean = false;
   isEditing: boolean = false;
   currentEditId: string | null = null;
   
-  // Form model with proper types
+  departments: Department[] = [];
+  sessions: SessionGetDto[] = [];
+  selectedDepartmentId: string = '';
+  selectedSessionId: string = '';
+  
   newAnnouncement: {
     title: string;
     message: string;
     type: 'urgent' | 'event' | 'info' | 'deadline';
-    targetAudience: 'everyone' | 'faculty' | 'students' | 'staff';
+    targetAudience: 'everyone' | 'faculty' | 'students' | 'clerk';
     sendEmail: boolean;
   } = {
     title: '',
@@ -44,15 +63,13 @@ export class Announcement implements OnInit {
     sendEmail: false
   };
 
-  // Properly typed audience options
-  audienceOptions: { value: 'everyone' | 'faculty' | 'students' | 'staff'; label: string; icon: string; color: string }[] = [
+  audienceOptions: { value: 'everyone' | 'faculty' | 'students' | 'clerk'; label: string; icon: string; color: string }[] = [
     { value: 'everyone', label: 'Everyone', icon: 'fas fa-globe', color: 'emerald' },
     { value: 'faculty', label: 'Faculty Only', icon: 'fas fa-chalkboard-user', color: 'blue' },
     { value: 'students', label: 'Students Only', icon: 'fas fa-user-graduate', color: 'purple' },
-    { value: 'staff', label: 'Staff Only', icon: 'fas fa-user-tie', color: 'amber' }
+    { value: 'clerk', label: 'Clerks Only', icon: 'fas fa-user-tie', color: 'amber' }
   ];
 
-  // Properly typed type options
   typeOptions: { value: 'urgent' | 'event' | 'info' | 'deadline'; label: string; icon: string; color: string }[] = [
     { value: 'urgent', label: 'Urgent', icon: 'fas fa-exclamation-triangle', color: 'red' },
     { value: 'event', label: 'Event', icon: 'fas fa-calendar-alt', color: 'emerald' },
@@ -62,10 +79,29 @@ export class Announcement implements OnInit {
 
   ngOnInit() {
     this.loadAnnouncements();
+    this.loadDepartments();
+    this.loadSessions();
+  }
+
+  loadDepartments() {
+    this.createAccountService.getDepartments().subscribe({
+      next: (res) => {
+        this.departments = res.data;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadSessions() {
+    this.adminService.getSessionsByStatus(1).subscribe({
+      next: (res) => {
+        this.sessions = res.data;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadAnnouncements() {
-    // Mock data - replace with API call
     this.announcements = [
       {
         id: '1',
@@ -114,6 +150,22 @@ export class Announcement implements OnInit {
     ];
   }
 
+  get showDepartmentDropdown(): boolean {
+    return this.newAnnouncement.targetAudience === 'faculty' || 
+           this.newAnnouncement.targetAudience === 'students' || 
+           this.newAnnouncement.targetAudience === 'clerk';
+  }
+
+  get showSessionDropdown(): boolean {
+    return this.newAnnouncement.targetAudience === 'students';
+  }
+
+  onAudienceChange() {
+    this.selectedDepartmentId = '';
+    this.selectedSessionId = '';
+    this.cdr.detectChanges();
+  }
+
   get filteredAnnouncements(): AnnouncementItem[] {
     return this.announcements.filter(a => a.isPublished).sort((a, b) => 
       b.createdAt.getTime() - a.createdAt.getTime()
@@ -145,7 +197,7 @@ export class Announcement implements OnInit {
       case 'everyone': return 'bg-emerald-50 text-emerald-700';
       case 'faculty': return 'bg-blue-50 text-blue-700';
       case 'students': return 'bg-purple-50 text-purple-700';
-      case 'staff': return 'bg-amber-50 text-amber-700';
+      case 'clerk': return 'bg-amber-50 text-amber-700';
       default: return 'bg-slate-50 text-slate-700';
     }
   }
@@ -155,7 +207,7 @@ export class Announcement implements OnInit {
       case 'everyone': return 'fas fa-globe';
       case 'faculty': return 'fas fa-chalkboard-user';
       case 'students': return 'fas fa-user-graduate';
-      case 'staff': return 'fas fa-user-tie';
+      case 'clerk': return 'fas fa-user-tie';
       default: return 'fas fa-users';
     }
   }
@@ -184,6 +236,8 @@ export class Announcement implements OnInit {
   resetForm() {
     this.isEditing = false;
     this.currentEditId = null;
+    this.selectedDepartmentId = '';
+    this.selectedSessionId = '';
     this.newAnnouncement = {
       title: '',
       message: '',
@@ -217,53 +271,100 @@ export class Announcement implements OnInit {
     }
   }
 
-  publishAnnouncement() {
-    if (!this.newAnnouncement.title.trim() || !this.newAnnouncement.message.trim()) {
-      this.showToast('error', 'Please fill in all required fields');
-      return;
-    }
 
-    if (this.isEditing && this.currentEditId) {
-      // Update existing announcement
-      const index = this.announcements.findIndex(a => a.id === this.currentEditId);
-      if (index !== -1) {
-        this.announcements[index] = {
-          ...this.announcements[index],
-          title: this.newAnnouncement.title,
-          message: this.newAnnouncement.message,
-          type: this.newAnnouncement.type,
-          targetAudience: this.newAnnouncement.targetAudience,
-          sendEmail: this.newAnnouncement.sendEmail
-        };
-        this.showToast('success', 'Announcement updated successfully!');
-      }
-    } else {
-      // Create new announcement
-      const newId = (Math.max(...this.announcements.map(a => parseInt(a.id)), 0) + 1).toString();
-      const announcement: AnnouncementItem = {
-        id: newId,
-        title: this.newAnnouncement.title,
-        message: this.newAnnouncement.message,
-        type: this.newAnnouncement.type,
-        targetAudience: this.newAnnouncement.targetAudience,
-        createdAt: new Date(),
-        views: 0,
-        sendEmail: this.newAnnouncement.sendEmail,
-        isPublished: true
-      };
-      this.announcements.unshift(announcement);
-      this.showToast('success', 'Announcement published successfully!');
-    }
 
-    this.resetForm();
-    this.showNewPostForm = false;
+
+
+
+
+
+
+// Update method
+async publishAnnouncement() {
+  if (!this.newAnnouncement.title.trim() || !this.newAnnouncement.message.trim()) {
+    this.toast.error('Please fill in all required fields');
+    return;
+  }
+
+  // Validate department if required
+  if (this.showDepartmentDropdown && !this.selectedDepartmentId) {
+    this.toast.error('Please select a department');
+    return;
+  }
+
+  // Validate session if required
+  if (this.showSessionDropdown && !this.selectedSessionId) {
+    this.toast.error('Please select a session');
+    return;
+  }
+
+  const confirmed = await this.confirmDialog.confirm({
+    title: 'Publish Announcement?',
+    message: `Are you sure you want to publish this announcement to <b>${this.getAudienceLabel(this.newAnnouncement.targetAudience)}</b>?`,
+    confirmText: 'Yes, Publish',
+    cancelText: 'Cancel',
+    type: 'info',
+    icon: 'fas fa-bullhorn'
+  });
+
+  if (!confirmed) return;
+
+  const payload: AnnouncementRequest = {
+    title: this.newAnnouncement.title,
+    message: this.newAnnouncement.message,
+    announcementType: this.getAnnouncementTypeNumber(this.newAnnouncement.type),
+    announcementTargetAudience: this.getAudienceTypeNumber(this.newAnnouncement.targetAudience),
+    departmentId: this.showDepartmentDropdown ? this.selectedDepartmentId : null,
+    sessionId: this.showSessionDropdown ? this.selectedSessionId : null,
+    sendMailNotification: this.newAnnouncement.sendEmail
+  };
+
+  this.announcementService.createAnnouncement(payload).subscribe({
+    next: (res) => {
+      this.toast.success(res.message || 'Announcement published successfully!');
+      this.resetForm();
+      this.showNewPostForm = false;
+      this.loadAnnouncements();
+    },
+    error: (err) => {
+      this.toast.error(err.error?.message || 'Failed to publish announcement');
+    }
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+  getAnnouncementTypeNumber(type: string): number {
+    switch(type) {
+      case 'urgent': return 1;
+      case 'event': return 2;
+      case 'info': return 3;
+      case 'deadline': return 4;
+      default: return 3;
+    }
+  }
+
+  getAudienceTypeNumber(audience: string): number {
+    switch(audience) {
+      case 'everyone': return 1;
+      case 'faculty': return 2;
+      case 'students': return 3;
+      case 'clerk': return 4;
+      default: return 1;
+    }
   }
 
   incrementViews(id: string) {
     const announcement = this.announcements.find(a => a.id === id);
-    if (announcement) {
-      announcement.views++;
-    }
+    if (announcement) announcement.views++;
   }
 
   showToast(type: string, message: string) {
@@ -278,9 +379,7 @@ export class Announcement implements OnInit {
       </div>
     `;
     document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
+    setTimeout(() => toast.remove(), 3000);
   }
 
   getTypeLabel(type: string): string {

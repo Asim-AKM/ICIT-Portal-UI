@@ -125,8 +125,6 @@ private updateLayout() {
     ]
   };
 
-  // ✅ Ab role ke hisaab se dynamic layout set karo
-  
   for (const [layout, routes] of Object.entries(layoutGroups)) {
     if (routes.some(route => url.startsWith(route))) {
       this.currentLayout = layout;
@@ -148,6 +146,36 @@ private updateLayout() {
       return;
     }
   }
+
+  // ✅ /notification ke liye role-based layout
+  if (url.startsWith('/notification-view')) {
+    const user = this.authService.getStoredUser();
+    if (user) {
+      const roleLayoutMap: Record<string, string> = {
+        'Admin': 'admin-header',
+        'Faculty': 'faculty-header',
+        'Clerk': 'clerk-header',
+        'Student': 'student-header'
+      };
+      this.currentLayout = roleLayoutMap[user.role] || 'visitor';
+      return;
+    }
+  }
+
+  // ✅ /notifications ke liye role-based layout
+if (url.startsWith('/notifications-center')) {
+  const user = this.authService.getStoredUser();
+  if (user) {
+    const roleLayoutMap: Record<string, string> = {
+      'Admin': 'admin-header',
+      'Faculty': 'faculty-header',
+      'Clerk': 'clerk-header',
+      'Student': 'student-header'
+    };
+    this.currentLayout = roleLayoutMap[user.role] || 'visitor';
+    return;
+  }
+}
 
   this.currentLayout = 'visitor';
 }

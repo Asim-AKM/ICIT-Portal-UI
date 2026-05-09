@@ -21,6 +21,7 @@ export interface StudentDto {
   cnic: string;
   department: string;
   status: string;
+  semesterName : string
 }
 
 export interface VerifyStudentRequest {
@@ -34,6 +35,22 @@ export interface UpdateSessionStatusRequest {
   sessionId: string;
   status: SessionStatusEnum;
 }
+
+// Update VerifyStudentRequest
+export interface VerifyStudentRequest {
+  studentIds: string[];
+  status: number; // 1 = Unverified, 2 = Verified, 3 = Rejected
+}
+
+// Response interface
+export interface BulkVerifyResponse {
+  total: number;
+  success: number;
+  failed: number;
+  failedStudents: string[];
+  alreadyVerified: string[];
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -106,9 +123,10 @@ getStudentsBySessionAndDept(sessionId: string, departmentId: string, studentStat
 }
 
 // Verify or reject students
-verifyStudents(request: VerifyStudentRequest): Observable<ApiResponse<string>> {
-  return this.http.put<ApiResponse<string>>(
-    `${this.baseUrl}/verify-students`,
+
+verifyStudents(request: VerifyStudentRequest): Observable<ApiResponse<BulkVerifyResponse>> {
+  return this.http.put<ApiResponse<BulkVerifyResponse>>(
+    `${this.baseUrl}/Student-Bulk-Verify`,
     request,
     { withCredentials: true }
   );

@@ -1,6 +1,7 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AuthService, UserData } from '../../../core/services/auth-services/auth.service';
 
 interface DashboardStat {
   label: string;
@@ -45,11 +46,12 @@ interface TodayTarget {
   templateUrl: './clerk-dashboard.html',
   styleUrls: ['./clerk-dashboard.css']
 })
-export class ClerkDashboard implements OnInit {
+export class ClerkDashboard implements OnInit, OnDestroy {
   Math = Math;
-  private isBrowser: boolean;
   
-  clerkName = 'Fatima Ahmed';
+  private authService = inject(AuthService);
+  
+  user: UserData | null = null;
   currentTime = new Date();
   private timeInterval: any;
 
@@ -60,7 +62,7 @@ export class ClerkDashboard implements OnInit {
       change: 12.5,
       icon: 'fas fa-users',
       color: 'blue',
-      route: '/clerk/student-records'
+      route: '/student-records'
     },
     {
       label: 'Pending Enrollments',
@@ -68,7 +70,7 @@ export class ClerkDashboard implements OnInit {
       change: -5,
       icon: 'fas fa-user-graduate',
       color: 'emerald',
-      route: '/clerk/enrollment'
+      route: '/single-enrollment'
     },
     {
       label: 'Fee Collection Today',
@@ -76,7 +78,7 @@ export class ClerkDashboard implements OnInit {
       change: 8.3,
       icon: 'fas fa-credit-card',
       color: 'amber',
-      route: '/clerk/fee-collection'
+      route: '/fee-collection'
     },
     {
       label: 'Documents Pending',
@@ -84,7 +86,7 @@ export class ClerkDashboard implements OnInit {
       change: -10,
       icon: 'fas fa-file-alt',
       color: 'purple',
-      route: '/clerk/document-verification'
+      route: '/student-records'
     }
   ];
 
@@ -96,7 +98,7 @@ export class ClerkDashboard implements OnInit {
       priority: 'high',
       deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
       count: 24,
-      route: '/clerk/enrollment'
+      route: '/single-enrollment'
     },
     {
       id: '2',
@@ -105,7 +107,7 @@ export class ClerkDashboard implements OnInit {
       priority: 'high',
       deadline: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
       count: 42,
-      route: '/clerk/document-verification'
+      route: '/student-records'
     },
     {
       id: '3',
@@ -114,7 +116,7 @@ export class ClerkDashboard implements OnInit {
       priority: 'medium',
       deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
       count: 156,
-      route: '/clerk/fee-collection'
+      route: '/fee-collection'
     },
     {
       id: '4',
@@ -123,7 +125,7 @@ export class ClerkDashboard implements OnInit {
       priority: 'low',
       deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       count: 1,
-      route: '/clerk/reports'
+      route: '/student-reports'
     }
   ];
 
@@ -178,21 +180,14 @@ export class ClerkDashboard implements OnInit {
   ];
 
   quickActions = [
-    { label: 'New Enrollment', icon: 'fas fa-user-plus', color: 'blue', route: '/clerk/enrollment', description: 'Register new student' },
-    { label: 'Collect Fee', icon: 'fas fa-hand-holding-usd', color: 'emerald', route: '/clerk/fee-collection', description: 'Process fee payment' },
-    { label: 'Verify Documents', icon: 'fas fa-check-double', color: 'purple', route: '/clerk/document-verification', description: 'Verify student docs' },
-    { label: 'Generate Report', icon: 'fas fa-file-excel', color: 'amber', route: '/clerk/reports', description: 'Create reports' }
+    { label: 'New Enrollment', icon: 'fas fa-user-plus', color: 'blue', route: '/single-enrollment', description: 'Register new student' },
+    { label: 'Bulk Upload', icon: 'fas fa-upload', color: 'emerald', route: '/bulk-enrollment', description: 'Upload Excel file' },
+    { label: 'Collect Fee', icon: 'fas fa-hand-holding-usd', color: 'purple', route: '/fee-collection', description: 'Process fee payment' },
+    { label: 'Generate Report', icon: 'fas fa-file-excel', color: 'amber', route: '/student-reports', description: 'Create reports' }
   ];
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
-    this.isBrowser = isPlatformBrowser(this.platformId);
-  }
-
   ngOnInit() {
-    if (this.isBrowser) {
-      const savedName = localStorage.getItem('clerkName');
-      if (savedName) this.clerkName = savedName;
-    }
+    this.user = this.authService.getStoredUser();
     this.startClock();
   }
 
@@ -219,10 +214,10 @@ export class ClerkDashboard implements OnInit {
 
   getPriorityClass(priority: string): string {
     switch(priority) {
-      case 'high': return 'priority-high';
-      case 'medium': return 'priority-medium';
-      case 'low': return 'priority-low';
-      default: return 'priority-default';
+      case 'high': return 'bg-red-500';
+      case 'medium': return 'bg-amber-500';
+      case 'low': return 'bg-blue-500';
+      default: return 'bg-slate-500';
     }
   }
 
@@ -237,10 +232,10 @@ export class ClerkDashboard implements OnInit {
 
   getStatusClass(status: string): string {
     switch(status) {
-      case 'success': return 'status-success';
-      case 'pending': return 'status-pending';
-      case 'warning': return 'status-warning';
-      default: return 'status-default';
+      case 'success': return 'bg-emerald-100 text-emerald-600';
+      case 'pending': return 'bg-amber-100 text-amber-600';
+      case 'warning': return 'bg-red-100 text-red-600';
+      default: return 'bg-slate-100 text-slate-600';
     }
   }
 
@@ -267,16 +262,16 @@ export class ClerkDashboard implements OnInit {
     const diffDays = Math.floor(diffMs / 86400000);
 
     if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hr ago`;
+    return `${diffDays} day ago`;
   }
 
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR', minimumFractionDigits: 0 }).format(amount);
+    return '₨ ' + amount.toLocaleString('en-PK');
   }
 
   getTargetPercentage(achieved: number, target: number): number {
-    return (achieved / target) * 100;
+    return Math.min((achieved / target) * 100, 100);
   }
 }
