@@ -1,6 +1,9 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, inject,ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AuthService, UserData } from '../../../core/services/auth-services/auth.service';
+import { ProfileService, UserProfile } from '../../../core/services/account-services/profile.service';
+
 
 interface QuickStat {
   label: string;
@@ -36,7 +39,13 @@ interface RecentNotification {
 })
 export class StudentDashboard implements OnInit {
 
-  private isBrowser : boolean;
+  private authService = inject(AuthService);
+  private profileService = inject(ProfileService);
+  private cdr = inject(ChangeDetectorRef); 
+  profile: UserProfile | null = null;
+  currentTime = new Date();
+private timeInterval: any;
+  user: UserData | null = null;
   studentName = 'Ahmed Sheikh';
   studentRollNo = 'CS-2024-001';
   studentCGPA = 3.75;
@@ -51,7 +60,7 @@ export class StudentDashboard implements OnInit {
       change: 0.15,
       icon: 'fas fa-chart-line',
       color: 'emerald',
-      route: '/student/semester'
+      route: '/semester-details'
     },
     {
       label: 'Pending Fee',
@@ -59,7 +68,7 @@ export class StudentDashboard implements OnInit {
       change: -5000,
       icon: 'fas fa-credit-card',
       color: 'amber',
-      route: '/student/fee'
+      route: '/fee-records'
     },
     {
       label: 'Subjects',
@@ -67,7 +76,7 @@ export class StudentDashboard implements OnInit {
       change: 0,
       icon: 'fas fa-book-open',
       color: 'blue',
-      route: '/student/semester'
+      route: '/semester-details'
     },
     {
       label: 'Attendance',
@@ -75,7 +84,7 @@ export class StudentDashboard implements OnInit {
       change: 5,
       icon: 'fas fa-calendar-check',
       color: 'purple',
-      route: '/student/semester'
+      route: '/semester-details'
     }
   ];
 
@@ -141,21 +150,35 @@ export class StudentDashboard implements OnInit {
       type: 'success'
     }
   ];
-constructor(@Inject(PLATFORM_ID) private platformId: Object) {
-    this.isBrowser = isPlatformBrowser(this.platformId);
-  }
-  ngOnInit() {
-    this.loadStudentData();
-  }
 
-  loadStudentData() {
-    if (this.isBrowser) {
-      const savedName = localStorage.getItem('studentName');
-      if (savedName) {
-        this.studentName = savedName;
-      }
-    }
+
+
+ngOnInit() {
+  this.user = this.authService.getStoredUser();
+  if (this.user?.fullName) {
+    this.studentName = this.user.fullName;
   }
+  this.loadProfile();
+}
+startClock() {
+  this.timeInterval = setInterval(() => {
+    this.currentTime = new Date();
+    this.cdr.detectChanges();
+  }, 1000);
+}
+
+ngOnDestroy() {
+  if (this.timeInterval) clearInterval(this.timeInterval);}
+
+  
+loadProfile() {
+  this.profileService.getProfile().subscribe({
+    next: (res) => {
+      this.profile = res.data;
+       this.cdr.detectChanges();
+    }
+  });
+}
 
   getGreeting(): string {
     const hour = new Date().getHours();
@@ -178,9 +201,9 @@ constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     const diffDays = Math.floor(diffMs / 86400000);
 
     if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hr ago`;
+    return `${diffDays} day ago`;
   }
 
   getEventIcon(type: string): string {
@@ -215,4 +238,7 @@ constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     if (percentage >= 75) return 'bg-amber-500';
     return 'bg-red-500';
   }
+
+
+
 }
