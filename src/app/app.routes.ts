@@ -29,7 +29,6 @@ import { SemesterDetails } from './module/student/semester-details/semester-deta
 import { FeeRecords } from './module/student/fee-records/fee-records';
 import { FypProposal } from './module/student/fyp-proposal/fyp-proposal';
 import { StudentTranscript } from './module/student/student-transcript/student-transcript';
-import { StudentNotifications } from './module/student/student-notifications/student-notifications';
 import { StudentProfile } from './module/student/student-profile/student-profile';
 
 // ================= CLERK =================
@@ -99,7 +98,6 @@ export const routes: Routes = [
   { path: 'fee-records', component: FeeRecords, canActivate: [AuthGuard], data: { role: 'Student' } },
   { path: 'fyp-proposal', component: FypProposal, canActivate: [AuthGuard], data: { role: 'Student' } },
   { path: 'student-transcript', component: StudentTranscript, canActivate: [AuthGuard], data: { role: 'Student' } },
-  { path: 'student-notifications', component: StudentNotifications, canActivate: [AuthGuard], data: { role: 'Student' } },
   { path: 'student-profile', component: StudentProfile, canActivate: [AuthGuard], data: { role: 'Student' } },
 
   // ============================================================
