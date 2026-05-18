@@ -118,10 +118,11 @@ private updateLayout() {
     'clerk-header': [
       '/clerk-dashboard', '/single-enrollment', '/bulk-enrollment',
       '/fee-collection', '/student-records', '/generate-challan',
-      '/fee-collection-reports', '/student-reports'
+      '/fee-collection-reports', '/student-reports', '/assign-subject',
+      '/semester-promotion'
     ],
     'faculty-header': [
-      '/faculty-dashboard', '/project-evaluation'
+      '/faculty-dashboard', '/project-evaluation', '/assign-grade'
     ]
   };
 
@@ -132,8 +133,9 @@ private updateLayout() {
     }
   }
 
-  // ✅ /profile ke liye role-based layout
-  if (url.startsWith('/profile')) {
+  // ✅ Common routes — role-based layout
+  const commonRoutes = ['/profile', '/notification-view', '/notifications-center'];
+  if (commonRoutes.some(route => url.startsWith(route))) {
     const user = this.authService.getStoredUser();
     if (user) {
       const roleLayoutMap: Record<string, string> = {
@@ -146,36 +148,6 @@ private updateLayout() {
       return;
     }
   }
-
-  // ✅ /notification ke liye role-based layout
-  if (url.startsWith('/notification-view')) {
-    const user = this.authService.getStoredUser();
-    if (user) {
-      const roleLayoutMap: Record<string, string> = {
-        'Admin': 'admin-header',
-        'Faculty': 'faculty-header',
-        'Clerk': 'clerk-header',
-        'Student': 'student-header'
-      };
-      this.currentLayout = roleLayoutMap[user.role] || 'visitor';
-      return;
-    }
-  }
-
-  // ✅ /notifications ke liye role-based layout
-if (url.startsWith('/notifications-center')) {
-  const user = this.authService.getStoredUser();
-  if (user) {
-    const roleLayoutMap: Record<string, string> = {
-      'Admin': 'admin-header',
-      'Faculty': 'faculty-header',
-      'Clerk': 'clerk-header',
-      'Student': 'student-header'
-    };
-    this.currentLayout = roleLayoutMap[user.role] || 'visitor';
-    return;
-  }
-}
 
   this.currentLayout = 'visitor';
 }

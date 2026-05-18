@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgZone } from '@angular/core';
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth-services/auth.service';
 import { LoginRequest } from '../../../core/models/auth-models/login-request';
@@ -15,7 +15,7 @@ interface ValidationError {
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,RouterLink],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
 })

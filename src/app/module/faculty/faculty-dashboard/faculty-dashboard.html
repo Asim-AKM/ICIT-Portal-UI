@@ -19,7 +19,7 @@
           </div>
           <div>
             <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-              {{ getGreeting() }}, {{ facultyName }}!
+              {{ getGreeting() }}, {{ user?.fullName || 'Faculty' }}!
             </h1>
             <p class="text-slate-500 text-sm mt-1">
               {{ getFormattedDate() }} • {{ currentTime | date:'h:mm:ss a' }}
@@ -34,7 +34,9 @@
               <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
             </span>
           </div>
-          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">System Active • {{ facultyDepartment }}</span>
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+            {{ profile?.department || 'Department' }} • {{ user?.role || 'Faculty' }}
+          </span>
         </div>
       </div>
     </div>
@@ -84,9 +86,6 @@
                   <p class="text-xs text-slate-500 mt-0.5">Spring 2026 Semester</p>
                 </div>
               </div>
-              <a routerLink="/faculty/courses" class="text-[11px] font-bold text-purple-600 hover:text-purple-700 transition">
-                View All <i class="fas fa-arrow-right ml-1"></i>
-              </a>
             </div>
           </div>
           
@@ -190,7 +189,7 @@
           <div class="space-y-2">
             <a *ngFor="let action of quickActions" 
                [routerLink]="action.route"
-               class="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition text-white text-sm">
+               class="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition text-white text-sm cursor-pointer">
               <div class="flex items-center gap-2">
                 <i [class]="action.icon"></i>
                 <span>{{ action.label }}</span>

@@ -41,11 +41,14 @@ import { GenerateChallan } from './module/clerk/generate-challan/generate-challa
 import { FeeCollectionReports } from './module/clerk/fee-collection-reports/fee-collection-reports';
 import { StudentReports } from './module/clerk/student-reports/student-reports';
 import { ClerkProfile } from './module/clerk/clerk-profile/clerk-profile';
+import { AssignSubject } from './module/clerk/assign-subject/assign-subject';
+import { SemesterPromotion } from './module/clerk/semester-promotion/semester-promotion';
 
 // ================= FACULTY =================
 import { FacultyDashboard } from './module/faculty/faculty-dashboard/faculty-dashboard';
 import { FacultyProfile } from './module/faculty/faculty-profile/faculty-profile';
 import { ProjectEvaluation } from './module/faculty/project-evaluation/project-evaluation';
+import { AssignGrade } from './module/faculty/assign-grade/assign-grade';
 
 // ================= Common =================
 import { ProfileComponent } from './shared/profile/profile';
@@ -66,8 +69,8 @@ export const routes: Routes = [
   { path: 'download', component: Downloads },
   { path: 'explore', component: Explore },
   { path: 'login', component: Login },
-  { path: 'forget-pass', component: ForgetPass },
   { path: 'unauthorized', component: UnauthorizedComponent },
+  { path: 'forget-pass', component: ForgetPass },
 
   // ============================================================
   // Common ROUTES
@@ -112,13 +115,16 @@ export const routes: Routes = [
   { path: 'fee-collection-reports', component: FeeCollectionReports, canActivate: [AuthGuard], data: { role: 'Clerk' } },
   { path: 'student-reports', component: StudentReports, canActivate: [AuthGuard], data: { role: 'Clerk' } },
   { path: 'clerk-profile', component: ClerkProfile, canActivate: [AuthGuard], data: { role: 'Clerk' } },
-
+  {path : 'assign-subject',component:AssignSubject,canActivate :[AuthGuard],data:{role:'Clerk'}},
+  { path: 'semester-promotion', component: SemesterPromotion, canActivate: [AuthGuard], data: { role: 'Clerk' } },
   // ============================================================
   // FACULTY ROUTES
   // ============================================================
   { path: 'faculty-dashboard', component: FacultyDashboard, canActivate: [AuthGuard], data: { role: 'Faculty' } },
   { path: 'faculty-profile', component: FacultyProfile, canActivate: [AuthGuard], data: { role: 'Faculty' } },
   { path: 'project-evaluation', component: ProjectEvaluation, canActivate: [AuthGuard], data: { role: 'Faculty' } },
+  { path: 'assign-grade', component: AssignGrade, canActivate: [AuthGuard], data: { role: 'Faculty' } },
+
 
   // ============================================================
   // FALLBACK ROUTE (IMPORTANT)

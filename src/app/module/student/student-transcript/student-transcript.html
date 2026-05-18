@@ -1,241 +1,212 @@
 <div class="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50">
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
-    <!-- Header -->
-    <div class="mb-8">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <i class="fas fa-file-pdf text-white text-xl"></i>
-          </div>
-          <div>
-            <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-              Academic Transcript
-            </h1>
-            <p class="text-slate-500 text-sm mt-1">
-              View and download your complete academic record
-            </p>
-          </div>
-        </div>
-        
-        <div class="flex gap-3">
-          <button (click)="shareTranscript()"
-                  class="px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition">
-            <i class="fas fa-share-alt mr-2"></i>Share
-          </button>
-          <button (click)="printTranscript()"
-                  class="px-4 py-2 text-sm font-bold text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition">
-            <i class="fas fa-print mr-2"></i>Print
-          </button>
-          <button (click)="generateTranscript()"
-                  [disabled]="isGenerating"
-                  class="px-6 py-2 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg disabled:opacity-50">
-            <i *ngIf="!isGenerating" class="fas fa-download mr-2"></i>
-            <i *ngIf="isGenerating" class="fas fa-spinner fa-spin mr-2"></i>
-            {{ isGenerating ? 'Generating...' : 'Download PDF' }}
-          </button>
-        </div>
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex items-center justify-center min-h-[60vh]">
+      <div class="text-center">
+        <div class="w-14 h-14 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-slate-500 text-sm">Loading transcript...</p>
       </div>
     </div>
 
-    <!-- Student Information Card -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-8">
-      <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-            <i class="fas fa-user-graduate text-sm"></i>
-          </div>
-          <h3 class="font-bold text-slate-800">Student Information</h3>
-        </div>
-      </div>
+    <ng-container *ngIf="!isLoading && transcript">
       
-      <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</p>
-            <p class="text-sm font-semibold text-slate-800 mt-1">{{ studentName }}</p>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Roll Number</p>
-            <p class="text-sm font-semibold text-slate-800 mt-1">{{ studentRollNo }}</p>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Father's Name</p>
-            <p class="text-sm font-semibold text-slate-800 mt-1">{{ studentFatherName }}</p>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CNIC</p>
-            <p class="text-sm font-semibold text-slate-800 mt-1">{{ studentCNIC }}</p>
-          </div>
-          <div class="md:col-span-2">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Program</p>
-            <p class="text-sm font-semibold text-slate-800 mt-1">{{ studentProgram }}</p>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Department</p>
-            <p class="text-sm font-semibold text-slate-800 mt-1">{{ studentDepartment }}</p>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email</p>
-            <p class="text-sm font-semibold text-slate-800 mt-1">{{ studentEmail }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Academic Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-      <div class="bg-linear-to-r from-emerald-500 to-emerald-600 rounded-2xl p-4 text-white shadow-lg">
-        <p class="text-xs font-bold opacity-90 uppercase tracking-wider">CGPA</p>
-        <p class="text-3xl font-black mt-1">{{ cgpa }}</p>
-        <p class="text-xs mt-2 opacity-90">Out of 4.00</p>
-      </div>
-      
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Credits</p>
-        <p class="text-2xl font-black text-slate-900 mt-1">{{ totalEarnedCredits }}</p>
-        <p class="text-xs text-slate-500">of {{ totalRequiredCredits }} required</p>
-      </div>
-      
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Percentage</p>
-        <p class="text-2xl font-black text-slate-900 mt-1">{{ percentage }}%</p>
-        <p class="text-xs text-emerald-600">↑ 2.5% from last semester</p>
-      </div>
-      
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Semesters</p>
-        <p class="text-2xl font-black text-slate-900 mt-1">{{ semesters.length }}</p>
-        <p class="text-xs text-slate-500">Completed</p>
-      </div>
-    </div>
-
-    <!-- Semester Filter -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-6">
-      <div class="flex flex-wrap items-center gap-4">
-        <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Filter by Semester:</label>
-        <div class="flex flex-wrap gap-2">
-          <button (click)="selectedSemester = 'all'"
-                  class="px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200"
-                  [class]="selectedSemester === 'all' 
-                    ? 'bg-emerald-500 text-white shadow-md' 
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
-            All Semesters
-          </button>
-          <button *ngFor="let semester of semesters" 
-                  (click)="selectedSemester = semester.semester"
-                  class="px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200"
-                  [class]="selectedSemester === semester.semester 
-                    ? 'bg-emerald-500 text-white shadow-md' 
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
-            {{ semester.semester }} ({{ semester.season }} {{ semester.year }})
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Transcript Content -->
-    <div id="transcriptContent" class="space-y-8">
-      <div *ngFor="let semester of filteredSemesters" 
-           class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        
-        <!-- Semester Header -->
-        <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
-          <div class="flex flex-wrap items-center justify-between gap-4">
+      <!-- Header -->
+      <div class="mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <i class="fas fa-file-pdf text-white text-xl"></i>
+            </div>
             <div>
-              <h3 class="text-xl font-bold text-slate-800">
-                {{ semester.semester }} - {{ semester.season }} {{ semester.year }}
-              </h3>
-              <p class="text-sm text-slate-500 mt-1">Total Credits: {{ semester.totalCredits }}</p>
-            </div>
-            <div class="text-right">
-              <p class="text-xs text-slate-500 uppercase tracking-wider">Semester GPA</p>
-              <p class="text-2xl font-black text-emerald-600">{{ semester.gpa }}</p>
+              <h1 class="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Academic Transcript</h1>
+              <p class="text-slate-500 text-sm mt-1">View and download your complete academic record</p>
             </div>
           </div>
-        </div>
-        
-        <!-- Subjects Table -->
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="bg-slate-50/50 border-b border-slate-100">
-              <tr>
-                <th class="px-6 py-3 text-left">
-                  <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Course Code</div>
-                </th>
-                <th class="px-6 py-3 text-left">
-                  <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Course Title</div>
-                </th>
-                <th class="px-6 py-3 text-center">
-                  <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Credit Hours</div>
-                </th>
-                <th class="px-6 py-3 text-center">
-                  <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Grade</div>
-                </th>
-                <th class="px-6 py-3 text-center">
-                  <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Grade Points</div>
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-50">
-              <tr *ngFor="let subject of semester.subjects" class="hover:bg-slate-50/50 transition">
-                <td class="px-6 py-4">
-                  <span class="text-sm font-mono text-slate-600">{{ subject.code }}</span>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="text-sm font-medium text-slate-800">{{ subject.name }}</span>
-                </td>
-                <td class="px-6 py-4 text-center">
-                  <span class="text-sm text-slate-600">{{ subject.creditHours }}</span>
-                </td>
-                <td class="px-6 py-4 text-center">
-                  <span class="inline-flex items-center justify-center w-16 py-1 rounded-lg text-xs font-bold"
-                        [class]="getGradeColor(subject.grade)">
-                    {{ subject.grade }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-center">
-                  <span class="text-sm font-semibold" 
-                        [class]="subject.gradePoints >= 3.7 ? 'text-emerald-600' : subject.gradePoints >= 3.0 ? 'text-blue-600' : 'text-slate-600'">
-                    {{ subject.gradePoints || '-' }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <!-- Semester Summary -->
-        <div class="p-4 bg-slate-50/50 border-t border-slate-100">
-          <div class="flex justify-end">
-            <div class="text-right">
-              <p class="text-xs text-slate-500">Semester GPA: <span class="font-bold text-emerald-600">{{ semester.gpa }}</span></p>
-              <p class="text-xs text-slate-500">Credits Earned: <span class="font-bold text-slate-700">{{ semester.earnedCredits }}/{{ semester.totalCredits }}</span></p>
-            </div>
+          
+          <div class="flex gap-3">
+            <button (click)="shareTranscript()"
+              class="px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition">
+              <i class="fas fa-share-alt mr-2"></i>Share
+            </button>
+            <button (click)="printTranscript()"
+              class="px-4 py-2 text-sm font-bold text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition">
+              <i class="fas fa-print mr-2"></i>Print
+            </button>
+            <button (click)="generateTranscript()" [disabled]="isGenerating"
+              class="px-6 py-2 bg-linear-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition shadow-lg disabled:opacity-50">
+              <i *ngIf="!isGenerating" class="fas fa-download mr-2"></i>
+              <i *ngIf="isGenerating" class="fas fa-spinner fa-spin mr-2"></i>
+              {{ isGenerating ? 'Generating...' : 'Download PDF' }}
+            </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Overall Summary -->
-    <div class="mt-8 bg-linear-to-r from-slate-800 to-slate-900 rounded-3xl p-6 text-white shadow-xl">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <p class="text-xs font-bold opacity-80 uppercase tracking-wider">Overall CGPA</p>
-          <p class="text-4xl font-black mt-1">{{ cgpa }}</p>
-          <p class="text-xs mt-2 opacity-80">{{ getGradePointLabel(cgpa) }}</p>
+      <!-- Student Information Card -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+        <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+              <i class="fas fa-user-graduate text-sm"></i>
+            </div>
+            <h3 class="font-bold text-slate-800">Student Information</h3>
+          </div>
         </div>
-        <div>
-          <p class="text-xs font-bold opacity-80 uppercase tracking-wider">Total Credits Earned</p>
-          <p class="text-4xl font-black mt-1">{{ totalEarnedCredits }}</p>
-          <p class="text-xs mt-2 opacity-80">out of {{ totalRequiredCredits }}</p>
-        </div>
-        <div>
-          <p class="text-xs font-bold opacity-80 uppercase tracking-wider">Academic Standing</p>
-          <p class="text-4xl font-black mt-1">Good</p>
-          <p class="text-xs mt-2 opacity-80">Eligible for next semester</p>
+        
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</p>
+              <p class="text-sm font-semibold text-slate-800 mt-1">{{ transcript.studentName }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Roll Number</p>
+              <p class="text-sm font-semibold text-slate-800 mt-1">{{ transcript.rollNo }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CNIC</p>
+              <p class="text-sm font-semibold text-slate-800 mt-1">{{ transcript.cnic }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email</p>
+              <p class="text-sm font-semibold text-slate-800 mt-1">{{ transcript.email }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Program</p>
+              <p class="text-sm font-semibold text-slate-800 mt-1">{{ transcript.program }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Department</p>
+              <p class="text-sm font-semibold text-slate-800 mt-1">{{ transcript.department }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Session</p>
+              <p class="text-sm font-semibold text-slate-800 mt-1">{{ transcript.session }}</p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- Academic Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-linear-to-r from-emerald-500 to-emerald-600 rounded-2xl p-4 text-white shadow-lg">
+          <p class="text-xs font-bold opacity-90 uppercase tracking-wider">CGPA</p>
+          <p class="text-3xl font-black mt-1">{{ transcript.cgpa }}</p>
+          <p class="text-xs mt-2 opacity-90">Out of 4.00</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Credits</p>
+          <p class="text-2xl font-black text-slate-900 mt-1">{{ transcript.totalEarnedCredits }}</p>
+          <p class="text-xs text-slate-500">of {{ transcript.totalRequiredCredits }} required</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Percentage</p>
+          <p class="text-2xl font-black text-slate-900 mt-1">{{ transcript.percentage }}%</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Semesters</p>
+          <p class="text-2xl font-black text-slate-900 mt-1">{{ transcript.semesters.length }}</p>
+          <p class="text-xs text-slate-500">Completed</p>
+        </div>
+      </div>
+
+      <!-- Semester Filter -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-6" *ngIf="transcript.semesters.length > 1">
+        <div class="flex flex-wrap items-center gap-4">
+          <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Filter by Semester:</label>
+          <div class="flex flex-wrap gap-2">
+            <button (click)="selectedSemester = 'all'"
+              class="px-4 py-2 rounded-lg text-xs font-bold transition"
+              [class]="selectedSemester === 'all' ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+              All Semesters
+            </button>
+            <button *ngFor="let sem of transcript.semesters" (click)="selectedSemester = sem.semesterName"
+              class="px-4 py-2 rounded-lg text-xs font-bold transition"
+              [class]="selectedSemester === sem.semesterName ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+              {{ sem.semesterName }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transcript Content -->
+      <div id="transcriptContent" class="space-y-8">
+        <div *ngFor="let semester of filteredSemesters" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          
+          <div class="p-6 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h3 class="text-xl font-bold text-slate-800">{{ semester.semesterName }}</h3>
+                <p class="text-sm text-slate-500 mt-1">Total Credits: {{ semester.totalCredits }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-slate-500 uppercase tracking-wider">Semester GPA</p>
+                <p class="text-2xl font-black text-emerald-600">{{ semester.gpa }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-slate-50/50 border-b border-slate-100">
+                <tr>
+                  <th class="px-6 py-3 text-left"><div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Course Title</div></th>
+                  <th class="px-6 py-3 text-center"><div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Credit Hours</div></th>
+                  <th class="px-6 py-3 text-center"><div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Grade</div></th>
+                  <th class="px-6 py-3 text-center"><div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Grade Points</div></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-50">
+                <tr *ngFor="let subject of semester.subjects" class="hover:bg-slate-50/50 transition">
+                  <td class="px-6 py-4"><span class="text-sm font-medium text-slate-800">{{ subject.title }}</span></td>
+                  <td class="px-6 py-4 text-center"><span class="text-sm text-slate-600">{{ subject.creditHours }}</span></td>
+                  <td class="px-6 py-4 text-center">
+                    <span class="inline-flex items-center justify-center w-16 py-1 rounded-lg text-xs font-bold" [class]="getGradeColor(subject.grade)">
+                      {{ subject.grade }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-center">
+                    <span class="text-sm font-semibold" [class]="subject.gradePoints >= 3.7 ? 'text-emerald-600' : subject.gradePoints >= 3.0 ? 'text-blue-600' : 'text-slate-600'">
+                      {{ subject.gradePoints }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="p-4 bg-slate-50/50 border-t border-slate-100">
+            <div class="flex justify-end">
+              <div class="text-right">
+                <p class="text-xs text-slate-500">Semester GPA: <span class="font-bold text-emerald-600">{{ semester.gpa }}</span></p>
+                <p class="text-xs text-slate-500">Credits Earned: <span class="font-bold text-slate-700">{{ semester.earnedCredits }}/{{ semester.totalCredits }}</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overall Summary -->
+      <div class="mt-8 bg-linear-to-r from-slate-800 to-slate-900 rounded-3xl p-6 text-white shadow-xl">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <p class="text-xs font-bold opacity-80 uppercase tracking-wider">Overall CGPA</p>
+            <p class="text-4xl font-black mt-1">{{ transcript.cgpa }}</p>
+            <p class="text-xs mt-2 opacity-80">{{ getGradePointLabel(transcript.cgpa) }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-bold opacity-80 uppercase tracking-wider">Total Credits Earned</p>
+            <p class="text-4xl font-black mt-1">{{ transcript.totalEarnedCredits }}</p>
+            <p class="text-xs mt-2 opacity-80">out of {{ transcript.totalRequiredCredits }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-bold opacity-80 uppercase tracking-wider">Academic Standing</p>
+            <p class="text-4xl font-black mt-1">{{ getGradePointLabel(transcript.cgpa) }}</p>
+            <p class="text-xs mt-2 opacity-80">{{ transcript.cgpa >= 2.0 ? 'Eligible for next semester' : 'Probation' }}</p>
+          </div>
+        </div>
+      </div>
+    </ng-container>
   </main>
 </div>
